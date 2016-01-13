@@ -1,6 +1,6 @@
 # atllbuild
 
-The `atllbuild` tool uses the `swift-llbuild` project to compile a swift module.
+The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-llbuild) project to compile a swift module.
 
 ## API
 

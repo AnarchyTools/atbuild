@@ -6,7 +6,7 @@
 //  propagated, or distributed except according to the terms contained
 //  in the LICENSE file.
 
-let version = "0.1.0"
+let version = "0.2.0-dev"
 
 import Foundation
 

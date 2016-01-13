@@ -22,24 +22,21 @@ atbuild [task]
 # Configuration
 
 ```bash
+$ atbuild
 $ atbuild build
 $ atbuild build-tests
 $ atbuild run-tests
 ```
 
-The configuration file defines *tasks*, which are entrypoints on the CLI.  `build`, `build-tests`, and `run-tests` are *tasks*.
+The configuration file defines *tasks*, which are entrypoints on the CLI.  If no task is specified, we run a task called `default`.
 
-This runs a task called `default`:
-
-```bash
-$ atbuild
-```
-
-Configurations could look like this:
+Configurations [are unsupported](https://github.com/AnarchyTools/atbuild/issues/2) but could look like this:
 
 ```bash
 $ atbuild run-tests --platform linux
 ```
+
+A complete atbuild.yaml example is below.
 
 ```yaml
 package:

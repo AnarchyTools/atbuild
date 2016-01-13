@@ -4,7 +4,7 @@ The `atllbuild` tool uses the `swift-llbuild` project to compile a swift module.
 
 ## API
 
-``yaml
+```yaml
 tasks:
     build:
         tool: atllbuild

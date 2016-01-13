@@ -22,6 +22,14 @@ final class ATllbuild : Tool {
         return sources
     }
     
+    func llbuildyaml(sources: [String]) -> String {
+        //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
+        var yaml = "client:\n  name: swift-build\n\n"
+        yaml += "targets:\n"
+        yaml += "  \"\": []\n"
+        return yaml
+    }
+    
     func run(args: [Yaml : Yaml]) throws {
         //parse sources
         guard let sourceDescriptions = args["source"]?.array?.flatMap({$0.string}) else { throw AnarchyBuildError.CantParseYaml("Can't find sources for atllbuild.") }
@@ -37,10 +45,8 @@ final class ATllbuild : Tool {
         try manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
         
         //emit the llbuild.yaml
-        //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
-        let llbuildyaml = "client:\n  name: swift-build"
         let llbuildyamlpath = workDirectory + "llbuild.yaml"
-        try llbuildyaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
+        try llbuildyaml(sources).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         
         //now we try running sbt
         //todo: don't hardcode this

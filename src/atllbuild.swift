@@ -33,17 +33,17 @@ final class ATllbuild : Tool {
         yaml += "  \"\": [<atllbuild>]\n"
         yaml += "  atllbuild: [<atllbuild>]\n"
         
+        //this is the "compile" command
         
         yaml += "commands:\n"
         yaml += "  <atllbuild-swiftc>:\n"
         yaml += "     tool: swift-compiler\n"
         #if os(OSX)
-        yaml += "     executable: \"/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc\"\n"
+        yaml += "     executable: \"\(SwiftCPath)\"\n"
         #else
             Unsupported!
         #endif
         yaml += "     inputs: \(sources)\n"
-        yaml += "     outputs: [<atllbuild>]\n"
         yaml += "     sources: \(sources)\n"
         
         //swiftPM wants "objects" which is just a list of %.swift.o files.  We have to put them in a temp directory though.
@@ -51,17 +51,38 @@ final class ATllbuild : Tool {
             workdir + (source as NSString).lastPathComponent + ".o"
         }
         yaml += "     objects: \(objects)\n"
+        //this crazy syntax is how llbuild specifies outputs
+        var llbuild_outputs = ["<atllbuild-swiftc>"]
+        llbuild_outputs.appendContentsOf(objects)
+        yaml += "     outputs: \(llbuild_outputs)\n"
+
         
         yaml += "     module-name: \(modulename)\n"
+        yaml += "     module-output-path: \(workdir + modulename).swiftmodule\n"
         yaml += "     temps-path: \(workdir)/llbuildtmp\n"
         
         var args : [String] = []
         #if os(OSX)
-        args.appendContentsOf(["-j8","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"])
+        args.appendContentsOf(["-j8","-sdk",SDKPath])
         #endif
         
         yaml += "     other-args: \(args)\n"
-
+        
+        //and this is the "link" command
+        yaml += "  <atllbuild>:\n"
+        yaml += "    tool: shell\n"
+        //this crazy syntax is how sbt declares a dependency
+        var llbuild_inputs = ["<atllbuild-swiftc>"]
+        llbuild_inputs.appendContentsOf(objects)
+        yaml += "    inputs: \(llbuild_inputs)\n"
+        yaml += "    outputs: [\"<atllbuild>\", \"\(workdir + modulename)\"]\n"
+        //and now we have the crazy 'args'
+        args = [SwiftCPath, "-o",workdir + modulename]
+        args.appendContentsOf(objects)
+        yaml += "    args: \(args)\n"
+        
+        yaml += "    description: Linking executable \(modulename)\n"
+        
         return yaml
     }
     
@@ -84,14 +105,11 @@ final class ATllbuild : Tool {
         try llbuildyaml(sources, workdir: workDirectory, modulename: name).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         
         //now we try running sbt
-        //todo: don't hardcode this
-        let sbtpath : String
-        #if os(OSX)
-            sbtpath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swift-build-tool"
-        #else
-            Unsupported!
-        #endif
-        let sbt = NSTask.launchedTaskWithLaunchPath(sbtpath, arguments: ["-f",llbuildyamlpath])
+        let args = ["-f",llbuildyamlpath]
+        let sbt = NSTask.launchedTaskWithLaunchPath(SwiftBuildToolpath, arguments: args)
         sbt.waitUntilExit()
+        if sbt.terminationStatus != 0 {
+            throw AnarchyBuildError.ExternalToolFailed("\(SwiftBuildToolpath) " + args.joinWithSeparator(" "))
+        }
     }
 }

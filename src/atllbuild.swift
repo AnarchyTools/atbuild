@@ -1,7 +1,21 @@
+//  atllbuild.swift
+//  © 2016 Anarchy Tools Contributors.
+//  This file is part of atbuild.  It is subject to the license terms in the LICENSE
+//  file found in the top level of this distribution
+//  No part of atbuild, including this file, may be copied, modified,
+//  propagated, or distributed except according to the terms contained
+//  in the LICENSE file.
+
 import Foundation
 
+/**The ATllbuild tool builds a swift module via llbuild.
+For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {
     
+    /**This function resolves wildcards in source descriptions to complete values
+- parameter sourceDescriptions: a descriptions of sources such as ["src/**.swift"] */
+- returns: A list of resolved sources such as ["src/a.swift", "src/b.swift"]
+*/
     func collectSources(sourceDescriptions: [String]) -> [String] {
         var sources : [String] = []
         for description in sourceDescriptions {
@@ -22,6 +36,11 @@ final class ATllbuild : Tool {
         return sources
     }
     
+    /**Calculates the llbuild.yaml contents for the given configuration options
+- parameter sources: A resolved list of swift sources
+- parameter workdir: A temporary working directory for `atllbuild` to use
+- parameter modulename: The name of the module to be built.
+- returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool */
     func llbuildyaml(sources: [String], workdir: String, modulename: String) -> String {
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
@@ -115,6 +134,7 @@ final class ATllbuild : Tool {
         }
         try llbuildyaml(sources, workdir: workDirectory, modulename: name).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
+        
         //now we try running sbt
         let args = ["-f",llbuildyamlpath]
         let sbt = NSTask.launchedTaskWithLaunchPath(SwiftBuildToolpath, arguments: args)

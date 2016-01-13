@@ -16,5 +16,6 @@ final class Task {
         print("Running task \(name)...")
         let tool = try toolByName(self.tool)
         try tool.run(yaml)
+        print("Completed task \(name).")
     }
 }

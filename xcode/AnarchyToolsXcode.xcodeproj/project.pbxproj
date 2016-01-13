@@ -18,6 +18,7 @@
 		3AED49931C4679E800AC56A8 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49921C4679E800AC56A8 /* Task.swift */; };
 		3AED49951C467C2300AC56A8 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49941C467C2300AC56A8 /* Tools.swift */; };
 		3AED49971C467C4400AC56A8 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49961C467C4400AC56A8 /* Shell.swift */; };
+		3AED49991C4681F600AC56A8 /* atllbuild.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49981C4681F600AC56A8 /* atllbuild.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +46,7 @@
 		3AED49921C4679E800AC56A8 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Task.swift; path = ../src/Task.swift; sourceTree = SOURCE_ROOT; };
 		3AED49941C467C2300AC56A8 /* Tools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Tools.swift; path = ../src/Tools.swift; sourceTree = SOURCE_ROOT; };
 		3AED49961C467C4400AC56A8 /* Shell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Shell.swift; path = ../src/Shell.swift; sourceTree = SOURCE_ROOT; };
+		3AED49981C4681F600AC56A8 /* atllbuild.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = atllbuild.swift; path = ../src/atllbuild.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +85,7 @@
 				3AED49921C4679E800AC56A8 /* Task.swift */,
 				3AED49941C467C2300AC56A8 /* Tools.swift */,
 				3AED49961C467C4400AC56A8 /* Shell.swift */,
+				3AED49981C4681F600AC56A8 /* atllbuild.swift */,
 			);
 			path = AnarchyToolsXcode;
 			sourceTree = "<group>";
@@ -165,6 +168,7 @@
 				3AED498A1C466DFD00AC56A8 /* Regex.swift in Sources */,
 				3AED49911C466EC200AC56A8 /* errors.swift in Sources */,
 				3AED49881C466DFD00AC56A8 /* Operators.swift in Sources */,
+				3AED49991C4681F600AC56A8 /* atllbuild.swift in Sources */,
 				3AED49971C467C4400AC56A8 /* Shell.swift in Sources */,
 				3AED49891C466DFD00AC56A8 /* Parser.swift in Sources */,
 				3AED49931C4679E800AC56A8 /* Task.swift in Sources */,

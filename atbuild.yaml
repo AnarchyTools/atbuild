@@ -5,3 +5,8 @@ tasks:
     helloworld:
         tool: "shell"
         script: "echo \"Hello world\""
+
+    default:
+        tool: "atllbuild"
+        source: ["src/**.swift"]
+        bootstrap: true

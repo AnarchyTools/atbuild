@@ -6,8 +6,16 @@ guard let package = dict["package"]?.dictionary else { fatalError("No package in
 guard let name = package["name"]?.string else { fatalError("No package name") }
 print("Building package \(name)...")
 
-//todo: run non-default tasks
-guard let task = y.dictionary?["tasks"]?.dictionary else { fatalError("No tasks in YAML") }
-guard let defaultTask = task["default"]?.dictionary else { fatalError("No default task in YAML") }
-let t = try! Task(yaml: defaultTask, name: "default")
-try! t.run()
+func runtask(taskName: String) {
+    guard let task = y.dictionary?["tasks"]?.dictionary else { fatalError("No tasks in YAML") }
+    guard let defaultTask = task[Yaml(stringLiteral: taskName)]?.dictionary else { fatalError("No \(taskName) task in YAML") }
+    let t = try! Task(yaml: defaultTask, name: taskName)
+    try! t.run()
+}
+
+if Process.arguments.count > 1 {
+    runtask(Process.arguments[1])
+}
+else {
+    runtask("default")
+}

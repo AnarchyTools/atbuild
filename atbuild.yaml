@@ -2,6 +2,6 @@ package:
   name: "atbuild"
 
 tasks:
-    default:
+    helloworld:
         tool: "shell"
         script: "echo \"Hello world\""

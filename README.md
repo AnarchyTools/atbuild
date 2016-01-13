@@ -49,7 +49,7 @@ tasks:
   #There's no magic; this is just a task called "build"
 	build:
 	  #A tool that compiles the swift module
-		tool: lldb-swift
+		tool: atllbuild
 		
 		#The rest of these settings are just options for that tool
 		name: json-swift

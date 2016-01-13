@@ -10,3 +10,4 @@ tasks:
         tool: "atllbuild"
         source: ["src/**.swift"]
         bootstrap: true
+        name: "atbuild"

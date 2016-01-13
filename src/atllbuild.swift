@@ -11,7 +11,7 @@ final class ATllbuild : Tool {
                 let enumerator = manager.enumeratorAtPath(basepath)!
                 while let source = enumerator.nextObject() as? String {
                     if source.hasSuffix("swift") {
-                        sources.append(manager.currentDirectoryPath + "/" + basepath + "/" + source)
+                        sources.append(basepath + "/" + source)
                     }
                 }
             }
@@ -38,11 +38,7 @@ final class ATllbuild : Tool {
         yaml += "commands:\n"
         yaml += "  <atllbuild-swiftc>:\n"
         yaml += "     tool: swift-compiler\n"
-        #if os(OSX)
         yaml += "     executable: \"\(SwiftCPath)\"\n"
-        #else
-            Unsupported!
-        #endif
         yaml += "     inputs: \(sources)\n"
         yaml += "     sources: \(sources)\n"
         
@@ -92,8 +88,17 @@ final class ATllbuild : Tool {
                 let sources = collectSources(sourceDescriptions)
 
         guard let name = args["name"]?.string else { throw AnarchyBuildError.CantParseYaml("No name for atllbuild task") }
+        
+        let bootstrapOnly: Bool
+        if args["bootstrapOnly"] != nil && args["bootstrapOnly"]?.bool == true {
+            bootstrapOnly = true
+        }
+        else {
+            bootstrapOnly = false
+        }
+        
         //create the working directory
-        let workDirectory = NSFileManager.defaultManager().currentDirectoryPath + "/.atllbuild/"
+        let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()
         if manager.fileExistsAtPath(workDirectory) {
             try manager.removeItemAtPath(workDirectory)
@@ -101,9 +106,15 @@ final class ATllbuild : Tool {
         try manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
         
         //emit the llbuild.yaml
-        let llbuildyamlpath = workDirectory + "llbuild.yaml"
+        let llbuildyamlpath : String
+        if bootstrapOnly {
+            llbuildyamlpath = "llbuild.yaml"
+        }
+        else {
+            llbuildyamlpath = workDirectory + "llbuild.yaml"
+        }
         try llbuildyaml(sources, workdir: workDirectory, modulename: name).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
-        
+        if bootstrapOnly { return }
         //now we try running sbt
         let args = ["-f",llbuildyamlpath]
         let sbt = NSTask.launchedTaskWithLaunchPath(SwiftBuildToolpath, arguments: args)

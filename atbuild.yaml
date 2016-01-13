@@ -9,5 +9,10 @@ tasks:
     default:
         tool: "atllbuild"
         source: ["src/**.swift"]
-        bootstrap: true
         name: "atbuild"
+
+    bootstrap:
+        tool: "atllbuild"
+        source: ["src/**.swift"]
+        name: "atbuild"
+        bootstrapOnly: true

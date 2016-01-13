@@ -15,6 +15,7 @@
 		3AED498C1C466DFD00AC56A8 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49861C466DFD00AC56A8 /* Tokenizer.swift */; };
 		3AED498D1C466DFD00AC56A8 /* Yaml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49871C466DFD00AC56A8 /* Yaml.swift */; };
 		3AED49911C466EC200AC56A8 /* errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49901C466EC200AC56A8 /* errors.swift */; };
+		3AED49931C4679E800AC56A8 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49921C4679E800AC56A8 /* Task.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +40,7 @@
 		3AED49861C466DFD00AC56A8 /* Tokenizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Tokenizer.swift; path = ../src/yaml/Tokenizer.swift; sourceTree = SOURCE_ROOT; };
 		3AED49871C466DFD00AC56A8 /* Yaml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Yaml.swift; path = ../src/yaml/Yaml.swift; sourceTree = SOURCE_ROOT; };
 		3AED49901C466EC200AC56A8 /* errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = errors.swift; path = ../src/errors.swift; sourceTree = SOURCE_ROOT; };
+		3AED49921C4679E800AC56A8 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Task.swift; path = ../src/Task.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +76,7 @@
 				3AE6852A1C466DC400444852 /* main.swift */,
 				3AE6851D1C466D2500444852 /* yaml */,
 				3AED49901C466EC200AC56A8 /* errors.swift */,
+				3AED49921C4679E800AC56A8 /* Task.swift */,
 			);
 			path = AnarchyToolsXcode;
 			sourceTree = "<group>";
@@ -156,6 +159,7 @@
 				3AED49911C466EC200AC56A8 /* errors.swift in Sources */,
 				3AED49881C466DFD00AC56A8 /* Operators.swift in Sources */,
 				3AED49891C466DFD00AC56A8 /* Parser.swift in Sources */,
+				3AED49931C4679E800AC56A8 /* Task.swift in Sources */,
 				3AED498D1C466DFD00AC56A8 /* Yaml.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

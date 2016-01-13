@@ -9,9 +9,5 @@
 import Foundation
 
 enum AnarchyBuildError : ErrorType {
-    case CantParseYaml
-    
-    func throwMe() throws {
-        throw self
-    }
+    case CantParseYaml(String)
 }

@@ -2,6 +2,25 @@
 
 The Anarchy Tools Build Tool.
 
+# Building
+
+To build atbuild "from scratch", simply `./bootstrap.sh`.
+
+Then you can check the program was built successfully:
+
+```bash
+$ ./atbuild --help
+atbuild - Anarchy Tools Build Tool 0.1.0-dev
+https://github.com/AnarchyTools
+© 2016 Anarchy Tools Contributors.
+
+Usage:
+atbuild [task]
+    task: ["default", "helloworld", "bootstrap"]
+```
+
+# Configuration
+
 ```bash
 $ atbuild build
 $ atbuild build-tests

@@ -3,9 +3,9 @@
 The Anarchy Tools Build Tool.
 
 ```bash
-$ buildtool build
-$ buildtool build-tests
-$ buildtool run-tests
+$ atbuild build
+$ atbuild build-tests
+$ atbuild run-tests
 ```
 
 The configuration file defines *tasks*, which are entrypoints on the CLI.  `build`, `build-tests`, and `run-tests` are *tasks*.
@@ -13,13 +13,13 @@ The configuration file defines *tasks*, which are entrypoints on the CLI.  `buil
 This runs a task called `default`:
 
 ```bash
-$ buildtool
+$ atbuild
 ```
 
 Configurations could look like this:
 
 ```bash
-$ buildtool run-tests --platform linux
+$ atbuild run-tests --platform linux
 ```
 
 ```yaml

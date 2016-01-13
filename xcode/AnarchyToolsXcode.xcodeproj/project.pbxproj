@@ -16,6 +16,8 @@
 		3AED498D1C466DFD00AC56A8 /* Yaml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49871C466DFD00AC56A8 /* Yaml.swift */; };
 		3AED49911C466EC200AC56A8 /* errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49901C466EC200AC56A8 /* errors.swift */; };
 		3AED49931C4679E800AC56A8 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49921C4679E800AC56A8 /* Task.swift */; };
+		3AED49951C467C2300AC56A8 /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49941C467C2300AC56A8 /* Tools.swift */; };
+		3AED49971C467C4400AC56A8 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49961C467C4400AC56A8 /* Shell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -41,6 +43,8 @@
 		3AED49871C466DFD00AC56A8 /* Yaml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Yaml.swift; path = ../src/yaml/Yaml.swift; sourceTree = SOURCE_ROOT; };
 		3AED49901C466EC200AC56A8 /* errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = errors.swift; path = ../src/errors.swift; sourceTree = SOURCE_ROOT; };
 		3AED49921C4679E800AC56A8 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Task.swift; path = ../src/Task.swift; sourceTree = SOURCE_ROOT; };
+		3AED49941C467C2300AC56A8 /* Tools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Tools.swift; path = ../src/Tools.swift; sourceTree = SOURCE_ROOT; };
+		3AED49961C467C4400AC56A8 /* Shell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Shell.swift; path = ../src/Shell.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +81,8 @@
 				3AE6851D1C466D2500444852 /* yaml */,
 				3AED49901C466EC200AC56A8 /* errors.swift */,
 				3AED49921C4679E800AC56A8 /* Task.swift */,
+				3AED49941C467C2300AC56A8 /* Tools.swift */,
+				3AED49961C467C4400AC56A8 /* Shell.swift */,
 			);
 			path = AnarchyToolsXcode;
 			sourceTree = "<group>";
@@ -154,10 +160,12 @@
 			files = (
 				3AE6852B1C466DC400444852 /* main.swift in Sources */,
 				3AED498C1C466DFD00AC56A8 /* Tokenizer.swift in Sources */,
+				3AED49951C467C2300AC56A8 /* Tools.swift in Sources */,
 				3AED498B1C466DFD00AC56A8 /* Result.swift in Sources */,
 				3AED498A1C466DFD00AC56A8 /* Regex.swift in Sources */,
 				3AED49911C466EC200AC56A8 /* errors.swift in Sources */,
 				3AED49881C466DFD00AC56A8 /* Operators.swift in Sources */,
+				3AED49971C467C4400AC56A8 /* Shell.swift in Sources */,
 				3AED49891C466DFD00AC56A8 /* Parser.swift in Sources */,
 				3AED49931C4679E800AC56A8 /* Task.swift in Sources */,
 				3AED498D1C466DFD00AC56A8 /* Yaml.swift in Sources */,

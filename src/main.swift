@@ -10,4 +10,4 @@ print("Building package \(name)...")
 guard let task = y.dictionary?["tasks"]?.dictionary else { fatalError("No tasks in YAML") }
 guard let defaultTask = task["default"]?.dictionary else { fatalError("No default task in YAML") }
 let t = try! Task(yaml: defaultTask, name: "default")
-t.run()
+try! t.run()

@@ -36,7 +36,7 @@ print("Building package \(name)...")
 func runtask(taskName: String) {
     guard let task = yaml["tasks"]?.dictionary else { fatalError("No tasks in YAML") }
     guard let defaultTask = task[Yaml(stringLiteral: taskName)]?.dictionary else { fatalError("No \(taskName) task in YAML") }
-    let t = try! Task(yaml: defaultTask, name: taskName)
+    let t = try! Task(yaml: defaultTask, name: taskName, entireConfig: yaml)
     try! t.run()
 }
 

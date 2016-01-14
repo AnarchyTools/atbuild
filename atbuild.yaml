@@ -25,3 +25,7 @@ tasks:
         bootstrapOnly: true
         llbuildyaml: "llbuild-linux.yaml"
         linkSDK: false
+
+    bootstrap:
+        tool: "nop"
+        dependency: ["bootstrap-osx", "bootstrap-linux"]

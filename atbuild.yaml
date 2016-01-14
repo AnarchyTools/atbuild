@@ -13,7 +13,7 @@ tasks:
         
     tests:
         tool: "atllbuild"
-        source: ["src/clj/**.swift", "tests/**.swift"]
+        source: ["parsers/clj/src/**.swift", "parsers/clj/tests/**.swift"]
         name: "tests"
         
     runtests:

@@ -25,6 +25,7 @@ tasks:
         bootstrapOnly: true
         llbuildyaml: "llbuild-linux.yaml"
         linkSDK: false
+        compileOptions: ["-D","CORELIBS_FOUNDATION"]
 
     bootstrap:
         tool: "nop"

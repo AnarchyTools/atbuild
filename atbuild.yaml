@@ -10,6 +10,15 @@ tasks:
         tool: "atllbuild"
         source: ["src/**.swift"]
         name: "atbuild"
+        
+    tests:
+        tool: "atllbuild"
+        source: ["src/clj/**.swift", "tests/**.swift"]
+        name: "tests"
+        
+    runtests:
+        tool: "shell"
+        script: "./.atllbuild/tests"
 
     bootstrap:
         tool: "atllbuild"

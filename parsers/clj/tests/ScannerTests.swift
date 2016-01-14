@@ -1,0 +1,21 @@
+//  © 2016 Anarchy Tools Contributors.
+//  This file is part of atbuild.  It is subject to the license terms in the LICENSE
+//  file found in the top level of this distribution
+//  No part of atbuild, including this file, may be copied, modified,
+//  propagated, or distributed except according to the terms contained
+//  in the LICENSE file.
+
+class ScannerTests: Test {
+    required init() {}
+    let tests = [
+        ScannerTests.testBasicInit
+    ]
+
+    let filename = __FILE__
+        
+    static func testBasicInit() throws {
+        let scanner = Scanner(content: "")
+        try test.assert(scanner.content == "")
+        try test.assert(scanner.current == nil)
+    }
+}

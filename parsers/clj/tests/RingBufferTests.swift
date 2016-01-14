@@ -5,38 +5,23 @@
 //  propagated, or distributed except according to the terms contained
 //  in the LICENSE file.
 
-extension String: ErrorType {}
-
-enum test {
-    static func assert(condition: Bool, functionName: String = __FUNCTION__) throws {
-        print("  \(functionName): \(condition ? "PASSED" : "**FAILED**")")
-        if !condition { throw "clj.tests.failed" }
-    }
-}
-
 class RingBufferTests: Test {
     required init() {}
-    func runTests() {
-        print("Tests for \(__FILE__)")
-        
-        let tests = [
-            testBasicInit,
-            testInsertion,
-            testRemove,
-            testNoOverwrite
-        ]
+    let tests = [
+        RingBufferTests.testBasicInit,
+        RingBufferTests.testInsertion,
+        RingBufferTests.testRemove,
+        RingBufferTests.testNoOverwrite
+    ]
 
-        for test in tests {
-            let _ = try? test()
-        }
-    }
-    
-    func testBasicInit() throws {
+    let filename: String = __FILE__
+
+    static func testBasicInit() throws {
         let buffer = RingBuffer<Int>(capacity: 10)
         try test.assert(buffer.capacity == 10)
     }
     
-    func testInsertion() throws {
+    static func testInsertion() throws {
         let buffer = RingBuffer<Int>(capacity: 3)
         try test.assert(buffer.capacity == 3)
         
@@ -53,7 +38,7 @@ class RingBufferTests: Test {
         try test.assert(buffer[0] == 103)
     }
     
-    func testRemove() throws {
+    static func testRemove() throws {
         let buffer = RingBuffer<Int>(capacity: 3)
         try test.assert(buffer.capacity == 3)
         
@@ -83,7 +68,7 @@ class RingBufferTests: Test {
         try test.assert(buffer[2] == nil)
     }
     
-    func testNoOverwrite() throws {
+    static func testNoOverwrite() throws {
         let buffer = RingBuffer<Int>(capacity: 3, overwrite: false)
         try test.assert(buffer.capacity == 3)
         

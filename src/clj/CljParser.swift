@@ -13,31 +13,42 @@ import Foundation
 class RingBuffer<ElementType> {
     let capacity: Int
     var buffer: [ElementType?]
+    let overwrite: Bool
     
-    private var start: Int = 0
-    private var end: Int = 0
+    private var start: Int! = nil
+    private var end: Int! = nil
     
-    init(capacity: Int) {
+    init(capacity: Int, overwrite: Bool = true) {
         precondition(capacity > 1, "The capacity of the buffer must be greater than one.")
         
+        self.overwrite = overwrite
         self.capacity = capacity
         buffer = [ElementType?](count: capacity, repeatedValue: nil)
     }
 
     /**
      * Inserts an element into the buffer. When the capacity has been met,
-     * the oldest item is overwritten.
+     * the oldest item is overwritten if `overwrite` was set to `true`.
      */
     func insert(element: ElementType) {
-        buffer[end] = element
-
-        if start == 0 && end == 0 {
+        if start == nil {
+            buffer[0] = element
+            start = 0
             end = 1
         }
         else {
-            end = (end + 1) % capacity
-            if end == start {
-                start += 1
+            if overwrite {
+                buffer[end] = element
+                end = (end + 1) % capacity
+                if end == start {
+                    start = start + 1
+                }
+            }
+            else {
+                if start != end {
+                    buffer[end] = element
+                    end = (end + 1) % capacity
+                }
             }
         }
     }
@@ -46,13 +57,13 @@ class RingBuffer<ElementType> {
      * Removes the oldest item in the buffer.
      */
     func remove() -> ElementType? {
+        if start == nil || end == nil { return nil }
+        
         let element = buffer[start]
         buffer[start] = nil
 
-        if start != end {
-            start = (start + 1) % capacity
-        }
-        
+        start = (start + 1) % capacity
+
         return element
     }
     

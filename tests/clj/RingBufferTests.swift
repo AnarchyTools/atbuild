@@ -22,7 +22,8 @@ class RingBufferTests: Test {
         let tests = [
             testBasicInit,
             testInsertion,
-            testRemove
+            testRemove,
+            testNoOverwrite
         ]
 
         for test in tests {
@@ -80,5 +81,29 @@ class RingBufferTests: Test {
         try test.assert(buffer[0] == 100)
         try test.assert(buffer[1] == 101)
         try test.assert(buffer[2] == nil)
+    }
+    
+    func testNoOverwrite() throws {
+        let buffer = RingBuffer<Int>(capacity: 3, overwrite: false)
+        try test.assert(buffer.capacity == 3)
+        
+        buffer.insert(100)
+        buffer.insert(101)
+        buffer.insert(102)
+        buffer.insert(103)
+
+        try test.assert(buffer[0] == 100)
+        try test.assert(buffer[1] == 101)
+        try test.assert(buffer[2] == 102)
+        
+        try test.assert(buffer.remove() == 100)
+        try test.assert(buffer[0] == nil)
+        try test.assert(buffer[1] == 101)
+        try test.assert(buffer[2] == 102)
+        
+        buffer.insert(103)
+        try test.assert(buffer[0] == 103)
+        try test.assert(buffer[1] == 101)
+        try test.assert(buffer[2] == 102)
     }
 }

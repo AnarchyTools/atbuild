@@ -8,19 +8,19 @@ tasks:
 
     default:
         tool: "atllbuild"
-        source: ["src/**.swift"]
+        source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
         name: "atbuild"
 
     bootstrap-osx:
         tool: "atllbuild"
-        source: ["src/**.swift"]
+        source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
         name: "atbuild"
         bootstrapOnly: true
         llbuildyaml: "llbuild-osx.yaml"
 
     bootstrap-linux:
         tool: "atllbuild"
-        source: ["src/**.swift"]
+        source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
         name: "atbuild"
         bootstrapOnly: true
         llbuildyaml: "llbuild-linux.yaml"

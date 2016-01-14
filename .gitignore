@@ -1,2 +1,5 @@
 bin/
 *xcuserdata*
+.atllbuild
+atbuild
+build.db

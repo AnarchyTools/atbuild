@@ -80,22 +80,3 @@ class RingBuffer<ElementType> {
     }
 }
 
-/**
- * A implementation of a queue that limits the number of items stored within
- * itself. New items added after the capacity is filled overwrite the last
- * item.
- */
-// struct CircularQueue<ElementType> {
-//     private class _QueueData {
-//         let capacity: Int
-//         var items: [ElementType] = []
-//     }
-    
-//     private let _data = _QueueData()
-//     private var lastIndex: Int = 0
-    
-//     init(capacity: Int = 10) {
-//         self.capacity = capacity
-//     }
-// }
-

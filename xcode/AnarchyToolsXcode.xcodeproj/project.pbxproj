@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A8AF7041C48571F00D8495D /* Nop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8AF7031C48571F00D8495D /* Nop.swift */; };
 		3AE6852B1C466DC400444852 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE6852A1C466DC400444852 /* main.swift */; };
 		3AED49881C466DFD00AC56A8 /* Operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49821C466DFD00AC56A8 /* Operators.swift */; };
 		3AED49891C466DFD00AC56A8 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AED49831C466DFD00AC56A8 /* Parser.swift */; };
@@ -36,6 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3A8AF7031C48571F00D8495D /* Nop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Nop.swift; path = ../cli/src/Nop.swift; sourceTree = SOURCE_ROOT; };
 		3AE685101C466CDE00444852 /* AnarchyToolsXcode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnarchyToolsXcode; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AE6852A1C466DC400444852 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../cli/src/main.swift; sourceTree = SOURCE_ROOT; };
 		3AED49821C466DFD00AC56A8 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Operators.swift; path = ../parsers/yaml/src/Operators.swift; sourceTree = SOURCE_ROOT; };
@@ -92,6 +94,7 @@
 				3AED49981C4681F600AC56A8 /* atllbuild.swift */,
 				3AED499A1C46923A00AC56A8 /* PlatformPaths.swift */,
 				3AED499C1C4698BC00AC56A8 /* config.swift */,
+				3A8AF7031C48571F00D8495D /* Nop.swift */,
 			);
 			path = AnarchyToolsXcode;
 			sourceTree = "<group>";
@@ -168,6 +171,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3AE6852B1C466DC400444852 /* main.swift in Sources */,
+				3A8AF7041C48571F00D8495D /* Nop.swift in Sources */,
 				3AED499B1C46923A00AC56A8 /* PlatformPaths.swift in Sources */,
 				3AED498C1C466DFD00AC56A8 /* Tokenizer.swift in Sources */,
 				3AED49951C467C2300AC56A8 /* Tools.swift in Sources */,

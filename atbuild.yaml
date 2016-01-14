@@ -24,3 +24,4 @@ tasks:
         name: "atbuild"
         bootstrapOnly: true
         llbuildyaml: "llbuild-linux.yaml"
+        linkSDK: false

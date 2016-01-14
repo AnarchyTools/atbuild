@@ -41,7 +41,7 @@ final class ATllbuild : Tool {
 - parameter workdir: A temporary working directory for `atllbuild` to use
 - parameter modulename: The name of the module to be built.
 - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool */
-    func llbuildyaml(sources: [String], workdir: String, modulename: String) -> String {
+    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool) -> String {
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
         
@@ -77,9 +77,11 @@ final class ATllbuild : Tool {
         yaml += "     temps-path: \(workdir)/llbuildtmp\n"
         
         var args : [String] = []
-        #if os(OSX)
-        args.appendContentsOf(["-j8","-sdk",SDKPath])
-        #endif
+        args.appendContentsOf(["-j8"])
+        
+        if linkSDK {
+            args.appendContentsOf(["-sdk", SDKPath])
+        }
         
         yaml += "     other-args: \(args)\n"
         
@@ -125,6 +127,12 @@ final class ATllbuild : Tool {
             bootstrapOnly = false
         }
         
+        let sdk: Bool
+        if args["linkSDK"]?.bool == false {
+            sdk = false
+        }
+        else { sdk = true }
+        
         let llbuildyamlpath : String
 
         if args ["llbuildyaml"]?.string != nil {
@@ -134,7 +142,7 @@ final class ATllbuild : Tool {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
         
-        try llbuildyaml(sources, workdir: workDirectory, modulename: name).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
+        try llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         
         //now we try running sbt

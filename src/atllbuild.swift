@@ -102,20 +102,6 @@ final class ATllbuild : Tool {
     }
     
     func run(args: [Yaml : Yaml]) throws {
-        //parse arguments
-        guard let sourceDescriptions = args["source"]?.array?.flatMap({$0.string}) else { throw AnarchyBuildError.CantParseYaml("Can't find sources for atllbuild.") }
-                let sources = collectSources(sourceDescriptions)
-
-        guard let name = args["name"]?.string else { throw AnarchyBuildError.CantParseYaml("No name for atllbuild task") }
-        
-        let bootstrapOnly: Bool
-        if args["bootstrapOnly"] != nil && args["bootstrapOnly"]?.bool == true {
-            bootstrapOnly = true
-        }
-        else {
-            bootstrapOnly = false
-        }
-        
         //create the working directory
         let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()
@@ -124,14 +110,30 @@ final class ATllbuild : Tool {
         }
         try manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
         
-        //emit the llbuild.yaml
+        //parse arguments
+        guard let sourceDescriptions = args["source"]?.array?.flatMap({$0.string}) else { throw AnarchyBuildError.CantParseYaml("Can't find sources for atllbuild.") }
+                let sources = collectSources(sourceDescriptions)
+
+        guard let name = args["name"]?.string else { throw AnarchyBuildError.CantParseYaml("No name for atllbuild task") }
+        
+        let bootstrapOnly: Bool
+
+        if args["bootstrapOnly"]?.bool == true {
+            bootstrapOnly = true
+        }
+        else {
+            bootstrapOnly = false
+        }
+        
         let llbuildyamlpath : String
-        if bootstrapOnly {
-            llbuildyamlpath = "llbuild.yaml"
+
+        if args ["llbuildyaml"]?.string != nil {
+            llbuildyamlpath = args["llbuildyaml"]!.string!
         }
         else {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
+        
         try llbuildyaml(sources, workdir: workDirectory, modulename: name).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         

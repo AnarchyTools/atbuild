@@ -41,7 +41,7 @@ final class ATllbuild : Tool {
 - parameter workdir: A temporary working directory for `atllbuild` to use
 - parameter modulename: The name of the module to be built.
 - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool */
-    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool) -> String {
+    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String]) -> String {
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
         
@@ -82,6 +82,7 @@ final class ATllbuild : Tool {
         if linkSDK {
             args.appendContentsOf(["-sdk", SDKPath])
         }
+        args.appendContentsOf(compileOptions)
         
         yaml += "     other-args: \(args)\n"
         
@@ -113,6 +114,13 @@ final class ATllbuild : Tool {
         try manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
         
         //parse arguments
+        var compileOptions: [String] = []
+        if let opts = args["compileOptions"]?.array {
+            for o in opts {
+                guard let os = o.string else { throw AnarchyBuildError.CantParseYaml("Compile option \(o) is not a string") }
+                compileOptions.append(os)
+            }
+        }
         guard let sourceDescriptions = args["source"]?.array?.flatMap({$0.string}) else { throw AnarchyBuildError.CantParseYaml("Can't find sources for atllbuild.") }
                 let sources = collectSources(sourceDescriptions)
 
@@ -142,7 +150,7 @@ final class ATllbuild : Tool {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
         
-        try llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
+        try llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         
         //now we try running sbt

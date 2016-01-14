@@ -13,7 +13,7 @@ protocol Tool {
 }
 
 ///The builtin tools.
-let tools : [String: Tool] = ["shell":Shell(),"atllbuild":ATllbuild()]
+let tools : [String: Tool] = ["shell":Shell(),"atllbuild":ATllbuild(), "nop":Nop()]
 
 ///Look up a tool by name.  Throws if there is no such tool.
 func toolByName(name: String) throws -> Tool {

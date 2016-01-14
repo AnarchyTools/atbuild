@@ -77,7 +77,7 @@ tasks:
 		  #override custom settings for swift/linux
       platform:
 			  linux:
-				  deps: ["build-foundation"]
+				  dependency: ["build-foundation"]
 				  linkflags: ["-lFoundation"]
 			  osx:
 				  linkflags: ["-Framework Foundation"]
@@ -88,7 +88,7 @@ tasks:
 		#A second task, named "build-test"
 		#This builds a test target
 		build-test:
-		  deps: ["build"] #Build the main target first
+		  dependency: ["build"] #Build the main target first
 		  tool: "lldb-build"
 		  name: "test"
 		  output-type: "XCTest"
@@ -96,7 +96,7 @@ tasks:
 		
 		#A third task, that runs the test
 		run-tests:
-		  deps: ["build-test"] #build them first
+		  dependency: ["build-test"] #build them first
 		  tool: xctest-runner #use the xctest-runner tool we created
 		  testlib: tests.xctest #pass this argument
 ```

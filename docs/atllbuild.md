@@ -19,6 +19,8 @@ tasks:
         bootstrapOnly: false 
         llbuildyaml: "llbuild.yaml" #path to emit llbuild.yaml
 
+        compileOptions: [] #Provide an array of compile options.  And they said it was impossible.
+
         linkSDK: true #Whether to link the platform SDK.  True is the default value.
 ```
 

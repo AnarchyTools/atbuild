@@ -10,10 +10,14 @@ protocol Test {
     func runTests()
 }
 
-let tests = [
-    SizedQueueTests()
+print()
+
+let tests: [Test] = [
+    RingBufferTests()
 ]
 
 for test in tests {
     test.runTests()
 }
+
+print()

@@ -37,20 +37,20 @@
 
 /* Begin PBXFileReference section */
 		3AE685101C466CDE00444852 /* AnarchyToolsXcode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AnarchyToolsXcode; sourceTree = BUILT_PRODUCTS_DIR; };
-		3AE6852A1C466DC400444852 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../src/main.swift; sourceTree = SOURCE_ROOT; };
-		3AED49821C466DFD00AC56A8 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Operators.swift; path = ../src/yaml/Operators.swift; sourceTree = SOURCE_ROOT; };
-		3AED49831C466DFD00AC56A8 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Parser.swift; path = ../src/yaml/Parser.swift; sourceTree = SOURCE_ROOT; };
-		3AED49841C466DFD00AC56A8 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Regex.swift; path = ../src/yaml/Regex.swift; sourceTree = SOURCE_ROOT; };
-		3AED49851C466DFD00AC56A8 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Result.swift; path = ../src/yaml/Result.swift; sourceTree = SOURCE_ROOT; };
-		3AED49861C466DFD00AC56A8 /* Tokenizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Tokenizer.swift; path = ../src/yaml/Tokenizer.swift; sourceTree = SOURCE_ROOT; };
-		3AED49871C466DFD00AC56A8 /* Yaml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Yaml.swift; path = ../src/yaml/Yaml.swift; sourceTree = SOURCE_ROOT; };
-		3AED49901C466EC200AC56A8 /* errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = errors.swift; path = ../src/errors.swift; sourceTree = SOURCE_ROOT; };
-		3AED49921C4679E800AC56A8 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Task.swift; path = ../src/Task.swift; sourceTree = SOURCE_ROOT; };
-		3AED49941C467C2300AC56A8 /* Tools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Tools.swift; path = ../src/Tools.swift; sourceTree = SOURCE_ROOT; };
-		3AED49961C467C4400AC56A8 /* Shell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Shell.swift; path = ../src/Shell.swift; sourceTree = SOURCE_ROOT; };
-		3AED49981C4681F600AC56A8 /* atllbuild.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = atllbuild.swift; path = ../src/atllbuild.swift; sourceTree = SOURCE_ROOT; };
-		3AED499A1C46923A00AC56A8 /* PlatformPaths.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PlatformPaths.swift; path = ../src/PlatformPaths.swift; sourceTree = SOURCE_ROOT; };
-		3AED499C1C4698BC00AC56A8 /* config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = config.swift; path = ../src/config.swift; sourceTree = SOURCE_ROOT; };
+		3AE6852A1C466DC400444852 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = main.swift; path = ../cli/src/main.swift; sourceTree = SOURCE_ROOT; };
+		3AED49821C466DFD00AC56A8 /* Operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Operators.swift; path = ../parsers/yaml/src/Operators.swift; sourceTree = SOURCE_ROOT; };
+		3AED49831C466DFD00AC56A8 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Parser.swift; path = ../parsers/yaml/src/Parser.swift; sourceTree = SOURCE_ROOT; };
+		3AED49841C466DFD00AC56A8 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Regex.swift; path = ../parsers/yaml/src/Regex.swift; sourceTree = SOURCE_ROOT; };
+		3AED49851C466DFD00AC56A8 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Result.swift; path = ../parsers/yaml/src/Result.swift; sourceTree = SOURCE_ROOT; };
+		3AED49861C466DFD00AC56A8 /* Tokenizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Tokenizer.swift; path = ../parsers/yaml/src/Tokenizer.swift; sourceTree = SOURCE_ROOT; };
+		3AED49871C466DFD00AC56A8 /* Yaml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Yaml.swift; path = ../parsers/yaml/src/Yaml.swift; sourceTree = SOURCE_ROOT; };
+		3AED49901C466EC200AC56A8 /* errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = errors.swift; path = ../cli/src/errors.swift; sourceTree = SOURCE_ROOT; };
+		3AED49921C4679E800AC56A8 /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Task.swift; path = ../cli/src/Task.swift; sourceTree = SOURCE_ROOT; };
+		3AED49941C467C2300AC56A8 /* Tools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Tools.swift; path = ../cli/src/Tools.swift; sourceTree = SOURCE_ROOT; };
+		3AED49961C467C4400AC56A8 /* Shell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Shell.swift; path = ../cli/src/Shell.swift; sourceTree = SOURCE_ROOT; };
+		3AED49981C4681F600AC56A8 /* atllbuild.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = atllbuild.swift; path = ../cli/src/atllbuild.swift; sourceTree = SOURCE_ROOT; };
+		3AED499A1C46923A00AC56A8 /* PlatformPaths.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PlatformPaths.swift; path = ../cli/src/PlatformPaths.swift; sourceTree = SOURCE_ROOT; };
+		3AED499C1C4698BC00AC56A8 /* config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = config.swift; path = ../cli/src/config.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

@@ -15,8 +15,11 @@ tasks:
         #walk the src directory and recursively find all swift files
         source: ["src/**.swift"]
 
-        #If true, we don't build, we only emit llbuild.yaml to the working directory.  False is the default value.
+        #If true, we don't build, llbuild.yaml  False is the default value.
         bootstrapOnly: false 
+        llbuildyaml: "llbuild.yaml" #path to emit llbuild.yaml
+
+        linkSDK: true #Whether to link the platform SDK.  True is the default value.
 ```
 
 ## Implementation

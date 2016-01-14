@@ -1,0 +1,11 @@
+bin/
+*xcuserdata*
+<<<<<<< HEAD
+.atllbuild/
+atbuild
+build.db
+=======
+.atllbuild
+atbuild
+build.db
+>>>>>>> master

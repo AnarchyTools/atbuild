@@ -13,12 +13,48 @@
 // limitations under the License.
 
 import atpkgmodel
+import Foundation
 
 public enum PackageParserError: ErrorType {
-    case PackageFileDoesNotExist
+    case PackageFileDoesNotExist(filename: String)
+    case MissingPackageDeclaration
+    case InvalidPackageFile
+    case UnexpectedToken(expected: Token, actual: Token)
+    case MissingToken(expected: Token)
 }
 
+extension Lexer {
+    func parseableNext() -> Token? {
+        while true {
+            guard let token = self.next() else { return nil }
+            if case .Comment = token {}
+            else if case .Terminal = token {}
+            else { return self.peek() }
+        }
+    }
+    
+    func take(expected: Token) throws {
+        guard let token = self.parseableNext() else { throw PackageParserError.MissingToken(expected: expected) }
+        if !Token.isEquivalent(expected, to: token) { throw PackageParserError.UnexpectedToken(expected: expected, actual: token) }
+    }
+}
 
 public func parsePackageDefinition(filepath: String) throws -> Package {
-    throw PackageParserError.PackageFileDoesNotExist
+    guard let content: String = try? NSString(contentsOfFile: filepath, encoding: NSUTF8StringEncoding) as String else {
+        throw PackageParserError.PackageFileDoesNotExist(filename: filepath)
+    }
+    
+    let scanner = Scanner(content: content)
+    let lexer = Lexer(scanner: scanner)
+    
+    try lexer.take(.OpenParen(line: 0, column: 0))
+    try lexer.take(.Identifier("package", line: 0, column: 0))
+
+    // TODO: Parse the properties of the package definition.
+    
+    try lexer.take(.CloseParen(line: 0, column: 0))
+    try lexer.take(.EOF)
+    
+    let package = Package(name: "nope")
+    return package
 }

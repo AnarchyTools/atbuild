@@ -64,6 +64,33 @@ public enum Token {
         default: return false
         }
     }
+    
+    public static func isEquivalent(lhs: Token?, to rhs: Token?) -> Bool {
+        if lhs == nil && rhs == nil { return true }
+        
+        guard let lhs = lhs else { return false }
+        guard let rhs = rhs else { return false }
+        
+        switch (lhs, rhs) {
+        case let (.Identifier(l0, _, _), .Identifier(r0, _, _)): return l0 == r0
+        case let (.StringLiteral(l0, _, _), .StringLiteral(r0, _, _)): return l0 == r0
+        case let (.Comment(l0, _, _), .Comment(r0, _, _)): return l0 == r0
+        case let (.Unhandled(l0, _, _), .Unhandled(r0, _, _)): return l0 == r0
+
+        case (.OpenParen, .OpenParen): return true
+        case (.CloseParen, .CloseParen): return true
+        case (.OpenBracket, .OpenBracket): return true
+        case (.CloseBracket, .CloseBracket): return true
+        case (.OpenBrace, .OpenBrace): return true
+        case (.CloseBrace, .CloseBrace): return true
+        case (.Terminal, .Terminal): return true
+        case (.Colon, .Colon): return true
+        
+        case (.EOF, .EOF): return true
+        
+        default: return false
+        }
+    }
 }
 
 func isCharacterPartOfSet(c: Character?, set: NSCharacterSet) -> Bool {
@@ -180,7 +207,7 @@ public class Lexer {
         return self.current
     }
 
-    public func tokenize() -> [Token] {
+    func tokenize() -> [Token] {
         var tokens = [Token]()
 
         while let token = self.next() { tokens.append(token) }

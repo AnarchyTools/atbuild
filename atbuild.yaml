@@ -46,11 +46,19 @@ tasks:
         name: "yaml"
         outputType: "static-library"
         
+    atpkg-model:
+        tool: "atllbuild"
+        source: ["model/src/**.swift"]
+        name: "atpkgmodel"
+        outputType: "static-library"
+        
     atpkg-parser:
+        dependency: ["atpkg-model"]
         tool: "atllbuild"
         source: ["parsers/atpkg/src/**.swift"]
         name: "atpkgparser"
         outputType: "static-library"
+        linkWithProduct: ["atpkgmodel.a"]
         
     atpkg-tests:
         dependency: ["atpkg-parser"]

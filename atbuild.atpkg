@@ -1,0 +1,83 @@
+;; Copyright (c) 2016 Anarchy Tools Contributors.
+;;
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;   http:;;www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+
+;; The build file for all of the targets of the Anarchy Tools build tool.
+
+(defpackage
+  :name "atbuild"
+  
+  :tasks {:hellworld {:tool "shell"
+                      :script "echo \"Hello world\"" }
+                      
+          :default {:dependencies ["yaml"]
+                    :tool "atllbuild"
+                    :source ["cli/src/**.swift"]
+                    :name "atbuild"
+                    :outputType "executable"
+                    :linkWithProduct: ["yaml.a"]}
+                    
+          :bootstrap-osx {:dependencies ["bootstrap-yaml-osx"]
+                          :tool "atllbuild"
+                          :source ["cli/src/**.swift"]
+                          :name "atbuild"
+                          :bootstrapOnly true
+                          :llbuildyaml: "llbuild-osx.yaml"
+                          :outputType "executable"
+                          :linkWithProduct ["yaml.a"]}
+                          
+          :bootstrap-linux {:dependencies ["bootstrap-yaml-linux"]
+                            :tool "atllbuild"
+                            :source ["cli/src/**.swift"]
+                            :name "atbuild"
+                            :bootstrapOnly true
+                            :llbuildyaml: "llbuild-linux.yaml"
+                            :linkSDK false
+                            :compileOptions ["-D" "CORELIBS_FOUNDATION"]
+                            :outputType "executable"
+                            :linkWithProduct ["yaml.a"]}
+                            
+          :bootstrap {:dependencies ["bootstrap-osx", "bootstrap-linux"]
+                      :tool "nop"}
+                      
+          :yaml {:tool "atllbuild"
+                 :source ["parsers/yaml/**.swift"]
+                 :name "yaml"
+                 :outputType "static-library"}
+                 
+          :atpkg-model {:tool "atllbuild"
+                        :source ["model/src/**.swift"]
+                        :name "atpkgmodel"
+                        :outputType "static-library"}
+
+          :atpkg-parser {:dependencies ["atpkg-model"]
+                         :tool "atllbuild"
+                         :source ["parsers/atpkg/src/**.swift"]
+                         :name "atpkgparser"
+                         :outputType "static-library"
+                         :linkWithProduct ["atpkgmodel.a"]}
+
+          :atpkg-tests {:dependencies ["atpkg-parser"]
+                        :tool "atllbuild"
+                        :source ["parsers/atpkg/tests/**.swift"]
+                        :name "atpkgtests"
+                        :outputType "executable"
+                        :linkWithProduct ["atpkparser.a"]}
+                        
+          :run-atpkg-tests {:dependencies ["atpkg-tests"]
+                            :tool "shell"
+                            :script "./.atllbuild/products/atpkgtests"}
+                            
+          :run-tests {:dependencies ["run-atpkg-tests"]
+                      :tool "nop" }
+)

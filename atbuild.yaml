@@ -14,6 +14,24 @@ tasks:
         outputType: "executable"
         linkWithProduct: ["yaml.a"]
 
+    bootstrap-yaml-osx:
+        tool: "atllbuild"
+        source: ["parsers/yaml/**.swift"]
+        name: "yaml"
+        llbuildyaml: "yaml-osx-llbuild.yaml"
+        outputType: "static-library"
+        bootstrapOnly: true
+
+    bootstrap-yaml-linux:
+        tool: "atllbuild"
+        source: ["parsers/yaml/**.swift"]
+        name: "yaml"
+        llbuildyaml: "yaml-linux-llbuild.yaml"
+        outputType: "static-library"
+        linkSDK: false
+        compileOptions: ["-D","CORELIBS_FOUNDATION"]
+        bootstrapOnly: true
+
     bootstrap-osx:
         tool: "atllbuild"
         source: ["cli/src/**.swift"]

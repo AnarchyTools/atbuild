@@ -16,6 +16,36 @@
 import Foundation
 import atpkgparser
 
+func outputBaseline(lexer: Lexer) {
+    print("--- baseline ---")
+    while let token = lexer.next() {
+        var output = ""
+        
+        switch token {
+        case let .OpenParen(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.OpenParen(line: \(line), column: \(column))))"
+        case let .CloseParen(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.CloseParen(line: \(line), column: \(column))))"
+        case let .OpenBracket(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.OpenBracket(line: \(line), column: \(column))))"
+        case let .CloseBracket(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.CloseBracket(line: \(line), column: \(column))))"
+        case let .OpenBrace(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.OpenBrace(line: \(line), column: \(column))))"
+        case let .CloseBrace(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.CloseBrace(line: \(line), column: \(column))))"
+        case let .Terminal(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: \(line), column: \(column))))"
+        case let .Colon(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: \(line), column: \(column))))"
+
+        case let .Identifier(str, line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier(\"\(str)\", line: \(line), column: \(column))))"
+        case let .StringLiteral(str, line, column):
+            let escapedStr = str.stringByReplacingOccurrencesOfString("\"", withString: "\\\"")
+            output = "try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral(\"\(escapedStr)\", line: \(line), column: \(column))))"
+        case let .Comment(str, line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Comment(\"\(str)\", line: \(line), column: \(column))))"
+        case let .Unhandled(str, line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Unhandled(\"\(str)\", line: \(line), column: \(column))))"
+        
+        case .EOF: output = "try test.assert(Token.isEqual(lexer.next(), to: Token.EOF))"
+        }
+
+        print(output)
+    }
+    print("--- end baseline ---")
+}
+    
 class LexerTests: Test {
     required init() {}
     let tests = [
@@ -73,6 +103,8 @@ class LexerTests: Test {
         try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 9, column: 46)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.CloseParen(line: 10, column: 0)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 10, column: 1)))
+        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 11, column: 0)))
+        try test.assert(Token.isEqual(lexer.next(), to: Token.Comment(" End of the sample.", line: 12, column: 0)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.EOF))
     }
 }

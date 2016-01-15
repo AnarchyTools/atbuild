@@ -9,3 +9,5 @@
                   :output-type "lib" 
                   :source [ "src/**.swift" ]}}
 )
+
+; End of the sample.

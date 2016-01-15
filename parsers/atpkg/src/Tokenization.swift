@@ -25,7 +25,6 @@ public enum Token {
     case StringLiteral(String, line: Int, column: Int)
     case Terminal(line: Int, column: Int)
     case Colon(line: Int, column: Int)
-    case SemiColon(line: Int, column: Int)
     case Comment(String, line: Int, column: Int)
     
     case Unhandled(String, line: Int, column: Int)
@@ -59,7 +58,6 @@ public enum Token {
         case let (.CloseBrace(l0, l1), .CloseBrace(r0, r1)): return l0 == r0 && l1 == r1
         case let (.Terminal(l0, l1), .Terminal(r0, r1)): return l0 == r0 && l1 == r1
         case let (.Colon(l0, l1), .Colon(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.SemiColon(l0, l1), .SemiColon(r0, r1)): return l0 == r0 && l1 == r1
         
         case (.EOF, .EOF): return true
         
@@ -145,19 +143,18 @@ public class Lexer {
                 return .Colon(line: next.line, column: next.column)
             }
             else if next.character == ";" {
-                if scanner.next()?.character == ";" {
-                    let column = scanner.peek()!.column - 1
-                    var comment = ""
-                    while let info = scanner.next() where info.character != "\n" {
-                        comment.append(info.character!)
-                    }
+                let column = scanner.peek()!.column
+                let line = scanner.peek()!.line
+                var comment = ""
 
-                    return .Comment(comment, line: scanner.peek()!.line, column: column)
+                while let info = scanner.next() where info.character == ";" {}
+                scanner.stall()
+                
+                while let info = scanner.next() where info.character != "\n" {
+                    comment.append(info.character!)
                 }
-                else {
-                    scanner.stall()
-                    return .SemiColon(line: next.line, column: next.column)
-                }
+
+                return .Comment(comment, line: line, column: column)
             }
             else if next.character == "\"" {
                 var content = String(next.character!)
@@ -193,16 +190,5 @@ public class Lexer {
 
     public func peek() -> Token? {
         return current
-    }
-
-    public func debugPrint() {
-        print("--- TOKENS ---")
-        while let token = self.next() {
-            print("\(token)")
-        }
-        print("")
-
-        self.scanner._defaults()
-        self.current = nil
     }
 }

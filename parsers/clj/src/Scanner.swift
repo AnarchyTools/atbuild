@@ -68,14 +68,4 @@ class Scanner {
     func peek() -> ScannerInfo? {
         return current
     }
-
-    func debugPrint() {
-        print("--- SCANNER INFO ---")
-        while let info = self.next() {
-            print("\(info)")
-        }
-        print("")
-
-        self._defaults()
-    }
 }

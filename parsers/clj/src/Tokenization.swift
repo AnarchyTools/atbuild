@@ -39,7 +39,7 @@ enum Token {
         }
     }
     
-    static func isEqualTo(lhs: Token?, _ rhs: Token?) -> Bool {
+    static func isEqual(lhs: Token?, to rhs: Token?) -> Bool {
         if lhs == nil && rhs == nil { return true }
         
         guard let lhs = lhs else { return false }

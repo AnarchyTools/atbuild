@@ -17,9 +17,11 @@
 extension String : ErrorType {}
 
 enum test {
-    static func assert(condition: Bool, functionName: String = __FUNCTION__) throws {
-        print("  \(functionName): \(condition ? "PASSED" : "**FAILED**")")
-        if !condition { throw "clj.tests.failed" }
+    static func assert(condition: Bool, file: String = __FILE__, functionName: String = __FUNCTION__, line: Int = __LINE__) throws {
+        if !condition {
+            print(" \(file):\(line) \(functionName)  **FAILED**")
+            throw "clj.tests.failed"
+        }
     }
 }
 
@@ -45,7 +47,6 @@ print()
 let tests: [Test] = [
     // NOTE: Add your test classes here...
     
-    RingBufferTests(),
     ScannerTests(),
     LexerTests()
 ]

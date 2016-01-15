@@ -5,6 +5,9 @@
 //  No part of atbuild, including this file, may be copied, modified,
 //  propagated, or distributed except according to the terms contained
 //  in the LICENSE file.
+#if ATBUILD
+    import yaml
+#endif
 
 ///A tool is a function that performs some operation, like building, or running a shell command.
 ///We provide several builtin tools, but users can build new ones out of the existing ones.

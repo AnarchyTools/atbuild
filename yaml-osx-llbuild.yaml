@@ -1,0 +1,27 @@
+client:
+  name: swift-build
+
+tools: {}
+
+targets:
+  "": [<atllbuild>]
+  atllbuild: [<atllbuild>]
+commands:
+  <atllbuild-swiftc>:
+     tool: swift-compiler
+     executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
+     inputs: ["parsers/yaml/src/Operators.swift", "parsers/yaml/src/Parser.swift", "parsers/yaml/src/Regex.swift", "parsers/yaml/src/Result.swift", "parsers/yaml/src/Tokenizer.swift", "parsers/yaml/src/Yaml.swift"]
+     sources: ["parsers/yaml/src/Operators.swift", "parsers/yaml/src/Parser.swift", "parsers/yaml/src/Regex.swift", "parsers/yaml/src/Result.swift", "parsers/yaml/src/Tokenizer.swift", "parsers/yaml/src/Yaml.swift"]
+     objects: [".atllbuild/objects/Operators.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Regex.swift.o", ".atllbuild/objects/Result.swift.o", ".atllbuild/objects/Tokenizer.swift.o", ".atllbuild/objects/Yaml.swift.o"]
+     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/Operators.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Regex.swift.o", ".atllbuild/objects/Result.swift.o", ".atllbuild/objects/Tokenizer.swift.o", ".atllbuild/objects/Yaml.swift.o"]
+     is-library: true
+     module-name: yaml
+     module-output-path: .atllbuild/products/yaml.swiftmodule
+     temps-path: .atllbuild//llbuildtmp
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
+  <atllbuild>:
+    tool: shell
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/Operators.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Regex.swift.o", ".atllbuild/objects/Result.swift.o", ".atllbuild/objects/Tokenizer.swift.o", ".atllbuild/objects/Yaml.swift.o"]
+    outputs: ["<atllbuild>", ".atllbuild/products/yaml.a"]
+    args: ["/bin/sh","-c",rm -rf .atllbuild/products/yaml.a; ar cr '.atllbuild/products/yaml.a' '.atllbuild/objects/Operators.swift.o' '.atllbuild/objects/Parser.swift.o' '.atllbuild/objects/Regex.swift.o' '.atllbuild/objects/Result.swift.o' '.atllbuild/objects/Tokenizer.swift.o' '.atllbuild/objects/Yaml.swift.o']
+    description: "Linking Library:  .atllbuild/products/yaml.a"

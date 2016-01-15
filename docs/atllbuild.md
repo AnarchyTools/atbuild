@@ -17,11 +17,22 @@ tasks:
 
         #If true, we don't build, llbuild.yaml  False is the default value.
         bootstrapOnly: false 
-        llbuildyaml: "llbuild.yaml" #path to emit llbuild.yaml
+        #path to emit llbuild.yaml
+        llbuildyaml: "llbuild.yaml" 
 
         compileOptions: [] #Provide an array of compile options.  And they said it was impossible.
 
         linkSDK: true #Whether to link the platform SDK.  True is the default value.
+
+        #What type of output to link.  "executable" and "static-library" are supported.
+        outputType: "executable"
+
+        #A product from another atllbuild task to link with.
+        #You should supply a filename here, like "yaml.a".
+        #Note that this is for linking dependencies built by atllbuild; 
+        # for other libraries, you should use UNSUPPORTED https://github.com/AnarchyTools/atbuild/issues/13
+        linkWithProduct: []
+        
 ```
 
 ## Implementation

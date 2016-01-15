@@ -8,6 +8,10 @@
 
 import Foundation
 
+#if ATBUILD
+    import yaml
+#endif
+
 ///Nop is a tool that has no effect
 final class Nop: Tool {
     func run(args: [Yaml : Yaml]) throws {

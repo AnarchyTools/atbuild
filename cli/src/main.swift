@@ -10,6 +10,11 @@ let version = "0.2.0-dev"
 
 import Foundation
 
+#if ATBUILD
+    import yaml
+#endif
+
+
 //usage message
 if Process.arguments.count > 1 && Process.arguments[1] == "--help" {
     print("atbuild - Anarchy Tools Build Tool \(version)")

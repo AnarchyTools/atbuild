@@ -6,6 +6,10 @@
 //  propagated, or distributed except according to the terms contained
 //  in the LICENSE file.
 
+#if ATBUILD
+    import yaml
+#endif
+
 import Foundation
 
 ///The Shell tool runs a shell script.  It expects a zero return code.

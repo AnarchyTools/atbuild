@@ -6,6 +6,10 @@
 //  propagated, or distributed except according to the terms contained
 //  in the LICENSE file.
 
+#if ATBUILD
+import yaml
+#endif
+
 ///A Task is a CLI entry point to `atbuild`.  If you call `atbuild` with no arguments, we run a task called "default".
 final class Task {
     let tool: String ///The tool that implements this task.  See Tools.swift

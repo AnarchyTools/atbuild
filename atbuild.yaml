@@ -7,35 +7,52 @@ tasks:
         script: "echo \"Hello world\""
 
     default:
+        dependency: ["yaml"]
         tool: "atllbuild"
-        source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
+        source: ["cli/src/**.swift"]
         name: "atbuild"
-        
-    tests:
-        tool: "atllbuild"
-        source: ["parsers/clj/src/**.swift", "parsers/clj/tests/**.swift"]
-        name: "tests"
-        
-    runtests:
-        tool: "shell"
-        script: "./.atllbuild/tests"
+        outputType: "executable"
+        linkWithProduct: ["yaml.a"]
 
     bootstrap-osx:
         tool: "atllbuild"
-        source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
+        source: ["cli/src/**.swift"]
         name: "atbuild"
         bootstrapOnly: true
         llbuildyaml: "llbuild-osx.yaml"
+        outputType: "executable"
+        linkWithProduct: ["yaml.a"]
+        dependency: ["bootstrap-yaml-osx"]
 
     bootstrap-linux:
         tool: "atllbuild"
-        source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
+        source: ["cli/src/**.swift"]
         name: "atbuild"
         bootstrapOnly: true
         llbuildyaml: "llbuild-linux.yaml"
         linkSDK: false
         compileOptions: ["-D","CORELIBS_FOUNDATION"]
+        outputType: "executable"
+        linkWithProduct: ["yaml.a"]
+        dependency: ["bootstrap-yaml-linux"]
 
     bootstrap:
         tool: "nop"
         dependency: ["bootstrap-osx", "bootstrap-linux"]
+
+    yaml:
+        tool: "atllbuild"
+        source: ["parsers/yaml/**.swift"]
+        name: "yaml"
+        outputType: "static-library"
+        
+    clj-tests:
+        tool: "atllbuild"
+        source: ["parsers/clj/src/**.swift", "parsers/clj/tests/**.swift"]
+        name: "tests"
+        outputType: "executable"
+        
+    runtests:
+        dependency: ["clj-tests"]
+        tool: "shell"
+        script: "./.atllbuild/tests"

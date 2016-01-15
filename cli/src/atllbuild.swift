@@ -49,8 +49,9 @@ final class ATllbuild : Tool {
 - parameter sources: A resolved list of swift sources
 - parameter workdir: A temporary working directory for `atllbuild` to use
 - parameter modulename: The name of the module to be built.
-- returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool, along with a list of products */
-    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String], outputType: OutputType, linkWithProduct:[String]) -> (yaml: String, products: [String]) {
+- returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool */
+    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String], outputType: OutputType, linkWithProduct:[String]) -> String {
+        let productPath = workdir + "products/"
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
         
@@ -88,7 +89,8 @@ final class ATllbuild : Tool {
         }
         
         yaml += "     module-name: \(modulename)\n"
-        yaml += "     module-output-path: \(workdir + modulename).swiftmodule\n"
+        let swiftModulePath = "\(productPath + modulename).swiftmodule"
+        yaml += "     module-output-path: \(swiftModulePath)\n"
         yaml += "     temps-path: \(workdir)/llbuildtmp\n"
         
         var args : [String] = []
@@ -111,16 +113,16 @@ final class ATllbuild : Tool {
             llbuild_inputs.appendContentsOf(objects)
             let builtProducts = linkWithProduct.map {workdir+"products/"+$0}
             llbuild_inputs.appendContentsOf(builtProducts)
+            let executablePath = productPath+modulename
             yaml += "    inputs: \(llbuild_inputs)\n"
-            yaml += "    outputs: [\"<atllbuild>\", \"\(workdir + modulename)\"]\n"
+            yaml += "    outputs: [\"<atllbuild>\", \"\(executablePath)\"]\n"
             //and now we have the crazy 'args'
-            args = [SwiftCPath, "-o",workdir + modulename]
+            args = [SwiftCPath, "-o",executablePath]
             args.appendContentsOf(objects)
             args.appendContentsOf(builtProducts)
             yaml += "    args: \(args)\n"
-            
-            yaml += "    description: Linking executable \(modulename)\n"
-            return (yaml: yaml, products: [workdir + modulename])
+            yaml += "    description: Linking executable \(executablePath)\n"
+            return yaml
 
         
         case .StaticLibrary:
@@ -128,7 +130,7 @@ final class ATllbuild : Tool {
             var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs.appendContentsOf(objects)
             yaml += "    inputs: \(llbuild_inputs)\n"
-            let libPath = "\(workdir + modulename).a"
+            let libPath = productPath + modulename + ".a"
             yaml += "    outputs: [\"<atllbuild>\", \"\(libPath)\"]\n"
             
             //build the crazy args, mostly consisting of an `ar` shell command
@@ -139,7 +141,7 @@ final class ATllbuild : Tool {
             let args = "[\"/bin/sh\",\"-c\",\(shellCmd)]"
             yaml += "    args: \(args)\n"
             yaml += "    description: \"Linking Library:  \(libPath)\""
-            return (yaml: yaml, products: [libPath, "\(workdir + modulename).swiftmodule"])
+            return yaml
         }
         
         
@@ -210,7 +212,7 @@ final class ATllbuild : Tool {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
         
-        let (yaml, products) = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, outputType: outputType, linkWithProduct: linkWithProduct)
+        let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, outputType: outputType, linkWithProduct: linkWithProduct)
         try yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         
@@ -220,13 +222,6 @@ final class ATllbuild : Tool {
         sbt.waitUntilExit()
         if sbt.terminationStatus != 0 {
             throw AnarchyBuildError.ExternalToolFailed("\(SwiftBuildToolpath) " + args.joinWithSeparator(" "))
-        }
-        
-        //move the output to our build products
-        for product in products {
-            let productName = (product as NSString).lastPathComponent
-            try? manager.removeItemAtPath(workDirectory + "products/\(productName)")
-            try manager.moveItemAtPath(product, toPath: workDirectory + "products/\(productName)")
         }
     }
 }

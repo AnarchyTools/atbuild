@@ -151,11 +151,16 @@ final class ATllbuild : Tool {
         //create the working directory
         let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()
-        try? manager.removeItemAtPath(workDirectory + "/objects")
-        try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
-        try? manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
-        try? manager.createDirectoryAtPath(workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)
-        try manager.createDirectoryAtPath(workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
+        
+        //NSFileManager is pretty anal about throwing errors if we try to remove something that doesn't exist, etc.
+        //We just want to create a state where .atllbuild/objects and .atllbuild/llbuildtmp and .atllbuild/products exists.
+        //and in particular, without erasing the product directory, since that accumulates build products across
+        //multiple invocations of atllbuild.
+        let _ = try? manager.removeItemAtPath(workDirectory + "/objects")
+        let _ = try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
+        let _ = try? manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.createDirectoryAtPath(workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)
+        let _ = try manager.createDirectoryAtPath(workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
 
         //parse arguments
         var linkWithProduct: [String] = []

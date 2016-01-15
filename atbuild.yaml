@@ -46,13 +46,25 @@ tasks:
         name: "yaml"
         outputType: "static-library"
         
-    clj-tests:
+    atpkg-parser:
         tool: "atllbuild"
-        source: ["parsers/clj/src/**.swift", "parsers/clj/tests/**.swift"]
-        name: "tests"
-        outputType: "executable"
+        source: ["parsers/atpkg/src/**.swift"]
+        name: "atpkgparser"
+        outputType: "static-library"
         
-    runtests:
-        dependency: ["clj-tests"]
+    atpkg-tests:
+        dependency: ["atpkg-parser"]
+        tool: "atllbuild"
+        source: ["parsers/atpkg/tests/**.swift"]
+        name: "atpkgtests"
+        outputType: "executable"
+        linkWithProduct: ["atpkgparser.a"]
+        
+    run-atpkg-tests:
+        dependency: ["atpkg-tests"]
         tool: "shell"
-        script: "./.atllbuild/tests"
+        script: "./.atllbuild/products/atpkgtests"
+    
+    run-tests:
+        tool: "nop"
+        dependency: ["run-atpkg-tests"]

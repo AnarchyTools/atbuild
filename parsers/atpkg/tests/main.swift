@@ -20,7 +20,7 @@ enum test {
     static func assert(condition: Bool, file: String = __FILE__, functionName: String = __FUNCTION__, line: Int = __LINE__) throws {
         if !condition {
             print(" \(file):\(line) \(functionName)  **FAILED**")
-            throw "clj.tests.failed"
+            throw "atpkg.tests.failed"
         }
     }
 }

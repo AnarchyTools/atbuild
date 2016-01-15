@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct ScannerInfo {
-    let character: Character?
-    let line: Int
-    let column: Int
+public struct ScannerInfo {
+    public let character: Character?
+    public let line: Int
+    public let column: Int
 }
 
-class Scanner {
+public class Scanner {
     
     var content: String
     var index: String.Index
@@ -29,7 +29,7 @@ class Scanner {
     var line: Int = 0
     var column: Int = 0 
 
-    init(content: String) {
+    public init(content: String) {
         self.content = content
         self.index = content.startIndex
         self._defaults()
@@ -43,11 +43,11 @@ class Scanner {
         self.current = nil
    }
 
-    func stall() {
+    public func stall() {
         shouldStall = true
     }
 
-    func next() -> ScannerInfo? {
+    public func next() -> ScannerInfo? {
         if shouldStall {
             shouldStall = false
             return current
@@ -72,7 +72,7 @@ class Scanner {
         return current 
     }
 
-    func peek() -> ScannerInfo? {
+    public func peek() -> ScannerInfo? {
         return current
     }
 }

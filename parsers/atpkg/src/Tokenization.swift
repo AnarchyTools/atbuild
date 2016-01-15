@@ -14,7 +14,7 @@
 
 import Foundation
 
-enum Token {
+public enum Token {
     case Identifier(String, line: Int, column: Int)
     case OpenParen(line: Int, column: Int)
     case CloseParen(line: Int, column: Int)
@@ -39,7 +39,7 @@ enum Token {
         }
     }
     
-    static func isEqual(lhs: Token?, to rhs: Token?) -> Bool {
+    public static func isEqual(lhs: Token?, to rhs: Token?) -> Bool {
         if lhs == nil && rhs == nil { return true }
         
         guard let lhs = lhs else { return false }
@@ -91,16 +91,16 @@ func isWhitespace(c: Character?) -> Bool {
     return isCharacterPartOfSet(c, set: NSCharacterSet.whitespaceCharacterSet())
 }
 
-class Lexer {
+public class Lexer {
 
     var scanner: Scanner
     var current: Token? = nil
     
-    init(scanner: Scanner) {
+    public init(scanner: Scanner) {
         self.scanner = scanner
     }
 
-    func next() -> Token? {
+    public func next() -> Token? {
         func work() -> Token {
             if scanner.next() == nil { return .EOF }
 
@@ -183,7 +183,7 @@ class Lexer {
         return self.current
     }
 
-    func tokenize() -> [Token] {
+    public func tokenize() -> [Token] {
         var tokens = [Token]()
 
         while let token = self.next() { tokens.append(token) }
@@ -191,11 +191,11 @@ class Lexer {
         return tokens
     }
 
-    func peek() -> Token? {
+    public func peek() -> Token? {
         return current
     }
 
-    func debugPrint() {
+    public func debugPrint() {
         print("--- TOKENS ---")
         while let token = self.next() {
             print("\(token)")

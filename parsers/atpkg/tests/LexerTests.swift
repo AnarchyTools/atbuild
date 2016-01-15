@@ -14,17 +14,18 @@
 
 
 import Foundation
+import atpkgparser
 
 class LexerTests: Test {
     required init() {}
     let tests = [
-        LexerTests.testBasicClj
+        LexerTests.testBasic
     ]
 
     let filename = __FILE__
         
-    static func testBasicClj() throws {
-        let filepath = "./parsers/clj/tests/collateral/basic.clj"
+    static func testBasic() throws {
+        let filepath = "./parsers/atpkg/tests/collateral/basic.atpkg"
 
         let content: String = try NSString(contentsOfFile: filepath, encoding: NSUTF8StringEncoding) as String
         let scanner = Scanner(content: content)

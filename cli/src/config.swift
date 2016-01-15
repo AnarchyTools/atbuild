@@ -7,6 +7,9 @@
 //  in the LICENSE file.
 
 ///Load the contents of atbuild.yaml
+#if ATBUILD
+    import yaml
+#endif
 func loadyaml() throws -> [Yaml:Yaml]  {
     guard let yamlContents = try? String(contentsOfFile: "atbuild.yaml") else { throw AnarchyBuildError.CantParseYaml("Can't load atbuild.yaml") }
     let yaml = Yaml.load(yamlContents)

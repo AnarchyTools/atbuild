@@ -8,6 +8,10 @@
 
 import Foundation
 
+#if ATBUILD
+    import yaml
+#endif
+
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {
@@ -45,8 +49,8 @@ final class ATllbuild : Tool {
 - parameter sources: A resolved list of swift sources
 - parameter workdir: A temporary working directory for `atllbuild` to use
 - parameter modulename: The name of the module to be built.
-- returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool */
-    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String], outputType: OutputType) -> String {
+- returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool, along with a list of products */
+    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String], outputType: OutputType, linkWithProduct:[String]) -> (yaml: String, products: [String]) {
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
         
@@ -68,7 +72,7 @@ final class ATllbuild : Tool {
         
         //swiftPM wants "objects" which is just a list of %.swift.o files.  We have to put them in a temp directory though.
         let objects = sources.map { (source) -> String in
-            workdir + (source as NSString).lastPathComponent + ".o"
+            workdir + "objects/" + (source as NSString).lastPathComponent + ".o"
         }
         yaml += "     objects: \(objects)\n"
         //this crazy syntax is how llbuild specifies outputs
@@ -88,7 +92,7 @@ final class ATllbuild : Tool {
         yaml += "     temps-path: \(workdir)/llbuildtmp\n"
         
         var args : [String] = []
-        args.appendContentsOf(["-j8"])
+        args.appendContentsOf(["-j8", "-D","ATBUILD","-I",workdir+"products/"])
         
         if linkSDK {
             args.appendContentsOf(["-sdk", SDKPath])
@@ -105,14 +109,19 @@ final class ATllbuild : Tool {
             //this crazy syntax is how sbt declares a dependency
             var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs.appendContentsOf(objects)
+            let builtProducts = linkWithProduct.map {workdir+"products/"+$0}
+            llbuild_inputs.appendContentsOf(builtProducts)
             yaml += "    inputs: \(llbuild_inputs)\n"
             yaml += "    outputs: [\"<atllbuild>\", \"\(workdir + modulename)\"]\n"
             //and now we have the crazy 'args'
             args = [SwiftCPath, "-o",workdir + modulename]
             args.appendContentsOf(objects)
+            args.appendContentsOf(builtProducts)
             yaml += "    args: \(args)\n"
             
             yaml += "    description: Linking executable \(modulename)\n"
+            return (yaml: yaml, products: [workdir + modulename])
+
         
         case .StaticLibrary:
             yaml += "    tool: shell\n"
@@ -130,22 +139,30 @@ final class ATllbuild : Tool {
             let args = "[\"/bin/sh\",\"-c\",\(shellCmd)]"
             yaml += "    args: \(args)\n"
             yaml += "    description: \"Linking Library:  \(libPath)\""
+            return (yaml: yaml, products: [libPath, "\(workdir + modulename).swiftmodule"])
         }
         
         
-        return yaml
     }
     
     func run(args: [Yaml : Yaml]) throws {
         //create the working directory
         let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()
-        if manager.fileExistsAtPath(workDirectory) {
-            try manager.removeItemAtPath(workDirectory)
-        }
-        try manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
-        
+        try? manager.removeItemAtPath(workDirectory + "/objects")
+        try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
+        try? manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
+        try? manager.createDirectoryAtPath(workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)
+        try manager.createDirectoryAtPath(workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
+
         //parse arguments
+        var linkWithProduct: [String] = []
+        if let arr = args["linkWithProduct"]?.array {
+            for product in arr {
+                guard let p = product.string else { throw AnarchyBuildError.CantParseYaml("non-string product \(product)") }
+                linkWithProduct.append(p)
+            }
+        }
         let outputType: OutputType
         if args["outputType"]?.string == "static-library" {
             outputType = .StaticLibrary
@@ -193,7 +210,8 @@ final class ATllbuild : Tool {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
         
-        try llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, outputType: outputType).writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
+        let (yaml, products) = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, outputType: outputType, linkWithProduct: linkWithProduct)
+        try yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         
         //now we try running sbt
@@ -202,6 +220,13 @@ final class ATllbuild : Tool {
         sbt.waitUntilExit()
         if sbt.terminationStatus != 0 {
             throw AnarchyBuildError.ExternalToolFailed("\(SwiftBuildToolpath) " + args.joinWithSeparator(" "))
+        }
+        
+        //move the output to our build products
+        for product in products {
+            let productName = (product as NSString).lastPathComponent
+            try? manager.removeItemAtPath(workDirectory + "products/\(productName)")
+            try manager.moveItemAtPath(product, toPath: workDirectory + "products/\(productName)")
         }
     }
 }

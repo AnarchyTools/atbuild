@@ -7,10 +7,12 @@ tasks:
         script: "echo \"Hello world\""
 
     default:
+        dependency: ["yaml"]
         tool: "atllbuild"
-        source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
+        source: ["cli/src/**.swift"]
         name: "atbuild"
         outputType: "executable"
+        linkWithProduct: ["yaml.a"]
 
     bootstrap-osx:
         tool: "atllbuild"

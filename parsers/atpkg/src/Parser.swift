@@ -15,46 +15,74 @@
 import atpkgmodel
 import Foundation
 
-public enum PackageParserError: ErrorType {
-    case PackageFileDoesNotExist(filename: String)
-    case MissingPackageDeclaration
-    case InvalidPackageFile
-    case UnexpectedToken(expected: Token, actual: Token)
-    case MissingToken(expected: Token)
-}
+// public enum PackageParserError: ErrorType {
+//     case PackageFileDoesNotExist(filename: String)
+//     case MissingPackageDeclaration
+//     case InvalidPackageFile
+//     case UnexpectedToken(expected: Token, actual: Token)
+//     case MissingToken(expected: Token)
+//     case UnknownProperty(String)
+// }
 
-extension Lexer {
-    func parseableNext() -> Token? {
-        while true {
-            guard let token = self.next() else { return nil }
-            if case .Comment = token {}
-            else if case .Terminal = token {}
-            else { return self.peek() }
-        }
-    }
+// extension Lexer {
+//     func parseableNext() -> Token? {
+//         while true {
+//             guard let token = self.next() else { return nil }
+//             if case .Comment = token {}
+//             else if case .Terminal = token {}
+//             else { return self.peek() }
+//         }
+//     }
     
-    func take(expected: Token) throws {
-        guard let token = self.parseableNext() else { throw PackageParserError.MissingToken(expected: expected) }
-        if !Token.isEquivalent(expected, to: token) { throw PackageParserError.UnexpectedToken(expected: expected, actual: token) }
-    }
-}
+//     func take(expected: Token) throws -> Token {
+//         guard let token = self.parseableNext() else { throw PackageParserError.MissingToken(expected: expected) }
+//         if !Token.isEquivalent(expected, to: token) { throw PackageParserError.UnexpectedToken(expected: expected, actual: token) }
+        
+//         return token
+//     }
+// }
 
-public func parsePackageDefinition(filepath: String) throws -> Package {
-    guard let content: String = try? NSString(contentsOfFile: filepath, encoding: NSUTF8StringEncoding) as String else {
-        throw PackageParserError.PackageFileDoesNotExist(filename: filepath)
-    }
+// func parseProperties(package: Package, lexer: Lexer) throws {
+//     guard let token = lexer.parseableNext() else { throw PackageParserError.InvalidPackageFile }
     
-    let scanner = Scanner(content: content)
-    let lexer = Lexer(scanner: scanner)
+//     if case .CloseParen = token {
+//         lexer.stall()
+//         return
+//     }
     
-    try lexer.take(.OpenParen(line: 0, column: 0))
-    try lexer.take(.Identifier("package", line: 0, column: 0))
+//     if case .Colon = token {
+//         print(":")
+//         guard let identifier = lexer.parseableNext() else { throw PackageParserError.MissingToken(expected: .Identifier("", line: 0, column: 0)) }
+//         if case let .Identifier(id, _, _) = identifier {
+            
+//             switch id {
+//             case "name": package.name = try lexer.take()
+//             default: throw PackageParserError.UnknownProperty(id)
+//             }
+            
+//         }
+//     }
+// }
 
-    // TODO: Parse the properties of the package definition.
+// public func parsePackageDefinition(filepath: String) throws -> Package {
+//     guard let content: String = try? NSString(contentsOfFile: filepath, encoding: NSUTF8StringEncoding) as String else {
+//         throw PackageParserError.PackageFileDoesNotExist(filename: filepath)
+//     }
     
-    try lexer.take(.CloseParen(line: 0, column: 0))
-    try lexer.take(.EOF)
+//     let scanner = Scanner(content: content)
+//     let lexer = Lexer(scanner: scanner)
+
+//     let package = Package(name: "")
     
-    let package = Package(name: "nope")
-    return package
-}
+//     try lexer.take(.OpenParen(line: 0, column: 0))
+//     try lexer.take(.Identifier("package", line: 0, column: 0))
+
+//     // TODO: Parse the properties of the package definition.
+    
+//     try parseProperties(package, lexer: lexer)
+    
+//     try lexer.take(.CloseParen(line: 0, column: 0))
+//     try lexer.take(.EOF)
+    
+//     return package
+// }

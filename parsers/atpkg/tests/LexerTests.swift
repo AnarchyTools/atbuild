@@ -19,28 +19,16 @@ import atpkgparser
 func outputBaseline(lexer: Lexer) {
     print("--- baseline ---")
     while let token = lexer.next() {
-        var output = ""
+        let type = String(reflecting: token.type).stringByReplacingOccurrencesOfString("atpkgparser.", withString: "")
+        var value = ""
         
-        switch token {
-        case let .OpenParen(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.OpenParen(line: \(line), column: \(column))))"
-        case let .CloseParen(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.CloseParen(line: \(line), column: \(column))))"
-        case let .OpenBracket(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.OpenBracket(line: \(line), column: \(column))))"
-        case let .CloseBracket(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.CloseBracket(line: \(line), column: \(column))))"
-        case let .OpenBrace(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.OpenBrace(line: \(line), column: \(column))))"
-        case let .CloseBrace(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.CloseBrace(line: \(line), column: \(column))))"
-        case let .Terminal(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: \(line), column: \(column))))"
-        case let .Colon(line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: \(line), column: \(column))))"
-
-        case let .Identifier(str, line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier(\"\(str)\", line: \(line), column: \(column))))"
-        case let .StringLiteral(str, line, column):
-            let escapedStr = str.stringByReplacingOccurrencesOfString("\"", withString: "\\\"")
-            output = "try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral(\"\(escapedStr)\", line: \(line), column: \(column))))"
-        case let .Comment(str, line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Comment(\"\(str)\", line: \(line), column: \(column))))"
-        case let .Unhandled(str, line, column): output = "try test.assert(Token.isEqual(lexer.next(), to: Token.Unhandled(\"\(str)\", line: \(line), column: \(column))))"
-        
-        case .EOF: output = "try test.assert(Token.isEqual(lexer.next(), to: Token.EOF))"
+        switch token.type {
+        case .Terminal: value = "\\n"
+        case .StringLiteral: value = token.value.stringByReplacingOccurrencesOfString("\"", withString: "\\\"")
+        default: value = token.value
         }
-
+        
+        let output = "try test.assert(lexer.next() == Token(type: \(type), value: \"\(value)\", line: \(token.line), column: \(token.column)))"
         print(output)
     }
     print("--- end baseline ---")
@@ -61,50 +49,50 @@ class LexerTests: Test {
         let scanner = Scanner(content: content)
         let lexer = Lexer(scanner: scanner)
         
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Comment(" This is the most basic of sample files.", line: 0, column: 0)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 1, column: 0)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.OpenParen(line: 2, column: 0)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("package", line: 2, column: 1)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 2, column: 8)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 3, column: 2)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("name", line: 3, column: 3)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral("\"basic\"", line: 3, column: 8)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 3, column: 15)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 4, column: 2)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("version", line: 4, column: 3)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral("\"0.1.0-dev\"", line: 4, column: 11)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 4, column: 22)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 5, column: 2)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 6, column: 2)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("tasks", line: 6, column: 3)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.OpenBrace(line: 6, column: 9)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 6, column: 10)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("build", line: 6, column: 11)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.OpenBrace(line: 6, column: 17)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 6, column: 18)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("tool", line: 6, column: 19)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral("\"lldb-build\"", line: 6, column: 24)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 6, column: 36)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 7, column: 18)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("name", line: 7, column: 19)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral("\"json-swift\"", line: 7, column: 24)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 7, column: 36)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 8, column: 18)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("output-type", line: 8, column: 19)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral("\"lib\"", line: 8, column: 31)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 8, column: 37)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 9, column: 18)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("source", line: 9, column: 19)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.OpenBracket(line: 9, column: 26)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.StringLiteral("\"src/**.swift\"", line: 9, column: 28)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.CloseBracket(line: 9, column: 43)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.CloseBrace(line: 9, column: 44)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.CloseBrace(line: 9, column: 45)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 9, column: 46)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.CloseParen(line: 10, column: 0)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 10, column: 1)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 11, column: 0)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Comment(" End of the sample.", line: 12, column: 0)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.EOF))
+        try test.assert(lexer.next() == Token(type: TokenType.Comment, value: " This is the most basic of sample files.", line: 0, column: 0))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 1, column: 0))
+        try test.assert(lexer.next() == Token(type: TokenType.OpenParen, value: "(", line: 2, column: 0))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "package", line: 2, column: 1))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 2, column: 8))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 3, column: 2))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "name", line: 3, column: 3))
+        try test.assert(lexer.next() == Token(type: TokenType.StringLiteral, value: "\"basic\"", line: 3, column: 8))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 3, column: 15))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 4, column: 2))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "version", line: 4, column: 3))
+        try test.assert(lexer.next() == Token(type: TokenType.StringLiteral, value: "\"0.1.0-dev\"", line: 4, column: 11))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 4, column: 22))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 5, column: 2))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 6, column: 2))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "tasks", line: 6, column: 3))
+        try test.assert(lexer.next() == Token(type: TokenType.OpenBrace, value: "{", line: 6, column: 9))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 6, column: 10))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "build", line: 6, column: 11))
+        try test.assert(lexer.next() == Token(type: TokenType.OpenBrace, value: "{", line: 6, column: 17))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 6, column: 18))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "tool", line: 6, column: 19))
+        try test.assert(lexer.next() == Token(type: TokenType.StringLiteral, value: "\"lldb-build\"", line: 6, column: 24))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 6, column: 36))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 7, column: 18))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "name", line: 7, column: 19))
+        try test.assert(lexer.next() == Token(type: TokenType.StringLiteral, value: "\"json-swift\"", line: 7, column: 24))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 7, column: 36))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 8, column: 18))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "output-type", line: 8, column: 19))
+        try test.assert(lexer.next() == Token(type: TokenType.StringLiteral, value: "\"lib\"", line: 8, column: 31))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 8, column: 37))
+        try test.assert(lexer.next() == Token(type: TokenType.Colon, value: ":", line: 9, column: 18))
+        try test.assert(lexer.next() == Token(type: TokenType.Identifier, value: "source", line: 9, column: 19))
+        try test.assert(lexer.next() == Token(type: TokenType.OpenBracket, value: "[", line: 9, column: 26))
+        try test.assert(lexer.next() == Token(type: TokenType.StringLiteral, value: "\"src/**.swift\"", line: 9, column: 28))
+        try test.assert(lexer.next() == Token(type: TokenType.CloseBracket, value: "]", line: 9, column: 43))
+        try test.assert(lexer.next() == Token(type: TokenType.CloseBrace, value: "}", line: 9, column: 44))
+        try test.assert(lexer.next() == Token(type: TokenType.CloseBrace, value: "}", line: 9, column: 45))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 9, column: 46))
+        try test.assert(lexer.next() == Token(type: TokenType.CloseParen, value: ")", line: 10, column: 0))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 10, column: 1))
+        try test.assert(lexer.next() == Token(type: TokenType.Terminal, value: "\n", line: 11, column: 0))
+        try test.assert(lexer.next() == Token(type: TokenType.Comment, value: " End of the sample.", line: 12, column: 0))
+        try test.assert(lexer.next() == Token(type: TokenType.EOF, value: "", line: 0, column: 0))
     }
 }

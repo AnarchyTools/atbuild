@@ -14,82 +14,41 @@
 
 import Foundation
 
-public enum Token {
-    case Identifier(String, line: Int, column: Int)
-    case OpenParen(line: Int, column: Int)
-    case CloseParen(line: Int, column: Int)
-    case OpenBracket(line: Int, column: Int)
-    case CloseBracket(line: Int, column: Int)
-    case OpenBrace(line: Int, column: Int)
-    case CloseBrace(line: Int, column: Int)
-    case StringLiteral(String, line: Int, column: Int)
-    case Terminal(line: Int, column: Int)
-    case Colon(line: Int, column: Int)
-    case Comment(String, line: Int, column: Int)
-    
-    case Unhandled(String, line: Int, column: Int)
-    
+public enum TokenType {
+    case Identifier
+    case OpenParen
+    case CloseParen
+    case OpenBracket
+    case CloseBracket
+    case OpenBrace
+    case CloseBrace
+    case StringLiteral
+    case Terminal
+    case Colon
+    case Comment
+
+    case Unknown
     case EOF
+}
 
-    var stringValue: String {
-        switch self {
-        case let .StringLiteral(value, _, _): return value
-        default: return ""
-        }
-    }
+public func ==(lhs: Token, rhs: Token) -> Bool {
+    return lhs.type == rhs.type &&
+           lhs.line == rhs.line &&
+           lhs.column == rhs.column &&
+           lhs.value == rhs.value
+}
+
+public struct Token: Equatable {
+    public let value: String
+    public let line: Int
+    public let column: Int
+    public let type: TokenType
     
-    public static func isEqual(lhs: Token?, to rhs: Token?) -> Bool {
-        if lhs == nil && rhs == nil { return true }
-        
-        guard let lhs = lhs else { return false }
-        guard let rhs = rhs else { return false }
-        
-        switch (lhs, rhs) {
-        case let (.Identifier(l0, l1, l2), .Identifier(r0, r1, r2)): return l0 == r0 && l1 == r1 && l2 == r2
-        case let (.StringLiteral(l0, l1, l2), .StringLiteral(r0, r1, r2)): return l0 == r0 && l1 == r1 && l2 == r2
-        case let (.Comment(l0, l1, l2), .Comment(r0, r1, r2)): return l0 == r0 && l1 == r1 && l2 == r2
-        case let (.Unhandled(l0, l1, l2), .Unhandled(r0, r1, r2)): return l0 == r0 && l1 == r1 && l2 == r2
-
-        case let (.OpenParen(l0, l1), .OpenParen(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.CloseParen(l0, l1), .CloseParen(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.OpenBracket(l0, l1), .OpenBracket(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.CloseBracket(l0, l1), .CloseBracket(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.OpenBrace(l0, l1), .OpenBrace(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.CloseBrace(l0, l1), .CloseBrace(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.Terminal(l0, l1), .Terminal(r0, r1)): return l0 == r0 && l1 == r1
-        case let (.Colon(l0, l1), .Colon(r0, r1)): return l0 == r0 && l1 == r1
-        
-        case (.EOF, .EOF): return true
-        
-        default: return false
-        }
-    }
-    
-    public static func isEquivalent(lhs: Token?, to rhs: Token?) -> Bool {
-        if lhs == nil && rhs == nil { return true }
-        
-        guard let lhs = lhs else { return false }
-        guard let rhs = rhs else { return false }
-        
-        switch (lhs, rhs) {
-        case let (.Identifier(l0, _, _), .Identifier(r0, _, _)): return l0 == r0
-        case let (.StringLiteral(l0, _, _), .StringLiteral(r0, _, _)): return l0 == r0
-        case let (.Comment(l0, _, _), .Comment(r0, _, _)): return l0 == r0
-        case let (.Unhandled(l0, _, _), .Unhandled(r0, _, _)): return l0 == r0
-
-        case (.OpenParen, .OpenParen): return true
-        case (.CloseParen, .CloseParen): return true
-        case (.OpenBracket, .OpenBracket): return true
-        case (.CloseBracket, .CloseBracket): return true
-        case (.OpenBrace, .OpenBrace): return true
-        case (.CloseBrace, .CloseBrace): return true
-        case (.Terminal, .Terminal): return true
-        case (.Colon, .Colon): return true
-        
-        case (.EOF, .EOF): return true
-        
-        default: return false
-        }
+    public init(type: TokenType, value: String = "", line: Int = 0, column: Int = 0) {
+        self.type = type
+        self.value = value
+        self.line = line
+        self.column = column
     }
 }
 
@@ -127,17 +86,17 @@ public class Lexer {
 
     public func next() -> Token? {
         func work() -> Token {
-            if scanner.next() == nil { return .EOF }
+            if scanner.next() == nil { return Token(type: .EOF) }
 
             scanner.stall()
 
             while let info = scanner.next() where isWhitespace(info.character) {}
             scanner.stall()
 
-            guard let next = scanner.next() else { return .EOF }
+            guard let next = scanner.next() else { return Token(type: .EOF) }
 
             if next.character == "\n" {
-                return .Terminal(line: next.line, column: next.column)
+                return Token(type: .Terminal, value: "\n", line: next.line, column: next.column)
             }
             else if isValidIdentifierSignalCharacter(next.character) {
                 var content = String(next.character!)
@@ -146,28 +105,28 @@ public class Lexer {
                 }
                 scanner.stall()
 
-                return .Identifier(content, line: next.line, column: next.column)
+                return Token(type: .Identifier, value: content, line: next.line, column: next.column)
             }
             else if next.character == "(" {
-                return .OpenParen(line: next.line, column: next.column)
+                return Token(type: .OpenParen, value: "(", line: next.line, column: next.column)
             }
             else if next.character == ")" {
-                return .CloseParen(line: next.line, column: next.column)
+                return Token(type: .CloseParen, value: ")", line: next.line, column: next.column)
             }
             else if next.character == "[" {
-                return .OpenBracket(line: next.line, column: next.column)
+                return Token(type: .OpenBracket, value: "[", line: next.line, column: next.column)
             }
             else if next.character == "]" {
-                return .CloseBracket(line: next.line, column: next.column)
+                return Token(type: .CloseBracket, value: "]", line: next.line, column: next.column)
             }
             else if next.character == "{" {
-                return .OpenBrace(line: next.line, column: next.column)
+                return Token(type: .OpenBrace, value: "{", line: next.line, column: next.column)
             }
             else if next.character == "}" {
-                return .CloseBrace(line: next.line, column: next.column)
+                return Token(type: .CloseBrace, value: "}", line: next.line, column: next.column)
             }
             else if next.character == ":" {
-                return .Colon(line: next.line, column: next.column)
+                return Token(type: .Colon, value: ":", line: next.line, column: next.column)
             }
             else if next.character == ";" {
                 let column = scanner.peek()!.column
@@ -181,7 +140,7 @@ public class Lexer {
                     comment.append(info.character!)
                 }
 
-                return .Comment(comment, line: line, column: column)
+                return Token(type: .Comment, value: comment, line: line, column: column)
             }
             else if next.character == "\"" {
                 var content = String(next.character!)
@@ -190,14 +149,14 @@ public class Lexer {
                 }
                 content.append(scanner.peek()!.character!)
 
-                return .StringLiteral(content, line: next.line, column: next.column)
+                return Token(type: .StringLiteral, value: content, line: next.line, column: next.column)
             }
             else {
-                return .Unhandled(String(next.character!), line: next.line, column: next.column)
+                return Token(type: .Unknown, value: String(next.character!), line: next.line, column: next.column)
             }
         }
 
-        if case .EOF? = self.current {
+        if self.current?.type == .EOF {
             self.current = nil
         }
         else {
@@ -217,5 +176,9 @@ public class Lexer {
 
     public func peek() -> Token? {
         return current
+    }
+    
+    public func stall() {
+        scanner.stall()
     }
 }

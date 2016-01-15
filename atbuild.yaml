@@ -10,6 +10,7 @@ tasks:
         tool: "atllbuild"
         source: ["cli/src/**.swift", "parsers/yaml/**.swift"]
         name: "atbuild"
+        outputType: "executable"
 
     bootstrap-osx:
         tool: "atllbuild"
@@ -17,6 +18,7 @@ tasks:
         name: "atbuild"
         bootstrapOnly: true
         llbuildyaml: "llbuild-osx.yaml"
+        outputType: "executable"
 
     bootstrap-linux:
         tool: "atllbuild"
@@ -26,7 +28,14 @@ tasks:
         llbuildyaml: "llbuild-linux.yaml"
         linkSDK: false
         compileOptions: ["-D","CORELIBS_FOUNDATION"]
+        outputType: "executable"
 
     bootstrap:
         tool: "nop"
         dependency: ["bootstrap-osx", "bootstrap-linux"]
+
+    yaml:
+        tool: "atllbuild"
+        source: ["parsers/yaml/**.swift"]
+        name: "yaml"
+        outputType: "static-library"

@@ -14,7 +14,7 @@
 
 ;; The build file for all of the targets of the Anarchy Tools build tool.
 
-(defpackage
+(package
   :name "atbuild"
   
   :tasks {:hellworld {:tool "shell"
@@ -67,12 +67,12 @@
                          :outputType "static-library"
                          :linkWithProduct ["atpkgmodel.a"]}
 
-          :atpkg-tests {:dependencies ["atpkg-parser"]
+          :atpkg-tests {:dependencies ["atpkg-parser", "atpkg-model"]
                         :tool "atllbuild"
                         :source ["parsers/atpkg/tests/**.swift"]
                         :name "atpkgtests"
                         :outputType "executable"
-                        :linkWithProduct ["atpkparser.a"]}
+                        :linkWithProduct ["atpkparser.a", "atpkgmodel.a"]}
                         
           :run-atpkg-tests {:dependencies ["atpkg-tests"]
                             :tool "shell"

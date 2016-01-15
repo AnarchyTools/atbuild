@@ -19,9 +19,9 @@ public enum OutputType {
 }
 
 public class FilePath {
-    var path: String
+    public var path: String
     
-    var expandedItems: [String] {
+    public var expandedItems: [String] {
         get { return [] }
     }
     
@@ -39,16 +39,20 @@ public class Dependency {
 }
 
 public class Task {
-    var dependencies: [Dependency] = []
-    var tool: String = "atllbuild"
-    var source: [FilePath] = []
-    var name: String
-    var bootstrapOnly: Bool = false
-    var llbuildyaml: String = ""
-    var linkSDK: Bool = false
-    var compilerOptions: [String] = []
-    var outputType: OutputType = OutputType.StaticLibrary
-    var linkWithProduct: [String] = []
+    // The required properties.
+    public var name: String
+
+    // The optional properties. All optional properties must have a default value.
+    public var dependencies: [Dependency] = []
+    public var tool: String = "atllbuild"
+    public var source: [FilePath] = []
+    public var version: String = ""
+    public var bootstrapOnly: Bool = false
+    public var llbuildyaml: String = ""
+    public var linkSDK: Bool = false
+    public var compilerOptions: [String] = []
+    public var outputType: OutputType = OutputType.StaticLibrary
+    public var linkWithProduct: [String] = []
     
     public init(name: String) {
         self.name = name
@@ -56,8 +60,8 @@ public class Task {
 }
 
 public class Package {
-    var name: String
-    var tasks: [Task] = []
+    public var name: String
+    public var tasks: [Task] = []
     
     public init(name: String) {
         self.name = name

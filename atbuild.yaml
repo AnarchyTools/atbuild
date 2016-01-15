@@ -61,12 +61,12 @@ tasks:
         linkWithProduct: ["atpkgmodel.a"]
         
     atpkg-tests:
-        dependency: ["atpkg-parser"]
+        dependency: ["atpkg-parser", "atpkg-model"]
         tool: "atllbuild"
         source: ["parsers/atpkg/tests/**.swift"]
         name: "atpkgtests"
         outputType: "executable"
-        linkWithProduct: ["atpkgparser.a"]
+        linkWithProduct: ["atpkgparser.a", "atpkgmodel.a"]
         
     run-atpkg-tests:
         dependency: ["atpkg-tests"]

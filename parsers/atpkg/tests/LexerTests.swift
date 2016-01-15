@@ -64,7 +64,7 @@ class LexerTests: Test {
         try test.assert(Token.isEqual(lexer.next(), to: Token.Comment(" This is the most basic of sample files.", line: 0, column: 0)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 1, column: 0)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.OpenParen(line: 2, column: 0)))
-        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("project", line: 2, column: 1)))
+        try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("package", line: 2, column: 1)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.Terminal(line: 2, column: 8)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.Colon(line: 3, column: 2)))
         try test.assert(Token.isEqual(lexer.next(), to: Token.Identifier("name", line: 3, column: 3)))

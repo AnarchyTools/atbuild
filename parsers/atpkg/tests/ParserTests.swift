@@ -12,13 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+import Foundation
+import atpkgparser
 import atpkgmodel
 
-public enum PackageParserError: ErrorType {
-    case PackageFileDoesNotExist
-}
+class ParserTests: Test {
+    required init() {}
+    let tests = [
+        ParserTests.testBasic
+    ]
 
-
-public func parsePackageDefinition(filepath: String) throws -> Package {
-    throw PackageParserError.PackageFileDoesNotExist
+    let filename = __FILE__
+    
+    static func testBasic() throws {
+        let filepath = "./parsers/atpkg/tests/collateral/basic.atpkg"
+        let package = try parsePackageDefinition(filepath)
+        
+        try test.assert(package.name == "basic")
+    }
 }

@@ -1,6 +1,6 @@
 ;; This is the most basic of sample files.
 
-(project
+(package
   :name "basic"
   :version "0.1.0-dev"
   

@@ -37,7 +37,12 @@ extension Test {
     func runTests() {
         print("Tests for \(filename)")
         for test in tests {
-            let _ = try? test()
+            do {
+                try test()
+            }
+            catch {
+                print("\(filename): **FAILED** \(error)")
+            }
         }
     }
 }
@@ -48,7 +53,8 @@ let tests: [Test] = [
     // NOTE: Add your test classes here...
     
     ScannerTests(),
-    LexerTests()
+    LexerTests(),
+    ParserTests()
 ]
 
 for test in tests {

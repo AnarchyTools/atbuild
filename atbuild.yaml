@@ -65,18 +65,18 @@ tasks:
         outputType: "static-library"
         
     atpkg-model:
+        dependency: ["atpkg-parser"]
         tool: "atllbuild"
         source: ["model/src/**.swift"]
         name: "atpkgmodel"
         outputType: "static-library"
+        linkWithProduct: ["atpkgparser.a"]
         
     atpkg-parser:
-        dependency: ["atpkg-model"]
         tool: "atllbuild"
         source: ["parsers/atpkg/src/**.swift"]
         name: "atpkgparser"
         outputType: "static-library"
-        linkWithProduct: ["atpkgmodel.a"]
         
     atpkg-tests:
         dependency: ["atpkg-parser", "atpkg-model"]

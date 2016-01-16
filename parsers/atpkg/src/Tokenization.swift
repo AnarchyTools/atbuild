@@ -80,11 +80,18 @@ public class Lexer {
     var scanner: Scanner
     var current: Token? = nil
     
+    var shouldStall = false
+    
     public init(scanner: Scanner) {
         self.scanner = scanner
     }
 
     public func next() -> Token? {
+        if shouldStall {
+            shouldStall = false
+            return current
+        }
+        
         func work() -> Token {
             if scanner.next() == nil { return Token(type: .EOF) }
 
@@ -179,6 +186,6 @@ public class Lexer {
     }
     
     public func stall() {
-        scanner.stall()
+        shouldStall = true
     }
 }

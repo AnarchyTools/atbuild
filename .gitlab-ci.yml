@@ -1,6 +1,9 @@
 stages:
 - build
 
+before-script: 
+    - git submodule update --init --recursive
+
 osx:
     stage: build
     script: 

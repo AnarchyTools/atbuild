@@ -14,7 +14,7 @@
 
 
 import Foundation
-import atpkgparser
+import atpkg
 
 func outputBaseline(lexer: Lexer) {
     print("--- baseline ---")
@@ -43,7 +43,7 @@ class LexerTests: Test {
     let filename = __FILE__
         
     static func testBasic() throws {
-        let filepath = "./parsers/atpkg/tests/collateral/basic.atpkg"
+        let filepath = "./atpkg/tests/collateral/basic.atpkg"
 
         let content: String = try NSString(contentsOfFile: filepath, encoding: NSUTF8StringEncoding) as String
         let scanner = Scanner(content: content)

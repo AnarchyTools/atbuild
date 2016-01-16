@@ -14,7 +14,7 @@
 
 
 import Foundation
-import atpkgparser
+import atpkg
 
 extension ParseValue {
     var stringLiteral: String? {
@@ -42,7 +42,7 @@ class ParserTests: Test {
     let filename = __FILE__
     
     static func testBasic() throws {
-        let filepath = "./parsers/atpkg/tests/collateral/basic.atpkg"
+        let filepath = "./atpkg/tests/collateral/basic.atpkg"
         guard let parser = Parser(filepath: filepath) else {
             try test.assert(false); return
         }

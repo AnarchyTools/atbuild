@@ -14,7 +14,7 @@
 
 
 import Foundation
-import atpkgparser
+import atpkg
 
 func outputBaseline(scanner: Scanner) {
     print("--- baseline ---")
@@ -44,7 +44,7 @@ class ScannerTests: Test {
     let filename = __FILE__
 
     static func testBasicClj() throws {
-        let filepath = "./parsers/atpkg/tests/collateral/basic.atpkg"
+        let filepath = "./atpkg/tests/collateral/basic.atpkg"
         
         let content: String = try NSString(contentsOfFile: filepath, encoding: NSUTF8StringEncoding) as String
         let scanner = Scanner(content: content)

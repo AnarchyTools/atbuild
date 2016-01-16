@@ -10,17 +10,18 @@ commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
      executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
-     inputs: ["atbuild/src/main.swift"]
-     sources: ["atbuild/src/main.swift"]
-     objects: [".atllbuild/objects/main.swift.o"]
-     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
-     module-name: atbuild
-     module-output-path: .atllbuild/products/atbuild.swiftmodule
+     inputs: ["attools/src/atllbuild.swift","attools/src/Nop.swift","attools/src/PlatformPaths.swift","attools/src/Shell.swift","attools/src/TaskRunner.swift","attools/src/Tools.swift"]
+     sources: ["attools/src/atllbuild.swift","attools/src/Nop.swift","attools/src/PlatformPaths.swift","attools/src/Shell.swift","attools/src/TaskRunner.swift","attools/src/Tools.swift"]
+     objects: [".atllbuild/objects/atllbuild.o",".atllbuild/objects/Nop.o",".atllbuild/objects/PlatformPaths.o",".atllbuild/objects/Shell.o",".atllbuild/objects/TaskRunner.o",".atllbuild/objects/Tools.o"]
+     outputs: ["<atllbuild-swiftc>",".atllbuild/products/attools.a",".atllbuild/objects/atllbuild.o",".atllbuild/objects/Nop.o",".atllbuild/objects/PlatformPaths.o",".atllbuild/objects/Shell.o",".atllbuild/objects/TaskRunner.o",".atllbuild/objects/Tools.o"]
+     is-library: true
+     module-name: attools
+     module-output-path: .atllbuild/products/attools.swiftmodule
      temps-path: .atllbuild//llbuildtmp
      other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
   <atllbuild>:
     tool: shell
-    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
-    outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
-    description: Linking executable .atllbuild/products/atbuild
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/atllbuild.o",".atllbuild/objects/Nop.o",".atllbuild/objects/PlatformPaths.o",".atllbuild/objects/Shell.o",".atllbuild/objects/TaskRunner.o",".atllbuild/objects/Tools.o"]
+    outputs: ["<atllbuild>", ".atllbuild/products/attools.a"]
+    args: ["/bin/sh","-c","rm -rf .atllbuild/products/attools.a; ar cr '.atllbuild/products/attools.a' '.atllbuild/objects/atllbuild.o' '.atllbuild/objects/Nop.o' '.atllbuild/objects/PlatformPaths.o' '.atllbuild/objects/Shell.o' '.atllbuild/objects/TaskRunner.o' '.atllbuild/objects/Tools.o'"]
+    description: "Linking Library:  .atllbuild/products/attools.a"

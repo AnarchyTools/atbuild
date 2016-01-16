@@ -30,14 +30,13 @@
                 }
                 :atbuild {
                   :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
+                  :llbuildyaml "bootstrap/bootstrap-macosx.swift-build"
                 }
              }
         }
   }
   
   :tasks {
-
           :atbuild {
             :tool "atllbuild"
             :source ["atbuild/src/**.swift"]

@@ -13,6 +13,8 @@ if [ -z "$SWIFT_BUILD_TOOL" ]; then
   exit 1
 fi
 
+mkdir -p .atllbuild/products
+mkdir -p .atllbuild/objects
 
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-atpkg.swift-build --no-db
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-attools.swift-build --no-db

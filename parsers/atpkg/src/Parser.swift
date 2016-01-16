@@ -112,6 +112,8 @@ public class Parser {
         case .OpenBrace: lexer.stall(); return try parseMap()
         case .OpenBracket: lexer.stall(); return try parseVector()
         case .StringLiteral: return .StringLiteral(token.value)
+        case .Identifier where token.value == "true": return .BoolLiteral(true)
+        case .Identifier where token.value == "false": return .BoolLiteral(false)
         default: throw ParseError.InvalidTokenForValueType(token)
         }
     }
@@ -139,60 +141,3 @@ public class Parser {
         return .Map(items)
     }
 }
-
-// extension Lexer {
-//     func parseableNext() -> Token? {
-//     }
-    
-//     func take(expected: Token) throws -> Token {
-//         guard let token = self.parseableNext() else { throw PackageParserError.MissingToken(expected: expected) }
-//         if !Token.isEquivalent(expected, to: token) { throw PackageParserError.UnexpectedToken(expected: expected, actual: token) }
-        
-//         return token
-//     }
-// }
-
-// func parseProperties(package: Package, lexer: Lexer) throws {
-//     guard let token = lexer.parseableNext() else { throw PackageParserError.InvalidPackageFile }
-    
-//     if case .CloseParen = token {
-//         lexer.stall()
-//         return
-//     }
-    
-//     if case .Colon = token {
-//         print(":")
-//         guard let identifier = lexer.parseableNext() else { throw PackageParserError.MissingToken(expected: .Identifier("", line: 0, column: 0)) }
-//         if case let .Identifier(id, _, _) = identifier {
-            
-//             switch id {
-//             case "name": package.name = try lexer.take()
-//             default: throw PackageParserError.UnknownProperty(id)
-//             }
-            
-//         }
-//     }
-// }
-
-// public func parsePackageDefinition(filepath: String) throws -> Package {
-//     guard let content: String = try? NSString(contentsOfFile: filepath, encoding: NSUTF8StringEncoding) as String else {
-//         throw PackageParserError.PackageFileDoesNotExist(filename: filepath)
-//     }
-    
-//     let scanner = Scanner(content: content)
-//     let lexer = Lexer(scanner: scanner)
-
-//     let package = Package(name: "")
-    
-//     try lexer.take(.OpenParen(line: 0, column: 0))
-//     try lexer.take(.Identifier("package", line: 0, column: 0))
-
-//     // TODO: Parse the properties of the package definition.
-    
-//     try parseProperties(package, lexer: lexer)
-    
-//     try lexer.take(.CloseParen(line: 0, column: 0))
-//     try lexer.take(.EOF)
-    
-//     return package
-// }

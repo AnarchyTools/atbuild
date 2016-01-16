@@ -30,6 +30,39 @@ public enum ParseValue {
     case Vector([ParseValue])
 }
 
+extension ParseValue {
+    public var stringLiteral: String? {
+        if case let .StringLiteral(value) = self { return value }
+        return nil
+    }
+    
+    public var integerLiteral: Int? {
+        if case let .IntegerLiteral(value) = self { return value }
+        return nil
+    }
+
+    public var floatLiteral: Double? {
+        if case let .FloatLiteral(value) = self { return value }
+        return nil
+    }
+
+    public var boolLiteral: Bool? {
+        if case let .BoolLiteral(value) = self { return value }
+        return nil
+    }
+    
+    public var map: [String:ParseValue]? {
+        if case let .Map(value) = self { return value }
+        return nil
+    }
+    
+    public var vector: [ParseValue]? {
+        if case let .Vector(value) = self { return value }
+        return nil
+    }
+}
+
+
 public class ParseType {
     public var name: String = ""
     public var properties: [String:ParseValue] = [:]

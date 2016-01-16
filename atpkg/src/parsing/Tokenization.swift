@@ -150,11 +150,10 @@ public class Lexer {
                 return Token(type: .Comment, value: comment, line: line, column: column)
             }
             else if next.character == "\"" {
-                var content = String(next.character!)
+                var content = ""
                 while let info = scanner.next() where info.character != "\"" {
                     content.append(info.character!)
                 }
-                content.append(scanner.peek()!.character!)
 
                 return Token(type: .StringLiteral, value: content, line: next.line, column: next.column)
             }

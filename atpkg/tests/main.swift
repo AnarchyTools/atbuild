@@ -54,7 +54,8 @@ let tests: [Test] = [
     
     ScannerTests(),
     LexerTests(),
-    ParserTests()
+    ParserTests(),
+    PackageTests()
 ]
 
 for test in tests {

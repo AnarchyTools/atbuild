@@ -21,12 +21,13 @@ public enum OutputType {
 public class FilePath {
     public var path: String
     
-    public var expandedItems: [String] {
-        get { return [] }
-    }
-    
     public init(path: String) {
         self.path = path
+    }
+
+    init?(value: ParseValue) {
+        guard let str = value.stringLiteral else { return nil }
+        self.path = str
     }
 }
 
@@ -35,6 +36,11 @@ public class Dependency {
     
     public init(name: String) {
         self.name = name
+    }
+    
+    init?(value: ParseValue) {
+        guard let str = value.stringLiteral else { return nil }
+        self.name = str
     }
 }
 
@@ -45,8 +51,7 @@ public class Task {
     // The optional properties. All optional properties must have a default value.
     public var dependencies: [Dependency] = []
     public var tool: String = "atllbuild"
-    public var source: [FilePath] = []
-    public var version: String = ""
+    public var sources: [FilePath] = []
     public var bootstrapOnly: Bool = false
     public var llbuildyaml: String = ""
     public var linkSDK: Bool = false
@@ -57,13 +62,94 @@ public class Task {
     public init(name: String) {
         self.name = name
     }
+    
+    init?(value: ParseValue, name: String) {
+        guard let kvp = value.map else { return nil }
+
+        if let value = kvp["name"]?.stringLiteral { self.name = value }
+        else {
+            print("ERROR: Name is a required property on task.")
+            return nil
+        }
+        
+        if let value = kvp["tool"]?.stringLiteral { self.tool = value }
+        if let value = kvp["bootstrapOnly"]?.boolLiteral { self.bootstrapOnly = value }
+        if let value = kvp["llbuildyaml"]?.stringLiteral { self.llbuildyaml = value }
+        if let value = kvp["linkSDK"]?.boolLiteral { self.linkSDK = value }
+        if let value = kvp["outputType"]?.stringLiteral {
+            switch value {
+            case "lib": self.outputType = .StaticLibrary
+            case "static-library": self.outputType = .StaticLibrary
+            
+            case "dylib": self.outputType = .DynamicLibrary
+            case "dynamic-library": self.outputType = .DynamicLibrary
+            
+            case "exe": self.outputType = .Executable
+            case "executable": self.outputType = .Executable
+            
+            default: print("ERROR: unsupported outputType: \(value), defaulting to: \(self.outputType)")
+            }
+        }
+        
+        if let values = kvp["dependencies"]?.vector {
+            for value in values {
+                if let dep = Dependency(value: value) { self.dependencies.append(dep) }
+            }
+        }
+
+        if let values = kvp["sources"]?.vector {
+            for value in values {
+                if let filepath = FilePath(value: value) { self.sources.append(filepath) }
+            }
+        }
+        if let values = kvp["source"]?.vector {
+            for value in values {
+                if let filepath = FilePath(value: value) { self.sources.append(filepath) }
+            }
+        }
+
+        if let values = kvp["compilerOptions"]?.vector {
+            for value in values {
+                if let value = value.stringLiteral { self.compilerOptions.append(value) }
+            }
+        }
+
+        if let values = kvp["linkWithProduct"]?.vector {
+            for value in values {
+                if let value = value.stringLiteral { self.linkWithProduct.append(value) }
+            }
+        }
+    }
 }
 
 public class Package {
+    // The required properties.
     public var name: String
-    public var tasks: [Task] = []
+    
+    // The optional properties. All optional properties must have a default value.
+    public var version: String = ""
+    public var tasks: [String:Task] = [:]
     
     public init(name: String) {
         self.name = name
+    }
+    
+    public init?(type: ParseType) {
+        if type.name != "package" { return nil }
+        
+        if let value = type.properties["name"]?.stringLiteral { self.name = value }
+        else {
+            print("ERROR: No name specified for the package.")
+            return nil
+        }
+        if let value = type.properties["version"]?.stringLiteral { self.version = value }
+
+        if let parsedTasks = type.properties["tasks"]?.map {
+            for (key, value) in parsedTasks {
+                if let task = Task(value: value, name: key) {
+                    self.tasks[key] = task
+                }
+            }
+        }
     }
 }

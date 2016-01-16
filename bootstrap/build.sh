@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 PLATFORM=macosx
 SWIFT_BUILD_TOOL=`which swift-build-tool`

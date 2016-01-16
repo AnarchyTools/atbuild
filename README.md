@@ -109,7 +109,5 @@ A complete build.atpkg example is below.
 
 ```
 
-In the example above, there are three built-in tools: “lldb-build”, "abort", and “shell”. These tools take in the parameters from the configuration file for their respective usages. In addition, there is another tool defined, “xctest-runner”, that is just an alias of sorts to invoke the “shell” tool in a specific way.
-
 The package file is a set of metadata to describe how the build process should work, and push all the actual work out to separate tools. There are a set of tools that are built-in that provide some of the standard behavior we want to support. At the same time, there are extension points to defining new tools as well. These tools can be defined within the package file or within source code for more advanced tools.
 

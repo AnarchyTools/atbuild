@@ -4,34 +4,38 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
 
 ## API
 
-```yaml
-tasks:
-    build:
-        tool: atllbuild
-        
-        name: json-swift #name of the thing being built
-        output-type: library
-        
-        #walk the src directory and recursively find all swift files
-        source: ["src/**.swift"]
+```clojure
+:tasks {
 
-        #If true, we don't build, llbuild.yaml  False is the default value.
-        bootstrapOnly: false 
-        #path to emit llbuild.yaml
-        llbuildyaml: "llbuild.yaml" 
+  :build {
+    :tool "atllbuild"
 
-        compileOptions: [] #Provide an array of compile options.  And they said it was impossible.
+    ;;Name of the module to build
+    :name "build"
 
-        linkSDK: true #Whether to link the platform SDK.  True is the default value.
+    ;;Type of build.  "library" and "executable" are supported.
+    :output-type "library" 
 
-        #What type of output to link.  "executable" and "static-library" are supported.
-        outputType: "executable"
+    ;;walk the src directory and recursively find all swift files
+    :source ["src/**.swift"]
 
-        #A product from another atllbuild task to link with.
-        #You should supply a filename here, like "yaml.a".
-        #Note that this is for linking dependencies built by atllbuild; 
-        # for other libraries, you should use UNSUPPORTED https://github.com/AnarchyTools/atbuild/issues/13
-        linkWithProduct: []
+    ;;If true, we don't build, we only output llbuild.yaml  False is the default value.
+    :bootstrapOnly: false
+    ;;Path to emit llbuild.yaml
+    :llbuildyaml "llbuild.yaml"
+
+    ;;Provide an array of compile options.  NOTHING IS IMPOSSIBLE
+    :compileOptions []
+
+    :linkSDK true #Whether to link the platform SDK.  True is the default value.
+
+    ;;A product from another atllbuild task to link with.
+    ;;You should supply a filename here, like "yaml.a".
+    ;;Note that this is for linking dependencies built by atllbuild; 
+    ;;or other libraries, you should use UNSUPPORTED https://github.com/AnarchyTools/atbuild/issues/13
+    :linkWithProduct ["attools.a" "atpkg.a"]
+  }
+}
         
 ```
 

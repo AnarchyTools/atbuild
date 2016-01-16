@@ -30,75 +30,83 @@ $ atbuild run-tests
 
 The configuration file defines *tasks*, which are entrypoints on the CLI.  If no task is specified, we run a task called `default`.
 
-Configurations [are unsupported](https://github.com/AnarchyTools/atbuild/issues/2) but could look like this:
+Configurations look like this:
 
 ```bash
 $ atbuild run-tests --platform linux
 ```
 
-A complete atbuild.yaml example is below.
+A complete build.atpkg example is below.
 
-```yaml
-package:
-  name: "sample"
-  description: "A configuration sample"
-  
-  # Dependencies aren't resolved by the build tool (you want the package manager), but they look like this:
-  
-  dependencies:
-    - "https://github.com/apple/swift-lldb", “2.2-SNAPSHOT”
-    
-  # We can declare custom tools.
-  tools:
-    xctest-runner:
-      type: shell
-      profiles:
-        #specify custom behavior for osx/linux
-        platform:
-          osx:
-            script: "xctest $outputdir/$testlib"
-          linux:
-            script: "xctest-linux $outputdir/$testlib"
-  
-tasks:
-  
-  #There's no magic; this is just a task called "build"
-	build:
-	  #A tool that compiles the swift module
-		tool: atllbuild
-		
-		#The rest of these settings are just options for that tool
-		name: json-swift
-		output-type: library
-		
-		#walk the src directory and recursively find all swift files
-		source: ["src/**.swift"] 
-		profiles:
-		  #override custom settings for swift/linux
-      platform:
-			  linux:
-				  dependency: ["build-foundation"]
-				  linkflags: ["-lFoundation"]
-			  osx:
-				  linkflags: ["-Framework Foundation"]
-			  default:
-				  tool: "abort"
-				  message = "You need to specify --profile [osx|linux]"
-		
-		#A second task, named "build-test"
-		#This builds a test target
-		build-test:
-		  dependency: ["build"] #Build the main target first
-		  tool: "lldb-build"
-		  name: "test"
-		  output-type: "XCTest"
-		  source: ["tests/**.swift"]
-		
-		#A third task, that runs the test
-		run-tests:
-		  dependency: ["build-test"] #build them first
-		  tool: xctest-runner #use the xctest-runner tool we created
-		  testlib: tests.xctest #pass this argument
+```clojure
+;; This is a comment
+
+(package
+  :name "atbuild"
+
+  ;;These "tasks" are just entrypoints on the CLI.
+  ;;For example, `atbuild run-tests` runs the `run-tests` task.
+  :tasks {
+
+          :atbuild {
+            :tool "atllbuild" ;;The tool for this task.  atllbuild compiles a swift project.  
+                              ;; For more information, see docs/attlbuild.md
+            :source ["atbuild/src/**.swift"]
+            :name "atbuild"
+            :outputType "executable"
+            :linkWithProduct ["attools.a" "atpkg.a"]
+            :dependencies ["attools" "atpkg"]
+          }
+
+          :atpkg {:tool "atllbuild"
+                  :source ["atpkg/src/**.swift"]
+                  :name "atpkg"
+                  :outputType "static-library"}
+                  
+          :attools {:tool "atllbuild"
+                    :source ["attools/src/**.swift"]
+                    :name "attools"
+                    :outputType "static-library"}
+
+          :atpkg-tests {:tool "atllbuild"
+                        :dependencies ["atpkg"]
+                        :source ["atpkg/tests/**.swift"]
+                        :name "atpkgtests"
+                        :outputType "executable"
+                        :linkWithProduct ["atpkg.a"]}
+
+          :run-atpkg-tests {:tool "shell"
+                            :dependencies ["atpkg-tests"]
+                            :script "./.atllbuild/products/atpkgtests"}
+
+          :run-tests {:dependencies ["run-atpkg-tests"]
+                      :tool "nop" }}
+
+  ;;These configurations "override" task configurations when activated.
+  ;;You activate a configuration via `atbuild --name [value]`
+  :configurations {
+        ;;Create a configuration called "bootstrap"
+        :bootstrap {
+             ;;If bootstrap is yes
+             :yes {
+                :atpkg { ;;specify additional options for atpkg
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-macosx-atpkg.swift-build"
+                }
+                :attools { ;;specify additional options for attools
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
+                }
+                :atbuild { ;;specify additional options for atbuild
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
+                }
+             }
+        }
+  }
+
+)
+
 ```
 
 In the example above, there are three built-in tools: “lldb-build”, "abort", and “shell”. These tools take in the parameters from the configuration file for their respective usages. In addition, there is another tool defined, “xctest-runner”, that is just an alias of sorts to invoke the “shell” tool in a specific way.

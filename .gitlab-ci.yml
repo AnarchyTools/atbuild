@@ -13,4 +13,4 @@ osx:
         - openswift
     artifacts:
         paths:
-            - bin/atbuild
+            - .atllbuild/products/atbuild

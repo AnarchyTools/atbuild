@@ -34,11 +34,11 @@ class ParserTests: Test {
         
         let name = result.properties["name"]
         try test.assert(name != nil)
-        try test.assert(name?.stringLiteral == "basic")
+        try test.assert(name?.string == "basic")
         
         let version = result.properties["version"]
         try test.assert(version != nil)
-        try test.assert(version?.stringLiteral == "0.1.0-dev")
+        try test.assert(version?.string == "0.1.0-dev")
 
         let tasks = result.properties["tasks"]
         try test.assert(tasks != nil)
@@ -48,19 +48,20 @@ class ParserTests: Test {
 
         let tool = build?.map?["tool"]
         try test.assert(tool != nil)
-        try test.assert(tool?.stringLiteral == "lldb-build")
+        try test.assert(tool?.string == "lldb-build")
 
         let buildName = build?.map?["name"]
         try test.assert(buildName != nil)
-        try test.assert(buildName?.stringLiteral == "json-swift")
+        try test.assert(buildName?.string == "json-swift")
 
         let outputType = build?.map?["output-type"]
         try test.assert(outputType != nil)
-        try test.assert(outputType?.stringLiteral == "lib")
+        try test.assert(outputType?.string == "lib")
 
         let source = build?.map?["source"]
         try test.assert(source != nil)
         try test.assert(source?.vector != nil)
-        try test.assert(source?.vector?[0].stringLiteral == "src/**.swift")
+        try test.assert(source?.vector?[0].string == "src/**.swift")
+        try test.assert(source?.vector?[1].string == "lib/**.swift")
     }
 }

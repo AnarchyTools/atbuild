@@ -41,23 +41,11 @@ class PackageTests: Test {
         for (key, task) in package.tasks {
             try test.assert(key == "build")
             try test.assert(task.tool == "lldb-build")
-            try test.assert(task.name == "json-swift")
-            try test.assert(task.outputType == .StaticLibrary)
-            try test.assert(task.sources.count == 1)
-            try test.assert(task.sources[0].path == "src/**.swift")
+            try test.assert(task["name"]?.string == "json-swift")
+            try test.assert(task["output-type"]?.string == "lib")
+            try test.assert(task["source"]?.vector?.count == 2)
+            try test.assert(task["source"]?.vector?[0].string == "src/**.swift")
+            try test.assert(task["source"]?.vector?[1].string == "lib/**.swift")
         }
-        
-        
-// (package
-//   :name "basic"
-//   :version "0.1.0-dev"
-  
-//   :tasks {:build {:tool "lldb-build"
-//                   :name "json-swift"
-//                   :output-type "lib" 
-//                   :source [ "src/**.swift" ]}}
-// )
-
-// ; End of the sample.
     }
 }

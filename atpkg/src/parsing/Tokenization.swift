@@ -75,8 +75,7 @@ func isWhitespace(c: Character?) -> Bool {
     return isCharacterPartOfSet(c, set: NSCharacterSet.whitespaceCharacterSet())
 }
 
-public class Lexer {
-
+final public class Lexer {
     var scanner: Scanner
     var current: Token? = nil
     

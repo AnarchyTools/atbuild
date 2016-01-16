@@ -1,0 +1,121 @@
+client:
+  name: swift-build
+
+targets:
+  "": [<atbuild>]
+
+commands:
+  atpkg-build:
+    tool: swift-compiler
+    sources:
+      - ../atpkg/src/parsing/Scanner.swift
+      - ../atpkg/src/parsing/Tokenization.swift
+      - ../atpkg/src/parsing/Parser.swift
+      - ../atpkg/src/Package.swift
+    outputs:
+      - <atpkg-obj>
+    objects:
+      - ../.built/bootstrap/atpkg/Scanner.o
+      - ../.built/bootstrap/atpkg/Tokenization.o
+      - ../.built/bootstrap/atpkg/Parser.o
+      - ../.built/bootstrap/atpkg/Package.o
+    module-name: atpkg
+    module-output-path: ../.built/bootstrap/atpkg/atpkg.swiftmodule
+    temps-path: ../.built/bootstrap/atpkg/tmp
+    other-args:
+      - -j8
+      - -I
+      - ../.built/bootstrap/atpkg
+  
+  attools-build:
+    tool: swift-compiler
+    sources:
+      - ../attools/src/atllbuild.swift
+      - ../attools/src/Nop.swift
+      - ../attools/src/Shell.swift
+      - ../attools/src/Tools.swift
+    outputs:
+      - <attools-obj>
+    objects:
+      - ../.built/bootstrap/attools/atllbuild.o
+      - ../.built/bootstrap/attools/Nop.o
+      - ../.built/bootstrap/attools/Shell.o
+      - ../.built/bootstrap/attools/Tools.o
+    module-name: attools
+    module-output-path: ../.built/bootstrap/attools/attools.swiftmodule
+    temps-path: ../.built/bootstrap/attools/tmp
+    other-args:
+      - -j8
+      - -I
+      - ../.built/bootstrap/attools
+
+  atbuild-build:
+    tool: swift-compiler
+    sources:
+      - ../atbuild/src/main.swift
+      - ../atbuild/src/PlatformPaths.swift
+      - ../atbuild/src/Task.swift
+    inputs:
+      - <atpkg-obj>
+      - <attools-obj>
+    outputs:
+      - <atbuild-obj>
+    objects:
+      - ../.built/bootstrap/atbuild/main.o
+      - ../.built/bootstrap/atbuild/PlatformPaths.o
+      - ../.built/bootstrap/atbuild/Task.o
+    module-name: atbuild
+    module-output-path: ../.built/bootstrap/atbuild/atbuild.swiftmodule
+    temps-path: ../.built/bootstrap/atbuild/tmp
+    other-args:
+      - -j8
+      - -I
+      - ../.built/bootstrap/atpkg
+      - -I
+      - ../.built/bootstrap/attools
+
+  atpkg-lib:
+    tool: shell
+    description: Producing atpkg static library.
+    inputs:
+      - <atpkg-obj>
+    outputs:
+      - <atpkg-lib>
+      - ../.built/bootstrap/atpkg/atpkg.a
+    args:
+      - /bin/sh
+      - -c
+      - ar cr ../.built/bootstrap/atpkg/atpkg.a ../.built/bootstrap/atpkg/Scanner.o ../.built/bootstrap/atpkg/Tokenization.o ../.built/bootstrap/atpkg/Parser.o ../.built/bootstrap/atpkg/Package.o
+
+  attools-lib:
+    tool: shell
+    description: Producing attools static library.
+    inputs:
+      - <attools-obj>
+    outputs:
+      - <attools-lib>
+      - ../.built/bootstrap/attools/attools.a
+    args:
+      - /bin/sh
+      - -c
+      - ar cr ../.built/bootstrap/attools/attools.a ../.built/bootstrap/attools/atllbuild.o ../.built/bootstrap/attools/Nop.o ../.built/bootstrap/attools/Shell.o ../.built/bootstrap/attools/Tools.o
+
+  atbuild-link:
+    tool: shell
+    description: Producing atbuild binary.
+    inputs:
+      - <atpkg-lib>
+      - <attools-lib>
+      - <atbuild-obj>
+    outputs:
+      - <atbuild>
+      - ../.built/bootstrap/atbuild/atbuild
+    args:
+      - /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc
+      - -o
+      - ../.built/bootstrap/atbuild/atbuild
+      - ../.built/bootstrap/atbuild/main.o
+      - ../.built/bootstrap/atbuild/PlatformPaths.o
+      - ../.built/bootstrap/atbuild/Task.o
+      - ../.built/bootstrap/attools/attools.a
+      - ../.built/bootstrap/atpkg/atpkg.a

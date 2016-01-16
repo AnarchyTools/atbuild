@@ -1,5 +1,6 @@
 bin/
-*xcuserdata*
 .atllbuild/
-atbuild
-build.db
+.built/
+
+*xcuserdata*
+.DS_Store

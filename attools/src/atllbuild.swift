@@ -1,16 +1,19 @@
-//  atllbuild.swift
-//  © 2016 Anarchy Tools Contributors.
-//  This file is part of atbuild.  It is subject to the license terms in the LICENSE
-//  file found in the top level of this distribution
-//  No part of atbuild, including this file, may be copied, modified,
-//  propagated, or distributed except according to the terms contained
-//  in the LICENSE file.
+// Copyright (c) 2016 Anarchy Tools Contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
-
-#if ATBUILD
-    import yaml
-#endif
+import atpkg
 
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
@@ -21,10 +24,11 @@ final class ATllbuild : Tool {
         case StaticLibrary
     }
     
-    /**This function resolves wildcards in source descriptions to complete values
-- parameter sourceDescriptions: a descriptions of sources such as ["src/**.swift"] */
-- returns: A list of resolved sources such as ["src/a.swift", "src/b.swift"]
-*/
+    /**
+     * This function resolves wildcards in source descriptions to complete values
+     *   - parameter sourceDescriptions: a descriptions of sources such as ["src/**.swift"] */
+     *   - returns: A list of resolved sources such as ["src/a.swift", "src/b.swift"]
+     */
     func collectSources(sourceDescriptions: [String]) -> [String] {
         var sources : [String] = []
         for description in sourceDescriptions {
@@ -45,11 +49,13 @@ final class ATllbuild : Tool {
         return sources
     }
     
-    /**Calculates the llbuild.yaml contents for the given configuration options
-- parameter sources: A resolved list of swift sources
-- parameter workdir: A temporary working directory for `atllbuild` to use
-- parameter modulename: The name of the module to be built.
-- returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool */
+    /**
+     * Calculates the llbuild.yaml contents for the given configuration options
+     *   - parameter sources: A resolved list of swift sources
+     *   - parameter workdir: A temporary working directory for `atllbuild` to use
+     *   - parameter modulename: The name of the module to be built.
+     *   - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool
+     */
     func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String], outputType: OutputType, linkWithProduct:[String]) -> String {
         let productPath = workdir + "products/"
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
@@ -143,11 +149,9 @@ final class ATllbuild : Tool {
             yaml += "    description: \"Linking Library:  \(libPath)\""
             return yaml
         }
-        
-        
-    }
+     }
     
-    func run(args: [Yaml : Yaml]) throws {
+    func run(task: Task) {
         //create the working directory
         let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()
@@ -160,42 +164,42 @@ final class ATllbuild : Tool {
         let _ = try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
         let _ = try? manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
         let _ = try? manager.createDirectoryAtPath(workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)
-        let _ = try manager.createDirectoryAtPath(workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.createDirectoryAtPath(workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
 
         //parse arguments
         var linkWithProduct: [String] = []
-        if let arr = args["linkWithProduct"]?.array {
+        if let arr = task["linkWithProduct"]?.vector {
             for product in arr {
-                guard let p = product.string else { throw AnarchyBuildError.CantParseYaml("non-string product \(product)") }
+                guard let p = product.string else { fatalError("non-string product \(product)") }
                 linkWithProduct.append(p)
             }
         }
         let outputType: OutputType
-        if args["outputType"]?.string == "static-library" {
+        if task["outputType"]?.string == "static-library" {
             outputType = .StaticLibrary
         }
-        else if args["outputType"]?.string == "executable" {
+        else if task["outputType"]?.string == "executable" {
             outputType = .Executable
         }
         else {
-            throw AnarchyBuildError.CantParseYaml("Unknown outputType \(args["outputType"])")
+            fatalError("Unknown outputType \(task["outputType"])")
         }
         
         var compileOptions: [String] = []
-        if let opts = args["compileOptions"]?.array {
+        if let opts = task["compileOptions"]?.vector {
             for o in opts {
-                guard let os = o.string else { throw AnarchyBuildError.CantParseYaml("Compile option \(o) is not a string") }
+                guard let os = o.string else { fatalError("Compile option \(o) is not a string") }
                 compileOptions.append(os)
             }
         }
-        guard let sourceDescriptions = args["source"]?.array?.flatMap({$0.string}) else { throw AnarchyBuildError.CantParseYaml("Can't find sources for atllbuild.") }
+        guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
                 let sources = collectSources(sourceDescriptions)
 
-        guard let name = args["name"]?.string else { throw AnarchyBuildError.CantParseYaml("No name for atllbuild task") }
+        guard let name = task["name"]?.string else { fatalError("No name for atllbuild task") }
         
         let bootstrapOnly: Bool
 
-        if args["bootstrapOnly"]?.bool == true {
+        if task["bootstrapOnly"]?.bool == true {
             bootstrapOnly = true
         }
         else {
@@ -203,30 +207,30 @@ final class ATllbuild : Tool {
         }
         
         let sdk: Bool
-        if args["linkSDK"]?.bool == false {
+        if task["linkSDK"]?.bool == false {
             sdk = false
         }
         else { sdk = true }
         
         let llbuildyamlpath : String
 
-        if args ["llbuildyaml"]?.string != nil {
-            llbuildyamlpath = args["llbuildyaml"]!.string!
+        if let value = task["llbuildyaml"]?.string {
+            llbuildyamlpath = value
         }
         else {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
         
         let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, outputType: outputType, linkWithProduct: linkWithProduct)
-        try yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
+        let _ = try? yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         
         //now we try running sbt
-        let args = ["-f",llbuildyamlpath]
+        let args = ["-f", llbuildyamlpath]
         let sbt = NSTask.launchedTaskWithLaunchPath(SwiftBuildToolpath, arguments: args)
         sbt.waitUntilExit()
         if sbt.terminationStatus != 0 {
-            throw AnarchyBuildError.ExternalToolFailed("\(SwiftBuildToolpath) " + args.joinWithSeparator(" "))
+            fatalError("\(SwiftBuildToolpath) " + args.joinWithSeparator(" "))
         }
     }
 }

@@ -5,7 +5,7 @@ osx:
     stage: build
     script: 
         - export PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:"${PATH}"
-        - ./bootstrap.sh
+        - ./bootstrap/build.sh
     tags:
         - openswift
     artifacts:

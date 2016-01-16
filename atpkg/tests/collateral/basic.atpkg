@@ -7,7 +7,7 @@
   :tasks {:build {:tool "lldb-build"
                   :name "json-swift"
                   :output-type "lib" 
-                  :source [ "src/**.swift" ]}}
+                  :source [ "src/**.swift" "lib/**.swift" ]}}
 )
 
 ; End of the sample.

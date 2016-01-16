@@ -31,22 +31,22 @@ public enum ParseValue {
 }
 
 extension ParseValue {
-    public var stringLiteral: String? {
+    public var string: String? {
         if case let .StringLiteral(value) = self { return value }
         return nil
     }
     
-    public var integerLiteral: Int? {
+    public var integer: Int? {
         if case let .IntegerLiteral(value) = self { return value }
         return nil
     }
 
-    public var floatLiteral: Double? {
+    public var float: Double? {
         if case let .FloatLiteral(value) = self { return value }
         return nil
     }
 
-    public var boolLiteral: Bool? {
+    public var bool: Bool? {
         if case let .BoolLiteral(value) = self { return value }
         return nil
     }
@@ -63,12 +63,12 @@ extension ParseValue {
 }
 
 
-public class ParseType {
+final public class ParseType {
     public var name: String = ""
     public var properties: [String:ParseValue] = [:]
 }
 
-public class Parser {
+final public class Parser {
     let lexer: Lexer
     
     private func next() -> Token? {

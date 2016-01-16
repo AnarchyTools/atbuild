@@ -18,7 +18,7 @@ public struct ScannerInfo {
     public let column: Int
 }
 
-public class Scanner {
+final public class Scanner {
     
     var content: String
     var index: String.Index

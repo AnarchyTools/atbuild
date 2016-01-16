@@ -21,7 +21,18 @@ import attools
 let defaultBuildFile = "build.atpkg"
 
 func loadPackageFile() -> Package {
-    guard let package = Package(filepath: defaultBuildFile) else {
+
+    //build configurations
+    var configurations : [String:String] = [:]
+    for (i, x) in Process.arguments.enumerate() {
+        if x.hasPrefix("--") {
+            let configurationName = x.substringFromIndex(x.startIndex.advancedBy(2))
+            let configurationValue = Process.arguments[i+1]
+            configurations[configurationName] = configurationValue
+        }
+    }
+    print("configurations \(configurations)")
+    guard let package = Package(filepath: defaultBuildFile, configurations: configurations) else {
         print("Unable to load build file: \(defaultBuildFile)")
         exit(1)
     }
@@ -57,7 +68,9 @@ func runtask(taskName: String) {
 
 //choose which task to run
 if Process.arguments.count > 1 {
-    runtask(Process.arguments[1])
+    if !Process.arguments[1].hasPrefix("--") {
+        runtask(Process.arguments[1])
+    }
 }
 else {
     runtask("default")

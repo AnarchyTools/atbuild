@@ -16,40 +16,37 @@
 
 (package
   :name "atbuild"
+
+  :configurations {
+        :bootstrap {
+             :yes {
+                :atpkg {
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-macosx-atpkg.swift-build"
+                }
+                :attools {
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
+                }
+                :atbuild {
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
+                }
+             }
+        }
+  }
   
-  :tasks {:bootstrap {:tool "shell"
-                      :script "./bootstrap/build.sh"}
+  :tasks {
 
-          :bootstrap-osx {:tool "atllbuild"
-                    :source ["atbuild/src/**.swift"]
-                    :name "atbuild"
-                    :outputType "executable"
-                    :bootstrapOnly true
-                    :llbuildyaml "bootstrap/bootstrap-macosx.swift-build"
-                    :linkWithProduct ["attools.a" "atpkg.a"]
-                    :dependencies ["bootstrap-osx-attools" "bootstrap-osx-atpkg"]
-
-          }
-          :bootstrap-osx-attools  {
-                    :tool "atllbuild"
-                    :source ["attools/src/**.swift"]
-                    :name "attools"
-                    :outputType "static-library"
-                    :bootstrapOnly true
-                    :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
+          :atbuild {
+            :tool "atllbuild"
+            :source ["atbuild/src/**.swift"]
+            :name "atbuild"
+            :outputType "executable"
+            :linkWithProduct ["attools.a" "atpkg.a"]
+            :dependencies ["attools" "atpkg"]
           }
 
-          :bootstrap-osx-atpkg  {
-                    :tool "atllbuild"
-                    :source ["atpkg/src/**.swift"]
-                    :name "atpkg"
-                    :outputType "static-library"
-                    :bootstrapOnly true
-                    :llbuildyaml "bootstrap/bootstrap-macosx-atpkg.swift-build"
-          }
-
-
-      
           :atpkg {:tool "atllbuild"
                   :source ["atpkg/src/**.swift"]
                   :name "atpkg"

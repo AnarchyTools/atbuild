@@ -50,12 +50,12 @@ final public class Package {
         self.name = name
     }
     
-    public convenience init?(filepath: String) {
+    public convenience init?(filepath: String, configurations: [String: String] = [:]) {
         guard let parser = Parser(filepath: filepath) else { return nil }
         
         do {
             let result = try parser.parse()
-            self.init(type: result)
+            self.init(type: result, configurations: configurations)
         }
         catch {
             print("error: \(error)")
@@ -63,7 +63,7 @@ final public class Package {
         }
     }
     
-    public init?(type: ParseType) {
+    public init?(type: ParseType, configurations: [String: String]) {
         if type.name != "package" { return nil }
         
         if let value = type.properties["name"]?.string { self.name = value }
@@ -77,6 +77,34 @@ final public class Package {
             for (key, value) in parsedTasks {
                 if let task = Task(value: value, name: key) {
                     self.tasks[key] = task
+                }
+            }
+        }
+
+        //swap in configurations
+        for requestedConfiguration in configurations.keys {
+            let requestedConfigurationValue = configurations[requestedConfiguration]!
+            //find the overrides specific to this configuration
+            guard let parsedConfigurations = type.properties["configurations"]?.map else {
+                fatalError("You requested configuration --\(requestedConfiguration) but no configurations were present in the package file.")
+            }
+            guard let parsedConfiguration = parsedConfigurations[requestedConfiguration]?.map else {
+                fatalError("You requested configuration --\(requestedConfiguration) but we only have \(Array(parsedConfigurations.keys))")
+            }
+            guard let overrideSpecifications = parsedConfiguration[requestedConfigurationValue]?.map else {
+                fatalError("You requested configuration --\(requestedConfiguration) \(requestedConfigurationValue) but we only have \(Array(parsedConfiguration.keys))")
+            }
+            for taskSpec in overrideSpecifications.keys {
+                guard let overrideSpecification = overrideSpecifications[taskSpec]?.map else {
+                    fatalError("Cannot get override specification for --\(requestedConfiguration) \(requestedConfigurationValue)")
+                }
+                if let task = tasks[taskSpec] {
+                    for(k,v) in overrideSpecification {
+                        task.kvp[k] = v
+                    }
+                }
+                else {
+                    fatalError("Global configurations not implemented; can't configure option \(requestedConfigurationValue) for non-task spec \(taskSpec)")
                 }
             }
         }

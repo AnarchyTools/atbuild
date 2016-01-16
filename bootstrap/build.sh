@@ -23,5 +23,5 @@ $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM.swift-build --no-db
 if [ "0" = "$?" ]; then
   rm -rf bin
   mkdir -p bin
-  ln -s $BUILD_DIR/.atllbuild/products/atbuild bin/atbuild
+  ln -s ../.atllbuild/products/atbuild bin/atbuild
 fi

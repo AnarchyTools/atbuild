@@ -4,7 +4,7 @@ The Anarchy Tools Build Tool.
 
 # Building
 
-To build atbuild "from scratch", simply `./bootstrap.sh`.
+To build atbuild "from scratch", simply `./bootstrap/build.sh`.
 
 Then you can check the program was built successfully:
 

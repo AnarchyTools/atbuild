@@ -48,39 +48,50 @@ A complete build.atpkg example is below.
   ;;For example, `atbuild run-tests` runs the `run-tests` task.
   :tasks {
 
-          :atbuild {
-            :tool "atllbuild" ;;The tool for this task.  atllbuild compiles a swift project.  
-                              ;; For more information, see docs/attlbuild.md
-            :source ["atbuild/src/**.swift"]
-            :name "atbuild"
-            :outputType "executable"
-            :linkWithProduct ["attools.a" "atpkg.a"]
-            :dependencies ["attools" "atpkg"]
-          }
+            :atbuild {
+                :tool "atllbuild" ;;The tool for this task.  atllbuild compiles a swift project.  
+                                  ;; For more information, see docs/attlbuild.md
+                :source ["atbuild/src/**.swift"]
+                :name "atbuild"
+                :outputType "executable"
+                :linkWithProduct ["attools.a" "atpkg.a"]
+                :dependencies ["attools" "atpkg"]
+            }
 
-          :atpkg {:tool "atllbuild"
-                  :source ["atpkg/src/**.swift"]
-                  :name "atpkg"
-                  :outputType "static-library"}
+            :atpkg {
+                :tool "atllbuild"
+                :source ["atpkg/src/**.swift"]
+                :name "atpkg"
+                :outputType "static-library"
+            }
                   
-          :attools {:tool "atllbuild"
-                    :source ["attools/src/**.swift"]
-                    :name "attools"
-                    :outputType "static-library"}
+            :attools {
+                :tool "atllbuild"
+                :source ["attools/src/**.swift"]
+                :name "attools"
+                :outputType "static-library"
+            }
 
-          :atpkg-tests {:tool "atllbuild"
-                        :dependencies ["atpkg"]
-                        :source ["atpkg/tests/**.swift"]
-                        :name "atpkgtests"
-                        :outputType "executable"
-                        :linkWithProduct ["atpkg.a"]}
+            :atpkg-tests {
+                :tool "atllbuild"
+                :dependencies ["atpkg"]
+                :source ["atpkg/tests/**.swift"]
+                :name "atpkgtests"
+                :outputType "executable"
+                :linkWithProduct ["atpkg.a"]
+            }
 
-          :run-atpkg-tests {:tool "shell"
-                            :dependencies ["atpkg-tests"]
-                            :script "./.atllbuild/products/atpkgtests"}
+            :run-atpkg-tests {
+                :tool "shell"
+                :dependencies ["atpkg-tests"]
+                :script "./.atllbuild/products/atpkgtests"
+            }
 
-          :run-tests {:dependencies ["run-atpkg-tests"]
-                      :tool "nop" }}
+            :run-tests {
+                :dependencies ["run-atpkg-tests"]
+                :tool "nop"
+            }
+    }
 
   ;;These configurations "override" task configurations when activated.
   ;;You activate a configuration via `atbuild --name [value]`

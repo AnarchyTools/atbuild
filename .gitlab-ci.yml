@@ -8,14 +8,15 @@ linux:
     script:
         - docker build -t atbuild .
         - id=$(docker create atbuild)
-        - docker cp $id:atbuild/.atllbuild/products/atbuild .
+        - mkdir bin
+        - docker cp $id:atbuild/.atllbuild/products/atbuild bin/atbuild
         - docker rm -v $id
         - docker rmi atbuild
     tags:
         - docker
     artifacts:
         paths:
-            - atbuild
+            - bin
 
 osx:
     stage: build

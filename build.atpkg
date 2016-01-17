@@ -16,14 +16,11 @@
 
 (package
   :name "atbuild"
+  :import ["atpkg/build.atpkg"]
 
   :configurations {
         :bootstrap {
              :yes {
-                :atpkg {
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-macosx-atpkg.swift-build"
-                }
                 :attools {
                   :bootstrapOnly true
                   :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
@@ -43,14 +40,7 @@
             :name "atbuild"
             :outputType "executable"
             :linkWithProduct ["attools.a" "atpkg.a"]
-            :dependencies ["attools" "atpkg"]
-          }
-
-          :atpkg {
-            :tool "atllbuild"
-            :source ["atpkg/src/**.swift"]
-            :name "atpkg"
-            :outputType "static-library"
+            :dependencies ["attools" "atpkg.atpkg"]
           }
                   
           :attools {
@@ -58,27 +48,9 @@
             :source ["attools/src/**.swift"]
             :name "attools"
             :outputType "static-library"
-            :dependencies ["atpkg"]
+            :dependencies ["atpkg.atpkg"]
             :linkWithProduct ["atpkg.a"]
           }
+  }
 
-          :atpkg-tests {
-            :tool "atllbuild"
-            :dependencies ["atpkg"]
-            :source ["atpkg/tests/**.swift"]
-            :name "atpkgtests"
-            :outputType "executable"
-            :linkWithProduct ["atpkg.a"]
-          }
-
-          :run-atpkg-tests {
-            :tool "shell"
-            :dependencies ["atpkg-tests"]
-            :script "./.atllbuild/products/atpkgtests"
-          }
-
-          :run-tests {
-            :dependencies ["run-atpkg-tests"]
-            :tool "nop" }
-          }
 )

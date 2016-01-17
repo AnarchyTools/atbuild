@@ -22,7 +22,7 @@ import atpkg
 final public class TaskRunner {
     private init() {}
 
-    static public func runTask(task: Task, package: Package) {        
+    static public func runTask(task: Task, package: Package) {     
         print("Running task \(task.key)...")
         let tool = toolByName(task.tool)
         tool.run(task)

@@ -25,31 +25,6 @@ final class ATllbuild : Tool {
     }
     
     /**
-     * This function resolves wildcards in source descriptions to complete values
-     *   - parameter sourceDescriptions: a descriptions of sources such as ["src/**.swift"] */
-     *   - returns: A list of resolved sources such as ["src/a.swift", "src/b.swift"]
-     */
-    func collectSources(sourceDescriptions: [String]) -> [String] {
-        var sources : [String] = []
-        for description in sourceDescriptions {
-            if description.hasSuffix("**.swift") {
-                let basepath = String(Array(description.characters)[0..<description.characters.count - 9])
-                let manager = NSFileManager.defaultManager()
-                let enumerator = manager.enumeratorAtPath(basepath)!
-                while let source = enumerator.nextObject() as? String {
-                    if source.hasSuffix("swift") {
-                        sources.append(basepath + "/" + source)
-                    }
-                }
-            }
-            else {
-                sources.append(description)
-            }
-        }
-        return sources
-    }
-    
-    /**
      * Calculates the llbuild.yaml contents for the given configuration options
      *   - parameter sources: A resolved list of swift sources
      *   - parameter workdir: A temporary working directory for `atllbuild` to use
@@ -193,7 +168,7 @@ final class ATllbuild : Tool {
             }
         }
         guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
-                let sources = collectSources(sourceDescriptions)
+                let sources = collectSources(sourceDescriptions, task: task)
 
         guard let name = task["name"]?.string else { fatalError("No name for atllbuild task") }
         

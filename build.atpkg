@@ -20,7 +20,7 @@
 
   :configurations {
         :bootstrap {
-             :yes {
+             :osx {
                 :attools {
                   :bootstrapOnly true
                   :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
@@ -28,6 +28,16 @@
                 :atbuild {
                   :bootstrapOnly true
                   :llbuildyaml "bootstrap/bootstrap-macosx.swift-build"
+                }
+             }
+             :linux {
+                :attools {
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
+                }
+                :atbuild {
+                  :bootstrapOnly true
+                  :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
                 }
              }
         }

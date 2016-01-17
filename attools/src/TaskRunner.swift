@@ -22,12 +22,7 @@ import atpkg
 final public class TaskRunner {
     private init() {}
 
-    static public func runTask(task: Task, package: Package) {
-        for dependency in task.dependencies {
-            guard let depTask = package.tasks[dependency] else { fatalError("The given dependency does not exist: \(dependency)") }
-            TaskRunner.runTask(depTask, package: package)
-        }
-        
+    static public func runTask(task: Task, package: Package) {        
         print("Running task \(task.key)...")
         let tool = toolByName(task.tool)
         tool.run(task)

@@ -63,7 +63,9 @@ print("Building package \(package.name)...")
 
 func runtask(taskName: String) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
-    TaskRunner.runTask(task, package: package)
+    for task in package.prunedDependencyGraph(task) {
+        TaskRunner.runTask(task, package: package)
+    }
 }
 
 //choose which task to run

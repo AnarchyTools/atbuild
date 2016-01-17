@@ -10,10 +10,10 @@ commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
      executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
-     inputs: ["atpkg/src/CollectSources.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/PathWithTrailingSlash.swift"]
-     sources: ["atpkg/src/CollectSources.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/PathWithTrailingSlash.swift"]
-     objects: [".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/PathWithTrailingSlash.swift.o"]
-     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/PathWithTrailingSlash.swift.o"]
+     inputs: ["atpkg/src/CollectSources.swift", "atpkg/src/ICantBelieveItsNotFoundation.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/PathWithTrailingSlash.swift"]
+     sources: ["atpkg/src/CollectSources.swift", "atpkg/src/ICantBelieveItsNotFoundation.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/PathWithTrailingSlash.swift"]
+     objects: [".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/PathWithTrailingSlash.swift.o"]
+     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/PathWithTrailingSlash.swift.o"]
      is-library: true
      module-name: atpkg
      module-output-path: .atllbuild/products/atpkg.swiftmodule
@@ -21,7 +21,7 @@ commands:
      other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
   <atllbuild>:
     tool: shell
-    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/PathWithTrailingSlash.swift.o"]
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/PathWithTrailingSlash.swift.o"]
     outputs: ["<atllbuild>", ".atllbuild/products/atpkg.a"]
-    args: ["/bin/sh","-c",rm -rf .atllbuild/products/atpkg.a; ar cr '.atllbuild/products/atpkg.a' '.atllbuild/objects/CollectSources.swift.o' '.atllbuild/objects/Package.swift.o' '.atllbuild/objects/Parser.swift.o' '.atllbuild/objects/Scanner.swift.o' '.atllbuild/objects/Tokenization.swift.o' '.atllbuild/objects/PathWithTrailingSlash.swift.o']
+    args: ["/bin/sh","-c",rm -rf .atllbuild/products/atpkg.a; ar cr '.atllbuild/products/atpkg.a' '.atllbuild/objects/CollectSources.swift.o' '.atllbuild/objects/ICantBelieveItsNotFoundation.swift.o' '.atllbuild/objects/Package.swift.o' '.atllbuild/objects/Parser.swift.o' '.atllbuild/objects/Scanner.swift.o' '.atllbuild/objects/Tokenization.swift.o' '.atllbuild/objects/PathWithTrailingSlash.swift.o']
     description: "Linking Library:  .atllbuild/products/atpkg.a"

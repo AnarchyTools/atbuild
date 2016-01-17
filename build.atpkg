@@ -58,6 +58,8 @@
             :source ["attools/src/**.swift"]
             :name "attools"
             :outputType "static-library"
+            :dependencies ["atpkg"]
+            :linkWithProduct ["atpkg.a"]
           }
 
           :atpkg-tests {

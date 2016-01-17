@@ -7,7 +7,10 @@ linux:
     stage: build
     script:
         - docker build -t atbuild .
-        - docker cp atbuild:atbuild/.atllbuild/products/atbuild .
+        - id=$(docker create atbuild)
+        - docker cp $id:atbuild/.atllbuild/products/atbuild .
+        - docker rm -v $id
+        - docker rmi atbuild
     tags:
         - docker
     artifacts:

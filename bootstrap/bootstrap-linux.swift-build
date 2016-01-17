@@ -9,7 +9,7 @@ targets:
 commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
-     executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
+     executable: "/usr/local/bin/swiftc"
      inputs: ["atbuild/src/main.swift"]
      sources: ["atbuild/src/main.swift"]
      objects: [".atllbuild/objects/main.swift.o"]
@@ -22,5 +22,5 @@ commands:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
     outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
+    args: ["/usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
     description: Linking executable .atllbuild/products/atbuild

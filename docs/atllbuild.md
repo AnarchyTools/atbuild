@@ -34,6 +34,9 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
     ;;Note that this is for linking dependencies built by atllbuild; 
     ;;or other libraries, you should use UNSUPPORTED https://github.com/AnarchyTools/atbuild/issues/13
     :linkWithProduct ["attools.a" "atpkg.a"]
+
+    ;;The path to swiftC.  By default, we guess based on your platform
+    swiftCPath:"/usr/local/bin/swiftc"
   }
 }
         

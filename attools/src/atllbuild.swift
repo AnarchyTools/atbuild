@@ -31,7 +31,7 @@ final class ATllbuild : Tool {
      *   - parameter modulename: The name of the module to be built.
      *   - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool
      */
-    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String], outputType: OutputType, linkWithProduct:[String]) -> String {
+    func llbuildyaml(sources: [String], workdir: String, modulename: String, linkSDK: Bool, compileOptions: [String], outputType: OutputType, linkWithProduct:[String], swiftCPath: String) -> String {
         let productPath = workdir + "products/"
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
@@ -48,7 +48,7 @@ final class ATllbuild : Tool {
         yaml += "commands:\n"
         yaml += "  <atllbuild-swiftc>:\n"
         yaml += "     tool: swift-compiler\n"
-        yaml += "     executable: \"\(SwiftCPath)\"\n"
+        yaml += "     executable: \"\(swiftCPath)\"\n"
         yaml += "     inputs: \(sources)\n"
         yaml += "     sources: \(sources)\n"
         
@@ -98,7 +98,7 @@ final class ATllbuild : Tool {
             yaml += "    inputs: \(llbuild_inputs)\n"
             yaml += "    outputs: [\"<atllbuild>\", \"\(executablePath)\"]\n"
             //and now we have the crazy 'args'
-            args = [SwiftCPath, "-o",executablePath]
+            args = [swiftCPath, "-o",executablePath]
             args.appendContentsOf(objects)
             args.appendContentsOf(builtProducts)
             yaml += "    args: \(args)\n"
@@ -195,8 +195,16 @@ final class ATllbuild : Tool {
         else {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
+
+        let swiftCPath: String
+        if let c = task["swiftCPath"]?.string {
+            swiftCPath = c
+        }
+        else {
+            swiftCPath = SwiftCPath
+        }
         
-        let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, outputType: outputType, linkWithProduct: linkWithProduct)
+        let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath)
         let _ = try? yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         

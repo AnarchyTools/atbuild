@@ -6,8 +6,8 @@ before_script:
 linux:
     stage: build
     script:
-        - docker build -t atbuild --rm=true .
-        - docker cp atbuild/atbuild/.atllbuild/products/atbuild .
+        - docker build -t atbuild .
+        - docker cp atbuild:atbuild/.atllbuild/products/atbuild .
     tags:
         - docker
     artifacts:

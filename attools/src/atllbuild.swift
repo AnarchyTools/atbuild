@@ -15,6 +15,10 @@
 import Foundation
 import atpkg
 
+#if os(Linux)
+    import Glibc //need sleep
+#endif
+
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {
@@ -54,7 +58,7 @@ final class ATllbuild : Tool {
         
         //swiftPM wants "objects" which is just a list of %.swift.o files.  We have to put them in a temp directory though.
         let objects = sources.map { (source) -> String in
-            workdir + "objects/" + (source as NSString).lastPathComponent + ".o"
+            workdir + "objects/" + source.toNSString.lastPathComponent + ".o"
         }
         yaml += "     objects: \(objects)\n"
         //this crazy syntax is how llbuild specifies outputs
@@ -78,7 +82,9 @@ final class ATllbuild : Tool {
         args.appendContentsOf(["-j8", "-D","ATBUILD","-I",workdir+"products/"])
         
         if linkSDK {
+            #if os(OSX) //we don't have SDKPath on linux
             args.appendContentsOf(["-sdk", SDKPath])
+            #endif
         }
         args.appendContentsOf(compileOptions)
         
@@ -208,12 +214,10 @@ final class ATllbuild : Tool {
         let _ = try? yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
         
-        //now we try running sbt
-        let args = ["-f", llbuildyamlpath]
-        let sbt = NSTask.launchedTaskWithLaunchPath(SwiftBuildToolpath, arguments: args)
-        sbt.waitUntilExit()
-        if sbt.terminationStatus != 0 {
-            fatalError("\(SwiftBuildToolpath) " + args.joinWithSeparator(" "))
+        //SR-566
+        let cmd = "\(SwiftBuildToolpath) -f \(llbuildyamlpath)"
+        if system(cmd) != 0 {
+            fatalError(cmd)
         }
     }
 }

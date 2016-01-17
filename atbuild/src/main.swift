@@ -18,6 +18,12 @@ import Foundation
 import atpkg
 import attools
 
+#if os(Linux)
+//we need to get exit somehow
+//https://bugs.swift.org/browse/SR-567
+import Glibc
+#endif
+
 let defaultBuildFile = "build.atpkg"
 
 func loadPackageFile() -> Package {

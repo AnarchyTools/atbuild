@@ -14,12 +14,27 @@
 
 import Foundation
 
-//todo, support multiple toolchains
-#if os(OSX)
-    let SDKPath = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
-    let SwiftCPath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
-    let SwiftBuildToolpath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swift-build-tool"
-#elseif os(Linux)
-    let SwiftCPath = "/usr/local/bin/swiftc"
-    let SwiftBuildToolpath = "/usr/local/bin/swift-build-tool"
-#endif
+//SR-138
+extension String {
+    var toNSString: NSString {
+        #if os(Linux)
+        return self.bridge()
+        #elseif os(OSX)
+        return (self as NSString)
+        #endif
+    }
+    #if os(Linux)
+    func writeToFile(path: String, atomically useAuxiliaryFile: Bool, encoding enc: NSStringEncoding) throws {
+        try self.toNSString.writeToFile(path, atomically: useAuxiliaryFile, encoding: enc)
+    }
+    #endif
+}
+extension NSString {
+    var toString: String {
+        #if os(Linux)
+        return self.bridge()
+        #elseif os(OSX)
+        return (self as String)
+        #endif
+    }
+}

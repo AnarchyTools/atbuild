@@ -35,13 +35,14 @@
                   :bootstrapOnly true
                   :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
                   :swiftCPath "/usr/local/bin/swiftc"
+                  :linkSDK false
 
                 }
                 :atbuild {
                   :bootstrapOnly true
                   :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
                   :swiftCPath "/usr/local/bin/swiftc"
-
+                  :linkSDK false
                 }
              }
         }

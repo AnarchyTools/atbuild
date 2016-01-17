@@ -3,6 +3,16 @@ stages:
 
 before_script: 
     - git submodule update --init --recursive
+linux:
+    stage: build
+    script:
+        - docker build -t atbuild --rm=true .
+        - docker cp atbuild/atbuild/.atllbuild/products/atbuild .
+    tags:
+        - docker
+    artifacts:
+        paths:
+            - atbuild
 
 osx:
     stage: build

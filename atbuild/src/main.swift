@@ -31,7 +31,7 @@ func loadPackageFile() -> Package {
     //build configurations
     var configurations : [String:String] = [:]
     for (i, x) in Process.arguments.enumerate() {
-        if x.hasPrefix("--") {
+        if x.hasPrefix("--") && x != "--help" {
             let configurationName = x.substringFromIndex(x.startIndex.advancedBy(2))
             let configurationValue = Process.arguments[i+1]
             configurations[configurationName] = configurationValue

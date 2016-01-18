@@ -13,6 +13,9 @@
 // limitations under the License.
 import atpkg
 import Foundation
+#if os(Linux)
+    import Glibc //SR-567
+#endif
 class XCTestRun : Tool {
     func run(task: Task) {
         guard let testExecutable = task["testExecutable"]?.string else {
@@ -61,6 +64,10 @@ class XCTestRun : Tool {
                 fatalError("Test execution failed.")
             }
 
+        #elseif os(Linux)
+            if system("\(testExecutable)") != 0 {
+                fatalError("Test execution failed.")
+            }
         #else
             fatalError("Not implemented")
         #endif

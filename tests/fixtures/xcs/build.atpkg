@@ -21,6 +21,7 @@
         :run-tests {
             :tool "xctestrun"
             :testExecutable ".atllbuild/products/footests"
+            :dependencies ["build-tests"]
         }
      }
 )

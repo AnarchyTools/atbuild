@@ -42,6 +42,18 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
         
 ```
 
+## Conditional compilation
+
+If you're packaging a project for atbuild and wish to conditionally compile your sources, you can use
+
+```swift
+#if ATBUILD
+    //use this code only when packaged with atbuild
+#endif
+```
+
+This is useful when packaging Xcode projects that resolve their imports through bridging headers, for example.
+
 ## Implementation
 
 The `atllbuild` tool emits an `llbuild.yaml` file.  This is undocumented, but we [reverse-engineered the format from SwiftPM](https://github.com/apple/swift-package-manager).  You can see an example in our [repository](/llbuild.yaml).  Essentially, this file contains the compile/link commands for building the swift module.

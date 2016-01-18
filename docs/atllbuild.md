@@ -26,6 +26,7 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
 
     ;;Provide an array of compile options.  NOTHING IS IMPOSSIBLE
     :compileOptions []
+    :linkOptions [] ;;link options too!
 
     :linkSDK true #Whether to link the platform SDK.  True is the default value.
 

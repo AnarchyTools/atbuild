@@ -181,6 +181,17 @@ final class ATllbuild : Tool {
                 linkOptions.append(os)
             }
         }
+        
+        //xctestify
+        if task["xctestify"]?.bool == true {
+            precondition(outputType == .Executable, "You must use outputType: executable with xctestify.")
+            //inject platform-specific flags
+            #if os(OSX)
+            compileOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/"])
+            linkOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
+            #endif
+        }
+        
         guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
                 let sources = collectSources(sourceDescriptions, task: task)
 

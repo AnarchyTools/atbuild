@@ -1,0 +1,26 @@
+(package
+ :name "xcs"
+
+     :tasks {
+        :build-lib {
+            :tool "atllbuild"
+            :source ["src/**.swift"]
+            :outputType "static-library"
+            :name "Foo"
+            :compileOptions ["-enable-testing"]
+        }
+        :build-tests {
+            :tool "atllbuild"
+            :source ["test/**.swift"]
+            :outputType "executable"
+            :name "footests"
+            :dependencies ["build-lib"]
+            :xctestify true
+            :linkWithProduct["Foo.a"]
+        }
+        :run-tests {
+            :tool "xctestrun"
+            :testExecutable ".atllbuild/products/footests"
+        }
+     }
+)

@@ -24,9 +24,7 @@ import atpkg
 final class Shell : Tool {
     func run(task: Task) {
         guard let script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
-        let t = NSTask.launchedTaskWithLaunchPath("/bin/sh", arguments: ["-c", script])
-        t.waitUntilExit()
-        if t.terminationStatus != 0 {
+        if system("/bin/sh -c \"\(script)\"") != 0 {
             fatalError("/bin/sh -c \(script)")
         }
     }

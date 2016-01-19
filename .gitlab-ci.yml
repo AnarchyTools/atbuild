@@ -23,6 +23,7 @@ osx:
     script: 
         - export PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:"${PATH}"
         - ./bootstrap/build.sh
+        - .atllbuild/products/atbuild check
     tags:
         - openswift
     artifacts:

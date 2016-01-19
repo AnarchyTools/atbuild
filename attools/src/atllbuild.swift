@@ -46,7 +46,7 @@ final class ATllbuild : Tool {
         s += "        print(\"    var allTests : [(String, () -> Void)] {\")\n"
         s += "        print(\"        return [\")\n"
         s += "        print(\"        (\\\"testFoo\\\", testFoo)\")\n"
-        s += "        print(\"        )]\")\n"
+        s += "        print(\"        ]\")\n"
         s += "        print(\"    }\")\n"
         s += "        print(\"}\")\n"
         s += "        print(\"(Or disable xctestStrict.)\")\n"

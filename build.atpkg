@@ -17,36 +17,6 @@
 (package
   :name "atbuild"
   :import ["atpkg/build.atpkg"]
-
-  :configurations {
-        :bootstrap {
-             :osx {
-                :attools {
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
-                }
-                :atbuild {
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-macosx.swift-build"
-                }
-             }
-             :linux {
-                :attools {
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
-                  :swiftCPath "/usr/local/bin/swiftc"
-                  :linkSDK false
-
-                }
-                :atbuild {
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
-                  :swiftCPath "/usr/local/bin/swiftc"
-                  :linkSDK false
-                }
-             }
-        }
-  }
   
   :tasks {
           :atbuild {
@@ -56,6 +26,19 @@
             :outputType "executable"
             :linkWithProduct ["attools.a" "atpkg.a"]
             :dependencies ["attools" "atpkg.atpkg"]
+
+            :overlays {
+              :bootstrap-osx {
+                :bootstrapOnly true
+                :llbuildyaml "bootstrap/bootstrap-macosx.swift-build"
+              }
+              :bootstrap-linux {
+                :bootstrapOnly true
+                :swiftCPath "/usr/local/bin/swiftc"
+                :linkSDK false
+                :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
+              }
+            }
           }
                   
           :attools {
@@ -65,6 +48,18 @@
             :outputType "static-library"
             :dependencies ["atpkg.atpkg"]
             :linkWithProduct ["atpkg.a"]
+            :overlays {
+              :bootstrap-osx {
+                :bootstrapOnly true
+                :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
+              }
+              :bootstrap-linux {
+                :bootstrapOnly true
+                :swiftCPath "/usr/local/bin/swiftc"
+                :linkSDK false
+                :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
+              }
+            }
           }
 
           :check {

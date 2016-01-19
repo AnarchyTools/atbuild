@@ -23,7 +23,7 @@ class FooTests: XCTestCase {
 extension FooTests: XCTestCaseProvider {
     var allTests : [(String, () -> Void)] {
         return [
-            ("testFoo", testFoo)
+            //("testFoo", testFoo) oops!  Forgot this one!
         ]
     }
 }

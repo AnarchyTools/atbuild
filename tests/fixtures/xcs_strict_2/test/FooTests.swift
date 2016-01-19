@@ -19,11 +19,3 @@ class FooTests: XCTestCase {
         XCTAssert(Foo().whatever() == 12)
     }
 }
-
-extension FooTests: XCTestCaseProvider {
-    var allTests : [(String, () -> Void)] {
-        return [
-            ("testFoo", testFoo)
-        ]
-    }
-}

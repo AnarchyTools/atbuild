@@ -184,6 +184,28 @@ final class ATllbuild : Tool {
      }
     
     func run(task: Task) {
+        
+        //warn if we don't understand an option
+        let knownOptions = ["tool",
+                            "name",
+                            "dependencies",
+                            "outputType",
+                            "source",
+                            "bootstrapOnly",
+                            "llbuildyaml",
+                            "compileOptions",
+                            "linkOptions",
+                            "linkSDK",
+                            "linkWithProduct",
+                            "swiftCPath",
+                            "xctestify",
+                            "xctestStrict"]
+        for key in task.allKeys {
+            if !knownOptions.contains(key) {
+                print("Warning: unknown option \(key) for task \(task.key)")
+            }
+        }
+        
         //create the working directory
         let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()

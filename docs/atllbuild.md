@@ -14,7 +14,7 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
     :name "build"
 
     ;;Type of build.  "library" and "executable" are supported.
-    :output-type "library" 
+    :outputType "library" 
 
     ;;walk the src directory and recursively find all swift files
     :source ["src/**.swift"]

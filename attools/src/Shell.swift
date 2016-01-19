@@ -27,8 +27,15 @@ import atpkg
 final class Shell : Tool {
     func run(task: Task) {
         guard let script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
-        if system("/bin/sh -c \"\(script)\"") != 0 {
-            fatalError("/bin/sh -c \(script)")
+        do {
+            let oldPath = NSFileManager.defaultManager().currentDirectoryPath
+            defer { NSFileManager.defaultManager().changeCurrentDirectoryPath(oldPath) }
+            
+            NSFileManager.defaultManager().changeCurrentDirectoryPath(task.importedPath)
+            
+            if system("/bin/sh -c \"\(script)\"") != 0 {
+                fatalError("/bin/sh -c \(script)")
+            }
         }
     }
 }

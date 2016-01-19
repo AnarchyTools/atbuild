@@ -1,0 +1,10 @@
+(package
+  :name "overlay_default"
+
+  :tasks {
+    :default {
+      :tool "shell"
+      :script "exit 1"
+    }
+  }
+)

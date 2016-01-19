@@ -38,6 +38,15 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
 
     ;;The path to swiftC.  By default, we guess based on your platform
     swiftCPath:"/usr/local/bin/swiftc"
+
+    ;; Inject platform-specific options related to
+    ;; XCTest targets
+    xctestify: false
+
+    ;; Inject platform-specific behavior related to
+    ;; checking for API differences across XCTest
+    ;; platforms
+    xctestStrict: false
   }
 }
         

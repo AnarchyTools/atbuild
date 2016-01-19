@@ -1,0 +1,9 @@
+(package
+:name "remote"
+    :tasks {
+        :default {
+            :tool "shell"
+            :script "echo remote.default"
+        }
+    }
+)

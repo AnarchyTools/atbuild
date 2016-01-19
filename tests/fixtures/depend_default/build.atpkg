@@ -1,0 +1,19 @@
+(package
+  :name "NaOH"
+  :import ["remote.atpkg"]
+
+  :tasks {
+    :default {
+      :tool "shell"
+      :script "exit 1"
+      :dependencies ["remote.default"]
+    }
+
+    :build-tests {
+      :tool "shell"
+      :script "echo build-tests"
+      :dependencies ["default"]
+    }
+
+  }
+)

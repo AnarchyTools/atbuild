@@ -10,14 +10,22 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************SHADOW TEST*********************"
+cd $DIR/tests/fixtures/depend_default
+if $ATBUILD build-tests; then
+    echo "default task was shadowed; expected a failure but got a pass"
+    exit 1
+fi
+
 echo "****************HELP TEST*********************"
-if [ $ATBUILD atbuild --help != 1 ]; then
+
+if $ATBUILD atbuild --help; then
     echo "Unusual help exit code"
     exit 1
 fi
 
 echo "*****************XCS TEST**********************"
-cd tests/fixtures/xcs && $ATBUILD run-tests
+cd $DIR/tests/fixtures/xcs && $ATBUILD run-tests
 
 echo "*****************STRICT CHECKS**********************"
 if [ `uname` != "Darwin" ]; then

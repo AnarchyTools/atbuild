@@ -61,6 +61,7 @@ How do we build a Swift project?  There's a built-in tool called `atllbuild`, wh
       :tool "atllbuild"
       :source ["src/**.swift"] ;;walk the src directory, looking for Swift files
       :outputType "executable"
+      :name "example"
     }
   }
 )

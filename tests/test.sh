@@ -10,6 +10,12 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************HELP TEST*********************"
+if [ $ATBUILD atbuild --help != 1 ]; then
+    echo "Unusual help exit code"
+    exit 1
+fi
+
 echo "*****************XCS TEST**********************"
 cd tests/fixtures/xcs && $ATBUILD run-tests
 
@@ -37,10 +43,10 @@ fi
 echo "*****************OVERLAY CHECKS**********************"
 
 cd $DIR/tests/fixtures/overlay
-#if $ATBUILD; then
-#    echo "Expected a failure in overlay"
-#    exit 1
-#fi
+if $ATBUILD; then
+    echo "Expected a failure in overlay"
+    exit 1
+fi
 
 $ATBUILD --overlay got-overlay
 

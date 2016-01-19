@@ -34,4 +34,14 @@ else
     fi
 fi
 
+echo "*****************OVERLAY CHECKS**********************"
+
+cd $DIR/tests/fixtures/overlay
+#if $ATBUILD; then
+#    echo "Expected a failure in overlay"
+#    exit 1
+#fi
+
+$ATBUILD --overlay got-overlay
+
 echo "***ATBUILD TEST SCRIPT PASSED SUCCESSFULLY*****"

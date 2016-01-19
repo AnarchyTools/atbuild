@@ -28,17 +28,15 @@ let defaultBuildFile = "build.atpkg"
 
 func loadPackageFile() -> Package {
 
-    //build configurations
-    var configurations : [String:String] = [:]
+    //build overlays
+    var overlays : [String] = []
     for (i, x) in Process.arguments.enumerate() {
-        if x.hasPrefix("--") && x != "--help" {
-            let configurationName = x.substringFromIndex(x.startIndex.advancedBy(2))
-            let configurationValue = Process.arguments[i+1]
-            configurations[configurationName] = configurationValue
+        if x == "--overlay" {
+            let overlay = Process.arguments[i+1]
+            overlays.append(overlay)
         }
     }
-    print("configurations \(configurations)")
-    guard let package = Package(filepath: defaultBuildFile, configurations: configurations) else {
+    guard let package = Package(filepath: defaultBuildFile, overlay: overlays) else {
         print("Unable to load build file: \(defaultBuildFile)")
         exit(1)
     }
@@ -47,7 +45,7 @@ func loadPackageFile() -> Package {
 }
 
 //usage message
-if Process.arguments.count > 1 && Process.arguments[1] == "--help" {
+if Process.arguments.contains("--help") {
     print("atbuild - Anarchy Tools Build Tool \(version)")
     print("https://github.com/AnarchyTools")
     print("© 2016 Anarchy Tools Contributors.")
@@ -59,8 +57,7 @@ if Process.arguments.count > 1 && Process.arguments[1] == "--help" {
     print("tasks:")
     for (key, task) in package.tasks {
         print("    \(key)")
-    }
-    
+    } 
     exit(1)
 }
 

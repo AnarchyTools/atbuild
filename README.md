@@ -2,9 +2,79 @@
 
 The Anarchy Tools Build Tool.
 
+`atbuild` is a cross-platform build system, primarily for Swift-language projects, following the [Anarchy Tools philosophy](https://github.com/AnarchyTools/AnarchyTools) of simple, unopinionated, hackable tools.
+
+# Tasks
+
+With `atbuild` you define a set of *tasks*, representing high-level operations like building, running, and cleaning.  Then you can use these tasks from the command line.
+
+```bash
+$ atbuild build
+$ atbuild build-tests
+$ atbuild run-tests
+$ atbuild #runs a task named "default"
+```
+
+
+Tasks are defined in a clojure-like format.  Here's a simple example:
+
+```clojure
+;; This is a comment
+
+(package
+  :name "foo"
+
+  ;;These "tasks" are just entrypoints on the CLI.
+  ;;For example, `atbuild build` runs the `build` task.
+  :tasks {
+    :run {
+      :tool "shell"               ;;Tools are functions built into atbuild.
+      :script "echo Hello world!" ;;The shell tool requires a script
+    }
+  }
+)
+```
+
+Name that `build.atpkg`.  Now we can call 
+
+```bash
+$ atbuild run
+Building package foo...
+Running task run...
+Hello world!
+Completed task run.
+Built package foo.
+```
+
+# Building Swift code
+
+How do we build a Swift project?  There's a built-in tool called `atllbuild`, which is our *low-level build system*.
+
+```clojure
+(package
+  :name "foo"
+
+  ;;These "tasks" are just entrypoints on the CLI.
+  ;;For example, `atbuild build` runs the `build` task.
+  :tasks {
+    :build {
+      :tool "atllbuild"
+      :source ["src/**.swift"] ;;walk the src directory, looking for Swift files
+      :outputType "executable"
+    }
+  }
+)
+```
+
+That's all you need to get started!  `atbuild` supports many more usecases than can fit in a README.  For more information, browse our [documentation](/docs).
+
 # Building
 
-To build atbuild "from scratch", simply `./bootstrap/build.sh`.
+We publish [binary releases](https://github.com/AnarchyTools/atbuild/releases), which are the easiest way to get started.
+
+`atbuild` is self-hosting, so building it with an existing copy is usually your best bet.
+
+That said, if you're doing something fancy, or are bootstrapping onto a new platform, use `./bootstrap/build.sh`.
 
 Then you can check the program was built successfully:
 
@@ -18,107 +88,3 @@ Usage:
 atbuild [task]
     task: ["default", "helloworld", "bootstrap"]
 ```
-
-# Configuration
-
-```bash
-$ atbuild
-$ atbuild build
-$ atbuild build-tests
-$ atbuild run-tests
-```
-
-The configuration file defines *tasks*, which are entrypoints on the CLI.  If no task is specified, we run a task called `default`.
-
-Configurations look like this:
-
-```bash
-$ atbuild run-tests --platform linux
-```
-
-A complete build.atpkg example is below.
-
-```clojure
-;; This is a comment
-
-(package
-  :name "atbuild"
-
-  ;;These "tasks" are just entrypoints on the CLI.
-  ;;For example, `atbuild run-tests` runs the `run-tests` task.
-  :tasks {
-
-            :atbuild {
-                :tool "atllbuild" ;;The tool for this task.  atllbuild compiles a swift project.  
-                                  ;; For more information, see docs/attlbuild.md
-                :source ["atbuild/src/**.swift"]
-                :name "atbuild"
-                :outputType "executable"
-                :linkWithProduct ["attools.a" "atpkg.a"]
-                :dependencies ["attools" "atpkg"]
-            }
-
-            :atpkg {
-                :tool "atllbuild"
-                :source ["atpkg/src/**.swift"]
-                :name "atpkg"
-                :outputType "static-library"
-            }
-                  
-            :attools {
-                :tool "atllbuild"
-                :source ["attools/src/**.swift"]
-                :name "attools"
-                :outputType "static-library"
-            }
-
-            :atpkg-tests {
-                :tool "atllbuild"
-                :dependencies ["atpkg"]
-                :source ["atpkg/tests/**.swift"]
-                :name "atpkgtests"
-                :outputType "executable"
-                :linkWithProduct ["atpkg.a"]
-            }
-
-            :run-atpkg-tests {
-                :tool "shell"
-                :dependencies ["atpkg-tests"]
-                :script "./.atllbuild/products/atpkgtests"
-            }
-
-            :run-tests {
-                :dependencies ["run-atpkg-tests"]
-                :tool "nop"
-            }
-    }
-
-  ;;These configurations "override" task configurations when activated.
-  ;;You activate a configuration via `atbuild --name [value]`
-  :configurations {
-        ;;Create a configuration called "bootstrap"
-        :bootstrap {
-             ;;If bootstrap is yes
-             :yes {
-                :atpkg { ;;specify additional options for atpkg
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-macosx-atpkg.swift-build"
-                }
-                :attools { ;;specify additional options for attools
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
-                }
-                :atbuild { ;;specify additional options for atbuild
-                  :bootstrapOnly true
-                  :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
-                }
-             }
-        }
-  }
-
-)
-
-```
-
-The package file is a set of metadata to describe how the build process should work, and push all the actual work out to separate tools. There are a set of tools that are built-in that provide some of the standard behavior we want to support. At the same time, there are extension points to defining new tools as well. These tools can be defined within the package file or within source code for more advanced tools.
-

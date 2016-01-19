@@ -66,6 +66,12 @@
             :dependencies ["atpkg.atpkg"]
             :linkWithProduct ["atpkg.a"]
           }
+
+          :check {
+            :tool "shell"
+            :script "./tests/test.sh"
+            :dependencies ["atbuild"]
+          }
   }
 
 )

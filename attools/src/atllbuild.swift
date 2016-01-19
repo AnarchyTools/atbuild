@@ -23,6 +23,56 @@ import atpkg
 For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {
     
+    /**We inject this sourcefile in xctestify=true on OSX
+    On Linux, the API requires you to explicitly list tests
+    which is not required on OSX.  Injecting this file into test targets
+    will enforce that API on OSX as well */
+    private static let xcTestCaseProvider: String = { () -> String in
+        var s = ""
+        s += "import XCTest\n"
+        s += "\n"
+        s += "protocol XCTestCaseProvider {\n"
+        s += "    var allTests : [(String, () -> Void)] { get }\n"
+        s += "}\n"
+        s += "\n"
+        s += "public func XCTMain(testCases: [XCTestCase]) {\n"
+        s += "    fatalError(\"Can't get here.\")\n"
+        s += "}\n"
+        s += "\n"
+        s += "extension XCTestCase {\n"
+        s += "    private func implementAllTests() {\n"
+        s += "        print(\"Make sure to implement allTests via\")\n"
+        s += "        print(\"extension \\(self.dynamicType) : XCTestCaseProvider {\")\n"
+        s += "        print(\"    var allTests : [(String, () -> Void)] {\")\n"
+        s += "        print(\"        return [\")\n"
+        s += "        print(\"        (\\\"testFoo\\\", testFoo)\")\n"
+        s += "        print(\"        )]\")\n"
+        s += "        print(\"    }\")\n"
+        s += "        print(\"}\")\n"
+        s += "        print(\"(Or disable xctestStrict.)\")\n"
+        s += "        print(\"Cheers! -- Anarchy Tools Team\")\n"
+        s += "    }\n"
+        s += "    override public func tearDown() {\n"
+        s += "        if let provider = self as? XCTestCaseProvider {\n"
+        s += "            let contains = provider.allTests.contains({ test in\n"
+        s += "                return test.0 == invocation!.selector.description\n"
+        s += "            })\n"
+        s += "            if !contains {\n"
+        s += "               XCTFail(\"Test \\(name) is missing from \\(self.dynamicType)\")\n"
+        s += "               implementAllTests()\n"
+        s += "            }\n"
+        s += "        }\n"
+        s += "        else {\n"
+        s += "            XCTFail(\"Whoops!  \\(self.dynamicType) doesn't conform to XCTestCaseProvider.\")\n"
+        s += "            implementAllTests()\n"
+        s += "        }\n"
+        s += "        super.tearDown()\n"
+        s += "    }\n"
+        s += "}\n"
+        s += "\n"
+        return s
+    }()
+    
     enum OutputType {
         case Executable
         case StaticLibrary
@@ -181,8 +231,30 @@ final class ATllbuild : Tool {
                 linkOptions.append(os)
             }
         }
+        
         guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
-                let sources = collectSources(sourceDescriptions, task: task)
+        var sources = collectSources(sourceDescriptions, task: task)
+        
+        //xctestify
+        if task["xctestify"]?.bool == true {
+            precondition(outputType == .Executable, "You must use outputType: executable with xctestify.")
+            //inject platform-specific flags
+            #if os(OSX)
+                compileOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/"])
+                linkOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
+            #endif
+        }
+        if task["xctestStrict"]?.bool == true {
+            #if os(OSX)
+            //inject XCTestCaseProvider.swift
+            var xcTestCaseProviderPath = "/tmp/XXXXXXX"
+            var template = xcTestCaseProviderPath.cStringUsingEncoding(NSUTF8StringEncoding)!
+            xcTestCaseProviderPath = String(CString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
+            xcTestCaseProviderPath += "/XCTestCaseProvider.swift"
+            try! ATllbuild.xcTestCaseProvider.writeToFile(xcTestCaseProviderPath, atomically: false, encoding: NSUTF8StringEncoding)
+            sources.append(xcTestCaseProviderPath)
+            #endif
+        }
 
         guard let name = task["name"]?.string else { fatalError("No name for atllbuild task") }
         

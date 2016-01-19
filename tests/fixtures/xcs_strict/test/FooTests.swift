@@ -11,30 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+@testable import Foo
 
-import atpkg
-
-/** The builtin tools. */
-let tools: [String:Tool] = [
-    "shell": Shell(),
-    "atllbuild": ATllbuild(),
-    "nop": Nop(),
-    "xctestrun":XCTestRun()
-]
-
-/**
- * A tool is a function that performs some operation, like building, or
- * running a shell command. We provide several builtin tools, but users
- * can build new ones out of the existing ones.
- */
-public protocol Tool {
-    func run(task: Task)
+import XCTest
+class FooTests: XCTestCase {
+    func testFoo() {
+        XCTAssert(Foo().whatever() == 12)
+    }
 }
 
-/**
- * Look up a tool by name.
- */
-func toolByName(name: String) -> Tool {
-    guard let tool = tools[name] else { fatalError("Unknown build tool \(name)") }
-    return tool
+extension FooTests: XCTestCaseProvider {
+    var allTests : [(String, () -> Void)] {
+        return [
+            //("testFoo", testFoo) oops!  Forgot this one!
+        ]
+    }
 }

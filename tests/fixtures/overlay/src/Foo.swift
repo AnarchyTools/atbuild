@@ -13,9 +13,9 @@
 // limitations under the License.
 
 class Foo {
-    var b: String
+    var b: String = ""
     #if GOT_OVERLAY
     #else
-    var b: String //compile error
+    var b: String = "" //compile error
     #endif
 }

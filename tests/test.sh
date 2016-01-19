@@ -58,4 +58,10 @@ fi
 
 $ATBUILD --overlay got-overlay
 
+cd $DIR/tests/fixtures/overlay_default
+if $ATBUILD --overlay foo; then
+    echo "Expected a failure in overlay"
+    exit 1
+fi
+
 echo "***ATBUILD TEST SCRIPT PASSED SUCCESSFULLY*****"

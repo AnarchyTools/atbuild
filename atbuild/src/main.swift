@@ -72,12 +72,14 @@ func runtask(taskName: String) {
 }
 
 //choose which task to run
+var run = false
 if Process.arguments.count > 1 {
     if !Process.arguments[1].hasPrefix("--") {
+        run = true
         runtask(Process.arguments[1])
     }
 }
-else {
+if !run {
     runtask("default")
 }
 

@@ -14,12 +14,62 @@
 
 import atpkg
 
+/**
+ * Provides a setting for the default tool variables that should be used
+ * within any given tool.
+ */
+public struct StandardizedToolPaths {
+    private init() {}
+    
+    static private func join(base: String, _ paths: [String]) -> String {
+        return paths.reduce(base) { $0 + StandardizedToolPaths.PathSeparator + $1 }
+    }
+    
+    static private func join(base: String, _ paths: String...) -> String {
+        return join(base, paths)
+    }
+    
+    static private func cwd(paths: String...) -> String {
+        return join(StandardizedToolPaths.CurrentDirectory, paths)
+    }
+    
+    public static var PathSeparator: String {
+        get { return "/" }
+    }
+    
+    public static var CurrentDirectory: String {
+        get {
+            return NSFileManager.defaultManager().currentDirectoryPath
+        }
+    }
+    public static var BuiltPath: String { get { return cwd("built") }}
+    
+    public static func ObjectsPath(task: String, profiles: String...) -> String {
+        return StandardizedToolPaths.ObjectsPath(task, profiles: profiles)
+    }
+    public static func ObjectsPath(task: String, profiles: [String]) -> String {
+        let name = profiles.count == 0 ? task : profiles.reduce(task) { $0 + "." + $1 }
+        return join(StandardizedToolPaths.BuiltPath, "obj", name)
+    }
+    
+    public static func BinariesPath(task: String, profiles: String...) -> String {
+        return StandardizedToolPaths.BinariesPath(task, profiles: profiles)
+    }
+    public static func BinariesPath(task: String, profiles: [String]) -> String {
+        let name = profiles.count == 0 ? task : profiles.reduce(task) { $0 + "." + $1 }
+        return join(StandardizedToolPaths.BuiltPath, "bin", name)
+    }
+}
+
 /** The builtin tools. */
 let tools: [String:Tool] = [
     "shell": Shell(),
     "atllbuild": ATllbuild(),
     "nop": Nop(),
-    "xctestrun":XCTestRun()
+    "xctestrun": XCTestRun(),
+    "llbuild-build": SwiftBuildToolBuild(),
+    "llbuild-config": SwiftBuildToolConfig(),
+    "llbuild": SwiftBuildTool()
 ]
 
 /**

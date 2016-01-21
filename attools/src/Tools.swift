@@ -65,7 +65,6 @@ public struct StandardizedToolPaths {
 /** The builtin tools. */
 let tools: [String:Tool] = [
     "shell": Shell(),
-    "atllbuild": ATllbuild(),
     "nop": Nop(),
     "xctestrun": XCTestRun(),
     "llbuild-build": SwiftBuildToolBuild(),
@@ -79,13 +78,12 @@ let tools: [String:Tool] = [
  * can build new ones out of the existing ones.
  */
 public protocol Tool {
-    func run(task: Task)
+    func run(package: Package, task: ConfigMap)
 }
 
 /**
  * Look up a tool by name.
  */
-func toolByName(name: String) -> Tool {
-    guard let tool = tools[name] else { fatalError("Unknown build tool \(name)") }
-    return tool
+func toolByName(name: String) -> Tool? {
+    return tools[name]
 }

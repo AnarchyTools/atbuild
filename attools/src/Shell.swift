@@ -25,13 +25,13 @@ import atpkg
  * If the tool returns with an error code of non-zero, the tool will fail.
  */
 final class Shell : Tool {
-    func run(task: Task) {
+    func run(package: Package, task: ConfigMap) {
         guard let script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
         do {
             let oldPath = NSFileManager.defaultManager().currentDirectoryPath
             defer { NSFileManager.defaultManager().changeCurrentDirectoryPath(oldPath) }
             
-            NSFileManager.defaultManager().changeCurrentDirectoryPath(task.importedPath)
+            NSFileManager.defaultManager().changeCurrentDirectoryPath(package.path)
             
             if system("/bin/sh -c \"\(script)\"") != 0 {
                 fatalError("/bin/sh -c \(script)")

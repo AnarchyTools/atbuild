@@ -1,26 +1,60 @@
-client:
+client: 
   name: swift-build
 
 tools: {}
 
-targets:
-  "": [<atllbuild>]
-  atllbuild: [<atllbuild>]
-commands:
-  <atllbuild-swiftc>:
-     tool: swift-compiler
-     executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
-     inputs: ["atbuild/src/ICantBelieveItsNotFoundation.swift", "atbuild/src/main.swift"]
-     sources: ["atbuild/src/ICantBelieveItsNotFoundation.swift", "atbuild/src/main.swift"]
-     objects: [".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o"]
-     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o"]
-     module-name: atbuild
-     module-output-path: .atllbuild/products/atbuild.swiftmodule
-     temps-path: .atllbuild//llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
-  <atllbuild>:
+targets: 
+  ? ""
+  : 
+    - <atllbuild>
+  atllbuild: 
+    - <atllbuild>
+
+commands: 
+  <atllbuild-swiftc>: 
+    tool: swift-compiler
+    executable: /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc
+    inputs: 
+      - atbuild/src/ICantBelieveItsNotFoundation.swift
+      - atbuild/src/main.swift
+    sources: 
+      - atbuild/src/ICantBelieveItsNotFoundation.swift
+      - atbuild/src/main.swift
+    outputs: 
+      - <atllbuild-swiftc>
+      - .atllbuild/objects/ICantBelieveItsNotFoundation.swift.o
+      - .atllbuild/objects/main.swift.o
+    module-name: atbuild
+    module-output-path: .atllbuild/products/atbuild.swiftmodule
+    objects: 
+      - .atllbuild/objects/ICantBelieveItsNotFoundation.swift.o
+      - .atllbuild/objects/main.swift.o
+    other-args: 
+      - "-j8"
+      - "-D"
+      - ATBUILD
+      - "-I"
+      - .atllbuild/products/
+      - "-sdk"
+      - /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
+    temps-path: .atllbuild//llbuildtmp
+  <atllbuild>: 
     tool: shell
-    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
-    outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
-    description: Linking executable .atllbuild/products/atbuild
+    inputs: 
+      - <atllbuild-swiftc>
+      - .atllbuild/objects/ICantBelieveItsNotFoundation.swift.o
+      - .atllbuild/objects/main.swift.o
+      - .atllbuild/products/attools.a
+      - .atllbuild/products/atpkg.a
+    outputs: 
+      - <atllbuild>
+      - .atllbuild/products/atbuild
+    args: 
+      - /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc
+      - "-o"
+      - .atllbuild/products/atbuild
+      - .atllbuild/objects/ICantBelieveItsNotFoundation.swift.o
+      - .atllbuild/objects/main.swift.o
+      - .atllbuild/products/attools.a
+      - .atllbuild/products/atpkg.a
+    description: "Linking executable .atllbuild/products/atbuild"

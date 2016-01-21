@@ -36,7 +36,7 @@ func loadPackageFile() -> Package {
             overlays.append(overlay)
         }
     }
-    guard let package = Package(filepath: defaultBuildFile, overlay: overlays) else {
+    guard let package = try? Package(path: defaultBuildFile) else {
         print("Unable to load build file: \(defaultBuildFile)")
         exit(1)
     }
@@ -55,7 +55,7 @@ if Process.arguments.contains("--help") {
     
     let package = loadPackageFile()
     print("tasks:")
-    for (key, task) in package.tasks {
+    for (key, task) in package.tasks ?? ConfigMap() {
         print("    \(key)")
     } 
     exit(1)
@@ -64,11 +64,10 @@ if Process.arguments.contains("--help") {
 let package = loadPackageFile()
 print("Building package \(package.name)...")
 
-func runtask(taskName: String) {
-    guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
-    for task in package.prunedDependencyGraph(task) {
-        TaskRunner.runTask(task, package: package)
-    }
+func runtask(taskName: String, package: Package) throws {
+//    for task in package.prunedDependencyGraph(task) {
+        try TaskRunner.runTask(taskName, package: package)
+//    }
 }
 
 //choose which task to run
@@ -76,11 +75,11 @@ var run = false
 if Process.arguments.count > 1 {
     if !Process.arguments[1].hasPrefix("--") {
         run = true
-        runtask(Process.arguments[1])
+        try runtask(Process.arguments[1], package: package)
     }
 }
 if !run {
-    runtask("default")
+    try runtask("default", package: package)
 }
 
 //success message

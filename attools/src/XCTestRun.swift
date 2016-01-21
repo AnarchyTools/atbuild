@@ -17,7 +17,7 @@ import Foundation
     import Glibc //SR-567
 #endif
 class XCTestRun : Tool {
-    func run(task: Task) {
+    func run(package: Package, task: ConfigMap) {
         guard let testExecutable = task["testExecutable"]?.string else {
             fatalError("No testExecutable for XCTestRun")
         }

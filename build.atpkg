@@ -16,56 +16,86 @@
 
 (package
   :name "atbuild"
-  :import ["atpkg/build.atpkg"]
+  :import-packages ["atpkg/build.atpkg"]
   
   :tasks {
-    :atbuild {
-      :tool "atllbuild"
-      :source ["atbuild/src/**.swift"]
-      :name "atbuild"
-      :outputType "executable"
-      :linkWithProduct ["attools.a" "atpkg.a"]
-      :dependencies ["attools" "atpkg.atpkg"]
 
-      :overlays {
-        :bootstrap-osx {
-          :bootstrapOnly true
-          :llbuildyaml "bootstrap/bootstrap-macosx.swift-build"
-        }
-        :bootstrap-linux {
-          :bootstrapOnly true
-          :swiftCPath "/usr/local/bin/swiftc"
-          :linkSDK false
-          :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
-        }
-      }
+    :check {
+      :tool "shell"
+      :script "./tests/test.sh"
+      :dependencies ["atbuild"]
     }
 
-    :attools {
-      :tool "atllbuild"
-      :source ["attools/src/**.swift"]
-      :name "attools"
-      :outputType "static-library"
+    :overlays {
+      :macosx {
+        :config-file "bootstrap/new-bootstrap-$(TASK.NAME)-macosx-swift-build"
+        :source ["attools/src/**.swift" "$(TASK.NAME)/platformsrc/macosx/**.swift"]
+      }
+      :linux {
+        :config-file "bootstrap/new-bootstrap-$(TASK.NAME)-linux.swift-build"
+        :source ["$(TASK.NAME)/platformsrc/linux/**.swift"]
+      }
+
+      :attools-info {
+        :name "attools"
+        :module-name "AnarchyTools"
+        :output-type "static-library"
+      
+        ;; This is should be automatically resolved from the dependencies.
+        :link-with ["atpkg.a"]
+      }
+      
+      :atbuild-info {
+        :name "atbuild"
+        :module-name "AnarchyBuild"
+        :output-type "executable"
+      
+        ;; This is should be automatically resolved from the dependencies.
+        :link-with ["atpkg.a" "attools.a"]
+      }
+    }
+    
+    
+    ;; Below are the boostrap examples of how one would typically specify
+    ;; the build configuration in order to create a boostrap system or
+    ;; output file that would work equally well with `llbuild`.
+    
+    :attools-config {
       :dependencies ["atpkg.atpkg"]
-      :linkWithProduct ["atpkg.a"]
-      :overlays {
-        :bootstrap-osx {
-        :bootstrapOnly true
-        :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
-      }
-      :bootstrap-linux {
-        :bootstrapOnly true
-        :swiftCPath "/usr/local/bin/swiftc"
-        :linkSDK false
-        :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
-      }
+      :tool "llbuild-config"
+      :use-overlays ["attools-info"]
     }
-  }
+    
+    :attools-bootstrap {
+      :dependencies ["attools-config"]
+      :tool "llbuild"
+    }
 
-  :check {
-    :tool "shell"
-    :script "./tests/test.sh"
-    :dependencies ["atbuild"]
+    :atbuild-config {
+      :dependencies ["attools-bootstrap"]
+      :tool "llbuild-config"
+      :use-overlays ["atbuild-info"]
+    }
+    
+    :atbuild-bootstrap {
+      :dependencies ["atbuild-config"]
+      :tool "llbuild"
+    }
+    
+    
+    ;; Below are the non-boostrap examples of how one would typically specify
+    ;; the build configuration within their tasks. Overlays are used to share
+    ;; much of the same information between the tasks.
+    
+    :attools {
+      :dependencies ["atpkg.atpkg"]
+      :use-overlays ["attools-info"]
+    }
+
+    :atbuild {
+      :dependencies ["attools"]
+      :tool "atbuild"
+      :use-overlays ["atbuild-info"]
     }
   }
 )

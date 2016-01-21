@@ -14,6 +14,12 @@
 
 import atpkg
 
+public enum TaskRunnerError: ErrorType {
+    case InvalidTaskName(String)
+    case NoToolSpecified
+    case ToolNotFound(String)
+}
+
 /**
  * Provides the functionality of running a particular task from the build
  * configuration file. The primary work for the task is done via the tool
@@ -22,10 +28,13 @@ import atpkg
 final public class TaskRunner {
     private init() {}
 
-    static public func runTask(task: Task, package: Package) {     
-        print("Running task \(task.key)...")
-        let tool = toolByName(task.tool)
-        tool.run(task)
-        print("Completed task \(task.key).")
+    static public func runTask(name: String, package: Package) throws {
+        guard let task = package.tasks?[name]?.dictionary else { throw TaskRunnerError.InvalidTaskName(name) }
+        guard let toolName = task["tool"]?.string else { throw TaskRunnerError.NoToolSpecified }
+        guard let tool = toolByName(toolName) else { throw TaskRunnerError.ToolNotFound(toolName) }
+
+        print("Running task \(name)...")
+        tool.run(package, task: task)
+        print("Completed task \(name).")
     }
 }

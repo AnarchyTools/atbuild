@@ -12,15 +12,95 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import atpkg
+import Foundation
+import AnarchyPackage
 
 /** The builtin tools. */
 let tools: [String:Tool] = [
     "shell": Shell(),
-    "atllbuild": ATllbuild(),
     "nop": Nop(),
-    "xctestrun":XCTestRun()
+    "xctestrun": XCTestRun(),
+    "llbuild-build": SwiftBuildToolBuild(),
+    "llbuild-config": SwiftBuildToolConfig(),
+    "llbuild": SwiftBuildTool()
 ]
+
+
+/**
+ * Provides a setting for the default tool variables that should be used
+ * within any given tool.
+ */
+public struct StandardizedToolPaths {
+    private init() {}
+    
+    static private func join(base: String, _ paths: [String]) -> String {
+        return paths.reduce(base) { $0 + StandardizedToolPaths.PathSeparator + $1 }
+    }
+    
+    static private func join(base: String, _ paths: String...) -> String {
+        return join(base, paths)
+    }
+    
+    static private func cwd(paths: String...) -> String {
+        return join(StandardizedToolPaths.CurrentDirectory, paths)
+    }
+    
+    public static var PathSeparator: String {
+        get { return "/" }
+    }
+    
+    public static var CurrentDirectory: String {
+        get {
+            return NSFileManager.defaultManager().currentDirectoryPath
+        }
+    }
+    public static var BuiltPath: String { get { return cwd("built") }}
+    
+    public static func ObjectsPath(task: String, profiles: String...) -> String {
+        return StandardizedToolPaths.ObjectsPath(task, profiles: profiles)
+    }
+    public static func ObjectsPath(task: String, profiles: [String]) -> String {
+        let name = profiles.count == 0 ? task : profiles.reduce(task) { $0 + "." + $1 }
+        return join(StandardizedToolPaths.BuiltPath, "obj", name)
+    }
+    
+    public static func BinariesPath(task: String, profiles: String...) -> String {
+        return StandardizedToolPaths.BinariesPath(task, profiles: profiles)
+    }
+    public static func BinariesPath(task: String, profiles: [String]) -> String {
+        let name = profiles.count == 0 ? task : profiles.reduce(task) { $0 + "." + $1 }
+        return join(StandardizedToolPaths.BuiltPath, "bin", name)
+    }
+}
+
+/**
+ * This function resolves wildcards in source descriptions to complete values
+ *   - parameter sourceDescriptions: a descriptions of sources such as ["src/**.swift"] */
+ *   - returns: A list of resolved sources such as ["src/a.swift", "src/b.swift"]
+ */
+public func collectSources(sourceDescriptions: [String], task: Task) -> [String] {
+    var sources : [String] = []
+    for unPrefixedDescription in sourceDescriptions {
+        let description = unPrefixedDescription
+        if description.hasSuffix("**.swift") {
+            let basepath = String(Array(description.characters)[0..<description.characters.count - 9])
+
+            guard let enumerator = ICantBelieveItsNotFoundation_enumeratorAtPath(basepath) else {
+                fatalError("Invalid path \(basepath)")
+            }
+            while let source_ns = enumerator.nextObject() as? NSString {
+                let source = source_ns.toString
+                if source.hasSuffix("swift") {
+                    sources.append(basepath + "/" + source)
+                }
+            }
+        }
+        else {
+            sources.append(description)
+        }
+    }
+    return sources
+}
 
 /**
  * A tool is a function that performs some operation, like building, or
@@ -34,7 +114,6 @@ public protocol Tool {
 /**
  * Look up a tool by name.
  */
-func toolByName(name: String) -> Tool {
-    guard let tool = tools[name] else { fatalError("Unknown build tool \(name)") }
-    return tool
+func toolByName(name: String) -> Tool? {
+    return tools[name]
 }

@@ -15,8 +15,8 @@
 let version = "0.6.0-dev"
 
 import Foundation
-import atpkg
-import attools
+import AnarchyPackage
+import AnarchyTools
 
 #if os(Linux)
 //we need to get exit somehow
@@ -24,19 +24,25 @@ import attools
 import Glibc
 #endif
 
-let defaultBuildFile = "build.atpkg"
+let defaultBuildFile = "./build.atpkg"
 
 func loadPackageFile() -> Package {
-
-    //build overlays
-    var overlays : [String] = []
+    var overrides: ConfigMap? = nil
+    
+    var overlays: [Value] = []
     for (i, x) in Process.arguments.enumerate() {
-        if x == "--overlay" {
+        if x == "--use-overlay" {
             let overlay = Process.arguments[i+1]
-            overlays.append(overlay)
+            overlays.append(.StringLiteral(overlay))
         }
     }
-    guard let package = Package(filepath: defaultBuildFile, overlay: overlays) else {
+
+    if overlays.count > 0 {
+        overrides = ConfigMap()
+        overrides![Package.Keys.UseOverlays] = .ArrayLiteral(overlays)
+    }
+    
+    guard let package = try? Package(path: defaultBuildFile, overrides: overrides) else {
         print("Unable to load build file: \(defaultBuildFile)")
         exit(1)
     }
@@ -64,10 +70,10 @@ if Process.arguments.contains("--help") {
 let package = loadPackageFile()
 print("Building package \(package.name)...")
 
-func runtask(taskName: String) {
-    guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
+func runtask(taskName: String, package: Package) throws {
+    guard let task = package.tasks[taskName] else { throw PackageError(.InvalidTask(taskName)) }
     for task in package.prunedDependencyGraph(task) {
-        TaskRunner.runTask(task, package: package)
+        try TaskRunner.runTask(task)
     }
 }
 
@@ -75,12 +81,12 @@ func runtask(taskName: String) {
 var run = false
 if Process.arguments.count > 1 {
     if !Process.arguments[1].hasPrefix("--") {
-        run = true
-        runtask(Process.arguments[1])
+        run = true        
+        try runtask(Process.arguments[1], package: package)
     }
 }
 if !run {
-    runtask("default")
+    try runtask("default", package: package)
 }
 
 //success message

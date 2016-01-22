@@ -16,57 +16,102 @@
 
 (package
   :name "atbuild"
-  :import ["atpkg/build.atpkg"]
+  :import-packages ["atpkg/build"]
   
-  :tasks {
-          :atbuild {
-            :tool "atllbuild"
-            :source ["atbuild/src/**.swift"]
-            :name "atbuild"
-            :outputType "executable"
-            :linkWithProduct ["attools.a" "atpkg.a"]
-            :dependencies ["attools" "atpkg.atpkg"]
-
-            :overlays {
-              :bootstrap-osx {
-                :bootstrapOnly true
-                :llbuildyaml "bootstrap/bootstrap-macosx.swift-build"
-              }
-              :bootstrap-linux {
-                :bootstrapOnly true
-                :swiftCPath "/usr/local/bin/swiftc"
-                :linkSDK false
-                :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
-              }
-            }
-          }
-                  
-          :attools {
-            :tool "atllbuild"
-            :source ["attools/src/**.swift"]
-            :name "attools"
-            :outputType "static-library"
-            :dependencies ["atpkg.atpkg"]
-            :linkWithProduct ["atpkg.a"]
-            :overlays {
-              :bootstrap-osx {
-                :bootstrapOnly true
-                :llbuildyaml "bootstrap/bootstrap-macosx-attools.swift-build"
-              }
-              :bootstrap-linux {
-                :bootstrapOnly true
-                :swiftCPath "/usr/local/bin/swiftc"
-                :linkSDK false
-                :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
-              }
-            }
-          }
-
-          :check {
-            :tool "shell"
-            :script "./tests/test.sh"
-            :dependencies ["atbuild"]
-          }
+  :overlays {
+    :attools-info {
+      :name "attools"
+      :module-name "AnarchyTools"
+      :output-type "static-library"
+      :sources ["attools/src/**.swift"]
+    
+      ;; This is should be automatically resolved from the dependencies.
+      :link-with ["atpkg.a"]
+    }
+    
+    :atbuild-info {
+      :name "atbuild"
+      :module-name "AnarchyBuild"
+      :output-type "executable"
+      :sources ["atbuild/src/**.swift"]
+    
+      ;; This is should be automatically resolved from the dependencies.
+      :link-with ["atpkg.a" "attools.a"]
+    }
   }
 
+  :tasks {
+
+    :check {
+      :tool "shell"
+      :script "./tests/test.sh"
+      :dependencies ["atbuild"]
+    }
+    
+    
+    ;; Below are the boostrap examples of how one would typically specify
+    ;; the build configuration in order to create a boostrap system or
+    ;; output file that would work equally well with `llbuild`.
+    
+    :attools-config {
+      :dependencies ["atpkg/atpkg-config"]
+      :tool "llbuild-config"
+      :use-overlays ["attools-info"]
+      :overlays {
+         :macosx {
+           :config-file "bootstrap/bootstrap-macosx-attools.swift-build"
+         }
+         :linux {
+           :config-file "bootstrap/bootstrap-linux-attools.swift-build"
+           :swiftc-path "/usr/local/bin/swiftc"
+           :link-sdk false
+         }
+      }
+    }
+    
+    :attools-bootstrap {
+      :dependencies ["attools-config"]
+      :tool "llbuild"
+      :use-overlays ["attools-info"]
+    }
+
+    :atbuild-config {
+      :dependencies ["attools-bootstrap"]
+      :tool "llbuild-config"
+      :use-overlays ["atbuild-info"]
+      :overlays {
+         :macosx {
+           :config-file "bootstrap/bootstrap-macosx-atbuild.swift-build"
+         }
+         :linux {
+           :config-file "bootstrap/bootstrap-linux-atbuild.swift-build"
+           :swiftc-path "/usr/local/bin/swiftc"
+           :link-sdk false
+         }
+      }
+    }
+    
+    :atbuild-bootstrap {
+      :dependencies ["atbuild-config"]
+      :tool "llbuild"
+      :use-overlays ["atbuild-info"]
+    }
+    
+    
+    ;; Below are the non-boostrap examples of how one would typically specify
+    ;; the build configuration within their tasks. Overlays are used to share
+    ;; much of the same information between the tasks.
+    
+    :attools {
+      :dependencies ["atpkg/atpkg"]
+      :tool "nop"
+      :use-overlays ["attools-info"]
+    }
+
+    :atbuild {
+      :dependencies ["attools"]
+      :tool "nop"
+      :use-overlays ["atbuild-info"]
+    }
+  }
 )

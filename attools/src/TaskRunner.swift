@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import atpkg
+import AnarchyPackage
+
+public enum TaskRunnerError: ErrorType {
+    case NoToolSpecified
+    case ToolNotFound(String)
+}
 
 /**
  * Provides the functionality of running a particular task from the build
@@ -22,9 +27,11 @@ import atpkg
 final public class TaskRunner {
     private init() {}
 
-    static public func runTask(task: Task, package: Package) {     
+    static public func runTask(task: Task) throws {
+        guard let toolName = task["tool"]?.string else { throw TaskRunnerError.NoToolSpecified }
+        guard let tool = toolByName(toolName) else { throw TaskRunnerError.ToolNotFound(toolName) }
+
         print("Running task \(task.key)...")
-        let tool = toolByName(task.tool)
         tool.run(task)
         print("Completed task \(task.key).")
     }

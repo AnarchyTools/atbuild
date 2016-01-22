@@ -11,14 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import atpkg
+import AnarchyPackage
 import Foundation
 #if os(Linux)
     import Glibc //SR-567
 #endif
 class XCTestRun : Tool {
     func run(task: Task) {
-        guard let testExecutable = task["testExecutable"]?.string else {
+        guard let testExecutable = task["test-executable"]?.string else {
             fatalError("No testExecutable for XCTestRun")
         }
         #if os(OSX)

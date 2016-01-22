@@ -38,3 +38,48 @@ extension NSString {
         #endif
     }
 }
+
+//enumeratorAtPath isn't implemented
+//https://github.com/apple/swift-corelibs-foundation/pull/232 upstreams this code.
+class ICantBelieveItsNotNSDirectoryEnumerator {
+    let baseURL: NSURL
+    let innerEnumerator : NSDirectoryEnumerator
+    var fileAttributes: [String : AnyObject]? {
+        fatalError("Not implemented")
+    }
+    var directoryAttributes: [String : AnyObject]? {
+        fatalError("Not implemented")
+    }
+    
+    /* This method returns the number of levels deep the current object is in the directory hierarchy being enumerated. The directory passed to -enumeratorAtURL:includingPropertiesForKeys:options:errorHandler: is considered to be level 0.
+     */
+    var level: Int {
+        fatalError("Not implemented")
+    }
+    
+    func skipDescendants() {
+        fatalError("Not implemented")
+    }
+    
+    init?(path: String) {
+        let url = NSURL(fileURLWithPath: path)
+        self.baseURL = url
+        guard let ie = NSFileManager.defaultManager().enumeratorAtURL(url, includingPropertiesForKeys: nil, options: NSDirectoryEnumerationOptions(), errorHandler: nil) else {
+            return nil
+        }
+        self.innerEnumerator = ie
+    }
+    
+    func nextObject() -> AnyObject? {
+        let o = innerEnumerator.nextObject()
+        guard let url = o as? NSURL else {
+            return nil
+        }
+        let path = url.path!.stringByReplacingOccurrencesOfString(baseURL.path!+"/", withString: "")
+        return NSString(string: path)
+    }
+    
+}
+func ICantBelieveItsNotFoundation_enumeratorAtPath(path: String) -> ICantBelieveItsNotNSDirectoryEnumerator? {
+    return ICantBelieveItsNotNSDirectoryEnumerator(path: path)
+}

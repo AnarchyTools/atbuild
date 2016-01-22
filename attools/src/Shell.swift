@@ -14,7 +14,7 @@
 
 
 import Foundation
-import atpkg
+import AnarchyPackage
 #if os(Linux)
     import Glibc //SR-567
 #endif
@@ -31,7 +31,7 @@ final class Shell : Tool {
             let oldPath = NSFileManager.defaultManager().currentDirectoryPath
             defer { NSFileManager.defaultManager().changeCurrentDirectoryPath(oldPath) }
             
-            NSFileManager.defaultManager().changeCurrentDirectoryPath(task.importedPath)
+            NSFileManager.defaultManager().changeCurrentDirectoryPath(task.package.path)
             
             if system("/bin/sh -c \"\(script)\"") != 0 {
                 fatalError("/bin/sh -c \(script)")

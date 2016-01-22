@@ -17,18 +17,18 @@
 
   :overlays {
     :got-overlay {
-        :compileOptions ["-D" "GOT_OVERLAY"]
+        :compile-options ["-D" "GOT_OVERLAY"]
     }
   }
   
   :tasks {
       :default {
-        :tool "atllbuild"
-        :source ["src/**.swift"]
+        :tool "llbuild"
+        :sources ["src/**.swift"]
         :name "overlay"
-        :outputType "static-library"
+        :output-type "static-library"
         :germany "awesome"
-        :compileOptions []
+        :compile-options []
       }
   }
 )

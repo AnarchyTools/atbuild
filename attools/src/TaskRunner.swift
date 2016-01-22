@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import atpkg
+import AnarchyPackage
 
 public enum TaskRunnerError: ErrorType {
-    case InvalidTaskName(String)
     case NoToolSpecified
     case ToolNotFound(String)
 }
@@ -28,13 +27,12 @@ public enum TaskRunnerError: ErrorType {
 final public class TaskRunner {
     private init() {}
 
-    static public func runTask(name: String, package: Package) throws {
-        guard let task = package.tasks?[name]?.dictionary else { throw TaskRunnerError.InvalidTaskName(name) }
+    static public func runTask(task: Task) throws {
         guard let toolName = task["tool"]?.string else { throw TaskRunnerError.NoToolSpecified }
         guard let tool = toolByName(toolName) else { throw TaskRunnerError.ToolNotFound(toolName) }
 
-        print("Running task \(name)...")
-        tool.run(package, task: task)
-        print("Completed task \(name).")
+        print("Running task \(task.key)...")
+        tool.run(task)
+        print("Completed task \(task.key).")
     }
 }

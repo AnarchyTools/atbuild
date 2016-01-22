@@ -16,43 +16,36 @@
 
 (package
   :name "atbuild"
-  :import-packages ["atpkg/build.atpkg"]
+  :import-packages ["atpkg/build"]
   
+  :overlays {
+    :attools-info {
+      :name "attools"
+      :module-name "AnarchyTools"
+      :output-type "static-library"
+      :sources ["attools/src/**.swift"]
+    
+      ;; This is should be automatically resolved from the dependencies.
+      :link-with ["atpkg.a"]
+    }
+    
+    :atbuild-info {
+      :name "atbuild"
+      :module-name "AnarchyBuild"
+      :output-type "executable"
+      :sources ["atbuild/src/**.swift"]
+    
+      ;; This is should be automatically resolved from the dependencies.
+      :link-with ["atpkg.a" "attools.a"]
+    }
+  }
+
   :tasks {
 
     :check {
       :tool "shell"
       :script "./tests/test.sh"
       :dependencies ["atbuild"]
-    }
-
-    :overlays {
-      :macosx {
-        :config-file "bootstrap/new-bootstrap-$(TASK.NAME)-macosx-swift-build"
-        :source ["attools/src/**.swift" "$(TASK.NAME)/platformsrc/macosx/**.swift"]
-      }
-      :linux {
-        :config-file "bootstrap/new-bootstrap-$(TASK.NAME)-linux.swift-build"
-        :source ["$(TASK.NAME)/platformsrc/linux/**.swift"]
-      }
-
-      :attools-info {
-        :name "attools"
-        :module-name "AnarchyTools"
-        :output-type "static-library"
-      
-        ;; This is should be automatically resolved from the dependencies.
-        :link-with ["atpkg.a"]
-      }
-      
-      :atbuild-info {
-        :name "atbuild"
-        :module-name "AnarchyBuild"
-        :output-type "executable"
-      
-        ;; This is should be automatically resolved from the dependencies.
-        :link-with ["atpkg.a" "attools.a"]
-      }
     }
     
     
@@ -61,25 +54,43 @@
     ;; output file that would work equally well with `llbuild`.
     
     :attools-config {
-      :dependencies ["atpkg.atpkg"]
+      :dependencies ["atpkg/atpkg-config"]
       :tool "llbuild-config"
       :use-overlays ["attools-info"]
+      :overlays {
+         :macosx {
+           :config-file "bootstrap/bootstrap-macosx-attools.swift-build"
+         }
+         :linux {
+           :config-file "bootstrap/bootstrap-linux-attools.swift-build"
+         }
+      }
     }
     
     :attools-bootstrap {
       :dependencies ["attools-config"]
       :tool "llbuild"
+      :use-overlays ["attools-info"]
     }
 
     :atbuild-config {
       :dependencies ["attools-bootstrap"]
       :tool "llbuild-config"
       :use-overlays ["atbuild-info"]
+      :overlays {
+         :macosx {
+           :config-file "bootstrap/bootstrap-macosx-atbuild.swift-build"
+         }
+         :linux {
+           :config-file "bootstrap/bootstrap-linux-atbuild.swift-build"
+         }
+      }
     }
     
     :atbuild-bootstrap {
       :dependencies ["atbuild-config"]
       :tool "llbuild"
+      :use-overlays ["atbuild-info"]
     }
     
     
@@ -88,13 +99,14 @@
     ;; much of the same information between the tasks.
     
     :attools {
-      :dependencies ["atpkg.atpkg"]
+      :dependencies ["atpkg/atpkg"]
+      :tool "nop"
       :use-overlays ["attools-info"]
     }
 
     :atbuild {
       :dependencies ["attools"]
-      :tool "atbuild"
+      :tool "nop"
       :use-overlays ["atbuild-info"]
     }
   }

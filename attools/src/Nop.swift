@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import atpkg
+import AnarchyPackage
 
 /**
  * A stub tool that does no work. This tool is primary used to group
  * dependencies together.
  */
 final class Nop: Tool {
-    func run(package: Package, task: ConfigMap) {}
+    func run(task: Task) {}
 }

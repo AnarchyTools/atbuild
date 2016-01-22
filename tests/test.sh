@@ -56,10 +56,10 @@ if $ATBUILD; then
     exit 1
 fi
 
-$ATBUILD --overlay got-overlay
+$ATBUILD --use-overlay got-overlay
 
 cd $DIR/tests/fixtures/overlay_default
-if $ATBUILD --overlay foo; then
+if $ATBUILD --use-overlay foo; then
     echo "Expected a failure in overlay"
     exit 1
 fi

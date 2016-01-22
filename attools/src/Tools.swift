@@ -13,7 +13,18 @@
 // limitations under the License.
 
 import Foundation
-import atpkg
+import AnarchyPackage
+
+/** The builtin tools. */
+let tools: [String:Tool] = [
+    "shell": Shell(),
+    "nop": Nop(),
+    "xctestrun": XCTestRun(),
+    "llbuild-build": SwiftBuildToolBuild(),
+    "llbuild-config": SwiftBuildToolConfig(),
+    "llbuild": SwiftBuildTool()
+]
+
 
 /**
  * Provides a setting for the default tool variables that should be used
@@ -62,15 +73,34 @@ public struct StandardizedToolPaths {
     }
 }
 
-/** The builtin tools. */
-let tools: [String:Tool] = [
-    "shell": Shell(),
-    "nop": Nop(),
-    "xctestrun": XCTestRun(),
-    "llbuild-build": SwiftBuildToolBuild(),
-    "llbuild-config": SwiftBuildToolConfig(),
-    "llbuild": SwiftBuildTool()
-]
+/**
+ * This function resolves wildcards in source descriptions to complete values
+ *   - parameter sourceDescriptions: a descriptions of sources such as ["src/**.swift"] */
+ *   - returns: A list of resolved sources such as ["src/a.swift", "src/b.swift"]
+ */
+public func collectSources(sourceDescriptions: [String], task: Task) -> [String] {
+    var sources : [String] = []
+    for unPrefixedDescription in sourceDescriptions {
+        let description = unPrefixedDescription
+        if description.hasSuffix("**.swift") {
+            let basepath = String(Array(description.characters)[0..<description.characters.count - 9])
+
+            guard let enumerator = ICantBelieveItsNotFoundation_enumeratorAtPath(basepath) else {
+                fatalError("Invalid path \(basepath)")
+            }
+            while let source_ns = enumerator.nextObject() as? NSString {
+                let source = source_ns.toString
+                if source.hasSuffix("swift") {
+                    sources.append(basepath + "/" + source)
+                }
+            }
+        }
+        else {
+            sources.append(description)
+        }
+    }
+    return sources
+}
 
 /**
  * A tool is a function that performs some operation, like building, or
@@ -78,7 +108,7 @@ let tools: [String:Tool] = [
  * can build new ones out of the existing ones.
  */
 public protocol Tool {
-    func run(package: Package, task: ConfigMap)
+    func run(task: Task)
 }
 
 /**

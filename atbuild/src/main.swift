@@ -24,7 +24,7 @@ import AnarchyTools
 import Glibc
 #endif
 
-let defaultBuildFile = "build.atpkg"
+let defaultBuildFile = "./build.atpkg"
 
 func loadPackageFile() -> Package {
     var overrides: ConfigMap? = nil

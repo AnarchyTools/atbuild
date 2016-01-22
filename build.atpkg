@@ -63,6 +63,8 @@
          }
          :linux {
            :config-file "bootstrap/bootstrap-linux-attools.swift-build"
+           :swiftc-path "/usr/local/bin/swiftc"
+           :link-sdk false
          }
       }
     }
@@ -83,6 +85,8 @@
          }
          :linux {
            :config-file "bootstrap/bootstrap-linux-atbuild.swift-build"
+           :swiftc-path "/usr/local/bin/swiftc"
+           :link-sdk false
          }
       }
     }

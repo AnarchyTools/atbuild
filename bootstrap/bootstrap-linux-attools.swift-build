@@ -9,7 +9,7 @@ targets:
 commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
-     executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
+     executable: "/usr/local/bin/swiftc"
      inputs: ["attools/src/ICantBelieveItsNotFoundation.swift", "attools/src/Nop.swift", "attools/src/PlatformPaths.swift", "attools/src/Shell.swift", "attools/src/SwiftBuildTool.swift", "attools/src/TaskRunner.swift", "attools/src/Tools.swift", "attools/src/XCTestRun.swift"]
      sources: ["attools/src/ICantBelieveItsNotFoundation.swift", "attools/src/Nop.swift", "attools/src/PlatformPaths.swift", "attools/src/Shell.swift", "attools/src/SwiftBuildTool.swift", "attools/src/TaskRunner.swift", "attools/src/Tools.swift", "attools/src/XCTestRun.swift"]
      objects: [".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/Nop.swift.o", ".atllbuild/objects/PlatformPaths.swift.o", ".atllbuild/objects/Shell.swift.o", ".atllbuild/objects/SwiftBuildTool.swift.o", ".atllbuild/objects/TaskRunner.swift.o", ".atllbuild/objects/Tools.swift.o", ".atllbuild/objects/XCTestRun.swift.o"]
@@ -18,7 +18,7 @@ commands:
      module-name: AnarchyTools
      module-output-path: .atllbuild/products/AnarchyTools.swiftmodule
      temps-path: .atllbuild//llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/Nop.swift.o", ".atllbuild/objects/PlatformPaths.swift.o", ".atllbuild/objects/Shell.swift.o", ".atllbuild/objects/SwiftBuildTool.swift.o", ".atllbuild/objects/TaskRunner.swift.o", ".atllbuild/objects/Tools.swift.o", ".atllbuild/objects/XCTestRun.swift.o"]

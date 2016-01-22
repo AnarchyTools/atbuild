@@ -9,7 +9,7 @@ targets:
 commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
-     executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
+     executable: "/usr/local/bin/swiftc"
      inputs: ["atbuild/src/ICantBelieveItsNotFoundation.swift", "atbuild/src/main.swift"]
      sources: ["atbuild/src/ICantBelieveItsNotFoundation.swift", "atbuild/src/main.swift"]
      objects: [".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o"]
@@ -17,10 +17,10 @@ commands:
      module-name: AnarchyBuild
      module-output-path: .atllbuild/products/AnarchyBuild.swiftmodule
      temps-path: .atllbuild//llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o", ".atllbuild/products/atpkg.a", ".atllbuild/products/attools.a"]
     outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o", ".atllbuild/products/atpkg.a", ".atllbuild/products/attools.a"]
+    args: ["/usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o", ".atllbuild/products/atpkg.a", ".atllbuild/products/attools.a"]
     description: Linking executable .atllbuild/products/atbuild

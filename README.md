@@ -48,7 +48,7 @@ Built package foo.
 
 # Building Swift code
 
-How do we build a Swift project?  There's a built-in tool called `atllbuild`, which is our *low-level build system*.
+How do we build a Swift project?  There's a built-in tool called `llbuild`, which is our *low-level build system*.
 
 ```clojure
 (package
@@ -67,7 +67,7 @@ How do we build a Swift project?  There's a built-in tool called `atllbuild`, wh
 )
 ```
 
-That's all you need to get started!  `atbuild` supports many more usecases than can fit in a README.  For more information, browse our [documentation](/docs).
+That's all you need to get started!  `atbuild` supports many more usecases than can fit in a README.  For more information, browse our [documentation](https://github.com/AnarchyTools/AnarchyTools/tree/master/docs).
 
 # Building
 

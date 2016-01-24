@@ -52,6 +52,7 @@ final class SwiftBuildToolConfig: Tool {
         static let SwiftPath = "swiftc-path"
         static let XCTestSupport = "xctestify"
         static let XCTestStrict = "xctest-strict"
+        static let Overlays = "overlays"
     }
     
     enum OutputType {
@@ -85,7 +86,8 @@ final class SwiftBuildToolConfig: Tool {
                             Keys.LinkWithProduct,
                             Keys.SwiftPath,
                             Keys.XCTestSupport,
-                            Keys.XCTestStrict]
+                            Keys.XCTestStrict,
+                            Keys.Overlays]
         for (key, _) in try! task.mergedConfig() {
             if !knownOptions.contains(key) {
                 print("Warning: unknown option \(key) for task.")
@@ -97,6 +99,7 @@ final class SwiftBuildToolConfig: Tool {
     }
     
     func run(task: Task) {
+        validateOptions(task)
          //create the working directory
         let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()

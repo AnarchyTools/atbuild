@@ -24,6 +24,13 @@ if $ATBUILD atbuild --help; then
     exit 1
 fi
 
+echo "****************WARNING TEST*********************"
+
+cd $DIR/tests/fixtures/overlay
+$ATBUILD --use-overlay got-overlay > /tmp/warnings.txt
+grep "unknown option germany" /tmp/warnings.txt
+
+
 echo "*****************XCS TEST**********************"
 cd $DIR/tests/fixtures/xcs && $ATBUILD run-tests
 

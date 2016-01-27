@@ -17,6 +17,15 @@ if $ATBUILD build-tests; then
     exit 1
 fi
 
+echo "****************WARNING TEST*********************"
+cd $DIR/tests/fixtures/warnings
+$ATBUILD > /tmp/warnings.txt
+if ! grep "germany" /tmp/warnings.txt; then
+    echo "Was not warned about invalid task key"
+    exit 1
+fi
+
+
 echo "****************HELP TEST*********************"
 
 if $ATBUILD atbuild --help; then

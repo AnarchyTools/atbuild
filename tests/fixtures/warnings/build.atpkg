@@ -1,0 +1,14 @@
+(package
+ :name "warnings"
+ :poland "invalid" ;; we can't currently warn for this, but we should someday
+
+     :tasks {
+        :default {
+            :tool "atllbuild"
+            :outputType "static-library"
+            :name "test"
+            :germany "invalid"
+            :source ["Foo.swift"]
+        }
+     }
+)

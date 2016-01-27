@@ -23,11 +23,6 @@ extension String {
         return (self as NSString)
         #endif
     }
-    #if os(Linux)
-    func writeToFile(path: String, atomically useAuxiliaryFile: Bool, encoding enc: NSStringEncoding) throws {
-        try self.toNSString.writeToFile(path, atomically: useAuxiliaryFile, encoding: enc)
-    }
-    #endif
 }
 extension NSString {
     var toString: String {

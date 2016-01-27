@@ -12,12 +12,3 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//SR-138
-#if os(Linux)
-extension String {
-    @warn_unused_result
-    public func substringFromIndex(index: Index) -> String {
-        return self.bridge().substringFromIndex(index._utf16Index)
-    }
-}
-#endif

@@ -49,7 +49,7 @@ final class ATllbuild : Tool {
         s += "        print(\"        ]\")\n"
         s += "        print(\"    }\")\n"
         s += "        print(\"}\")\n"
-        s += "        print(\"(Or disable xctestStrict.)\")\n"
+        s += "        print(\"(Or disable xctest-strict.)\")\n"
         s += "        print(\"Cheers! -- Anarchy Tools Team\")\n"
         s += "    }\n"
         s += "    override public func tearDown() {\n"
@@ -189,17 +189,19 @@ final class ATllbuild : Tool {
         let knownOptions = ["tool",
                             "name",
                             "dependencies",
-                            "outputType",
-                            "source",
-                            "bootstrapOnly",
+                            "output-type",
+                            "sources",
+                            "bootstrap-only",
                             "llbuildyaml",
-                            "compileOptions",
-                            "linkOptions",
-                            "linkSDK",
-                            "linkWithProduct",
-                            "swiftCPath",
+                            "compile-options",
+                            "link-options",
+                            "link-sdk",
+                            "link-with",
+                            "swiftc-path",
                             "xctestify",
-                            "xctestStrict"]
+                            "xctest-strict",
+                            "overlays",
+                            "use-overlays"]
         for key in task.allKeys {
             if !knownOptions.contains(key) {
                 print("Warning: unknown option \(key) for task \(task.key)")
@@ -222,39 +224,39 @@ final class ATllbuild : Tool {
 
         //parse arguments
         var linkWithProduct: [String] = []
-        if let arr = task["linkWithProduct"]?.vector {
+        if let arr = task["link-with"]?.vector {
             for product in arr {
                 guard let p = product.string else { fatalError("non-string product \(product)") }
                 linkWithProduct.append(p)
             }
         }
         let outputType: OutputType
-        if task["outputType"]?.string == "static-library" {
+        if task["output-type"]?.string == "static-library" {
             outputType = .StaticLibrary
         }
-        else if task["outputType"]?.string == "executable" {
+        else if task["output-type"]?.string == "executable" {
             outputType = .Executable
         }
         else {
-            fatalError("Unknown outputType \(task["outputType"])")
+            fatalError("Unknown outputType \(task["output-type"])")
         }
         
         var compileOptions: [String] = []
-        if let opts = task["compileOptions"]?.vector {
+        if let opts = task["compile-options"]?.vector {
             for o in opts {
                 guard let os = o.string else { fatalError("Compile option \(o) is not a string") }
                 compileOptions.append(os)
             }
         }
         var linkOptions: [String] = []
-        if let opts = task["linkOptions"]?.vector {
+        if let opts = task["link-options"]?.vector {
             for o in opts {
                 guard let os = o.string else { fatalError("Link option \(o) is not a string") }
                 linkOptions.append(os)
             }
         }
         
-        guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
+        guard let sourceDescriptions = task["sources"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
         var sources = collectSources(sourceDescriptions, task: task)
         
         //xctestify
@@ -266,7 +268,7 @@ final class ATllbuild : Tool {
                 linkOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
             #endif
         }
-        if task["xctestStrict"]?.bool == true {
+        if task["xctest-strict"]?.bool == true {
             #if os(OSX)
             //inject XCTestCaseProvider.swift
             var xcTestCaseProviderPath = "/tmp/XXXXXXX"
@@ -282,7 +284,7 @@ final class ATllbuild : Tool {
         
         let bootstrapOnly: Bool
 
-        if task["bootstrapOnly"]?.bool == true {
+        if task["bootstrap-only"]?.bool == true {
             bootstrapOnly = true
         }
         else {
@@ -290,7 +292,7 @@ final class ATllbuild : Tool {
         }
         
         let sdk: Bool
-        if task["linkSDK"]?.bool == false {
+        if task["link-sdk"]?.bool == false {
             sdk = false
         }
         else { sdk = true }
@@ -305,7 +307,7 @@ final class ATllbuild : Tool {
         }
 
         let swiftCPath: String
-        if let c = task["swiftCPath"]?.string {
+        if let c = task["swiftc-path"]?.string {
             swiftCPath = c
         }
         else {

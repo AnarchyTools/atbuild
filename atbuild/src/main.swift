@@ -27,11 +27,12 @@ import Glibc
 let defaultBuildFile = "build.atpkg"
 
 func loadPackageFile() -> Package {
+    let overlayFlags = [ "--overlay", "--use-overlay", "--use-overlays" ]
 
     //build overlays
     var overlays : [String] = []
     for (i, x) in Process.arguments.enumerate() {
-        if x == "--overlay" {
+        if overlayFlags.contains(x) {
             let overlay = Process.arguments[i+1]
             overlays.append(overlay)
         }

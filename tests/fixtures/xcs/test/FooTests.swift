@@ -21,7 +21,7 @@ class FooTests: XCTestCase {
 }
 
 extension FooTests: XCTestCaseProvider {
-    var allTests : [(String, () -> Void)] {
+    var allTests : [(String, () throws -> Void)] {
         return [
             ("testFoo", testFoo)
         ]

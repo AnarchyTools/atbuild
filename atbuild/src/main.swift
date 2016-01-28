@@ -30,10 +30,7 @@ func loadPackageFile() -> Package {
             overlays.append(overlay)
         }
     }
-    guard let package = Package(filepath: defaultBuildFile, overlay: overlays) else {
-        print("Unable to load build file: \(defaultBuildFile)")
-        exit(1)
-    }
+    let package = try! Package(filepath: defaultBuildFile, overlay: overlays)
     
     return package
 }

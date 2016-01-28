@@ -91,3 +91,15 @@ Overlays can be [imported](import.md).  This allows libraries to export required
 )
 ```
 
+# Required overlays
+
+You can specify that an overlay must be applied to a task.
+
+```clojure
+(package
+   :tasks {
+    :foo {
+        :required-overlays [["osx" "linux"] ["debug" "release"]] ;;at least one of osx/linux and one of debug/release must be applied
+    }
+)
+```

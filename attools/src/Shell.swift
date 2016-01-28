@@ -15,9 +15,6 @@
 
 import Foundation
 import atpkg
-#if os(Linux)
-    import Glibc //SR-567
-#endif
 
 /**
  * The shell tool forks a new process with `/bin/sh -c`. Any arguments specified

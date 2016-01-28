@@ -13,9 +13,7 @@
 // limitations under the License.
 import atpkg
 import Foundation
-#if os(Linux)
-    import Glibc //SR-567
-#endif
+
 class XCTestRun : Tool {
     func run(task: Task) {
         guard let testExecutable = task["testExecutable"]?.string else {

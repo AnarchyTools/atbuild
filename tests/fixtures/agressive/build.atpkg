@@ -1,0 +1,8 @@
+(package
+ :name "agressive"
+
+     :tasks {
+        :default {
+        }
+     }
+)

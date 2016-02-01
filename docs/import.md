@@ -26,6 +26,16 @@ This is useful to depend on tasks specified in another package.
 )
 ```
 
+You can also reference remote tasks on the command line by providing their fully-qualified name:
+
+```bash
+$ atbuild atpkg.atpkg
+$ atbuild mytask
+$ atbuild atbuild.mytask #equivalent to previous line
+```
+
+Packages are imported in a flat topology; if `a` imports `b` and `b` imports `c`, use `c.taskname` to refer to the task, not `b.c.taskname` or `a.b.c.taskname`.
+
 # Implementation note
 
 Remote packages may have paths specified in a key, like "source".  *Quite possibly, these keys should be interpreted relative to the path the task was declared in, NOT the working directory.*

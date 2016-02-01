@@ -10,6 +10,10 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************NONSTANDARD TEST**************"
+cd $DIR/tests/fixtures/nonstandard_package_file
+$ATBUILD -f nonstandard.atpkg
+
 echo "****************AGRESSIVE TEST**************"
 cd $DIR/tests/fixtures/agressive
 if $ATBUILD 2&> /tmp/warnings.txt; then

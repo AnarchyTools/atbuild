@@ -10,6 +10,17 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************AGRESSIVE TEST**************"
+cd $DIR/tests/fixtures/agressive
+if $ATBUILD 2&> /tmp/warnings.txt; then
+    echo "No tool specified but passed anyway?"
+    exit 1
+fi
+if ! grep "No tool for task default; did you forget to specify it?" /tmp/warnings.txt; then
+    echo "Got an error other than one prompting for the correct tool"
+    exit 1
+fi
+
 echo "****************SHADOW TEST*********************"
 cd $DIR/tests/fixtures/depend_default
 if $ATBUILD build-tests; then

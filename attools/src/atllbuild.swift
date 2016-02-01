@@ -202,7 +202,7 @@ final class ATllbuild : Tool {
                             "xctestStrict"]
         for key in task.allKeys {
             if !knownOptions.contains(key) {
-                print("Warning: unknown option \(key) for task \(task.key)")
+                print("Warning: unknown option \(key) for task \(task.qualifiedName)")
             }
         }
         
@@ -255,7 +255,7 @@ final class ATllbuild : Tool {
         }
         
         guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
-        var sources = collectSources(sourceDescriptions, task: task)
+        var sources = collectSources(sourceDescriptions, taskForCalculatingPath: task)
         
         //xctestify
         if task["xctestify"]?.bool == true {

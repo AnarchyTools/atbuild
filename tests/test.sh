@@ -16,7 +16,7 @@ if $ATBUILD 2&> /tmp/warnings.txt; then
     echo "No tool specified but passed anyway?"
     exit 1
 fi
-if ! grep "No tool for task default; did you forget to specify it?" /tmp/warnings.txt; then
+if ! grep "No tool for task agressive.default; did you forget to specify it?" /tmp/warnings.txt; then
     echo "Got an error other than one prompting for the correct tool"
     exit 1
 fi

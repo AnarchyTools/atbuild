@@ -23,9 +23,9 @@ final public class TaskRunner {
     private init() {}
 
     static public func runTask(task: Task, package: Package) {     
-        print("Running task \(task.key)...")
+        print("Running task \(task.qualifiedName)...")
         let tool = toolByName(task.tool)
         tool.run(task)
-        print("Completed task \(task.key).")
+        print("Completed task \(task.qualifiedName).")
     }
 }

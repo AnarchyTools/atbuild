@@ -19,6 +19,9 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
     ;;walk the src directory and recursively find all swift files
     :source ["src/**.swift"]
 
+    ;;if true, we publish the product to the bin/ directory.
+    :publishProduct false
+
     ;;If true, we don't build, we only output llbuild.yaml  False is the default value.
     :bootstrapOnly: false
     ;;Path to emit llbuild.yaml

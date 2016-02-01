@@ -199,7 +199,8 @@ final class ATllbuild : Tool {
                             "linkWithProduct",
                             "swiftCPath",
                             "xctestify",
-                            "xctestStrict"]
+                            "xctestStrict",
+                            "includeWithUser"]
         for key in task.allKeys {
             if !knownOptions.contains(key) {
                 print("Warning: unknown option \(key) for task \(task.key)")
@@ -244,6 +245,13 @@ final class ATllbuild : Tool {
             for o in opts {
                 guard let os = o.string else { fatalError("Compile option \(o) is not a string") }
                 compileOptions.append(os)
+            }
+        }
+        if let includePaths = task["includeWithUser"]?.vector {
+            for path_s in includePaths {
+                guard let path = path_s.string else { fatalError("Non-string path \(path_s)") }
+                compileOptions.append("-I")
+                compileOptions.append(userPath() + "/" + path)
             }
         }
         var linkOptions: [String] = []

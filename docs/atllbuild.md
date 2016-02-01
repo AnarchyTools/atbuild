@@ -47,6 +47,9 @@ The `atllbuild` tool uses the [`swift-llbuild`](https://github.com/apple/swift-l
     ;; checking for API differences across XCTest
     ;; platforms
     xctestStrict: false
+
+    ;; Add a path in the $ATBUILD_USER_PATH as an include path
+    includeWithUser [] 
   }
 }
         

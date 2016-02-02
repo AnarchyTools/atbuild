@@ -19,7 +19,7 @@ import atpkg
 import attools
 
 enum Options: String {
-    case Overlay = "--overlay"
+    case Overlay = "--use-overlay"
     case CustomFile = "-f"
     
     static var allOptions : [Options] { return [Overlay, CustomFile] }

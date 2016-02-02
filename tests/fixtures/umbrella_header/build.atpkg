@@ -1,0 +1,13 @@
+(package
+  :name "umbrella_header"
+  
+  :tasks {
+      :default {
+        :tool "atllbuild"
+        :source ["foo.swift"]
+        :name "UmbrellaHeader"
+        :outputType "static-library"
+        :umbrella-header "UmbrellaHeader.h"
+      }
+  }
+)

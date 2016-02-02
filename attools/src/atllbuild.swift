@@ -183,27 +183,49 @@ final class ATllbuild : Tool {
         }
      }
     
+    private enum Options: String {
+        case Tool = "tool"
+        case Name = "name"
+        case Dependencies = "dependencies"
+        case OutputType = "outputType"
+        case Source = "source"
+        case BootstrapOnly = "bootstrapOnly"
+        case llBuildYaml = "llbuildyaml"
+        case CompileOptions = "compileOptions"
+        case LinkOptions = "linkOptions"
+        case LinkSDK = "linkSDK"
+        case LinkWithProduct = "linkWithProduct"
+        case SwiftCPath = "swiftCPath"
+        case XCTestify = "xctestify"
+        case XCTestStrict = "xctestStrict"
+        case PublishProduct = "publishProduct"
+        
+        static var allOptions : [Options] {
+            return [
+                Tool,
+                Name,
+                Dependencies,
+                OutputType,
+                Source,
+                BootstrapOnly,
+                llBuildYaml,
+                CompileOptions,
+                LinkOptions,
+                LinkSDK,
+                LinkWithProduct,
+                SwiftCPath,
+                XCTestify,
+                XCTestStrict,
+                PublishProduct
+            ]
+        }
+    }
+    
     func run(task: Task) {
         
         //warn if we don't understand an option
-        let knownOptions = ["tool",
-                            "name",
-                            "dependencies",
-                            "outputType",
-                            "source",
-                            "bootstrapOnly",
-                            "llbuildyaml",
-                            "compileOptions",
-                            "linkOptions",
-                            "linkSDK",
-                            "linkWithProduct",
-                            "swiftCPath",
-                            "xctestify",
-                            "xctestStrict",
-                            "publishProduct"]
-        
         for key in task.allKeys {
-            if !knownOptions.contains(key) {
+            if !Options.allOptions.map({$0.rawValue}).contains(key) {
                 print("Warning: unknown option \(key) for task \(task.qualifiedName)")
             }
         }
@@ -224,17 +246,17 @@ final class ATllbuild : Tool {
 
         //parse arguments
         var linkWithProduct: [String] = []
-        if let arr = task["linkWithProduct"]?.vector {
+        if let arr = task[Options.LinkWithProduct.rawValue]?.vector {
             for product in arr {
                 guard let p = product.string else { fatalError("non-string product \(product)") }
                 linkWithProduct.append(p)
             }
         }
         let outputType: OutputType
-        if task["outputType"]?.string == "static-library" {
+        if task[Options.OutputType.rawValue]?.string == "static-library" {
             outputType = .StaticLibrary
         }
-        else if task["outputType"]?.string == "executable" {
+        else if task[Options.OutputType.rawValue]?.string == "executable" {
             outputType = .Executable
         }
         else {
@@ -242,25 +264,25 @@ final class ATllbuild : Tool {
         }
         
         var compileOptions: [String] = []
-        if let opts = task["compileOptions"]?.vector {
+        if let opts = task[Options.CompileOptions.rawValue]?.vector {
             for o in opts {
                 guard let os = o.string else { fatalError("Compile option \(o) is not a string") }
                 compileOptions.append(os)
             }
         }
         var linkOptions: [String] = []
-        if let opts = task["linkOptions"]?.vector {
+        if let opts = task[Options.LinkOptions.rawValue]?.vector {
             for o in opts {
                 guard let os = o.string else { fatalError("Link option \(o) is not a string") }
                 linkOptions.append(os)
             }
         }
         
-        guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
+        guard let sourceDescriptions = task[Options.Source.rawValue]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
         var sources = collectSources(sourceDescriptions, taskForCalculatingPath: task)
         
         //xctestify
-        if task["xctestify"]?.bool == true {
+        if task[Options.XCTestify.rawValue]?.bool == true {
             precondition(outputType == .Executable, "You must use outputType: executable with xctestify.")
             //inject platform-specific flags
             #if os(OSX)
@@ -268,7 +290,7 @@ final class ATllbuild : Tool {
                 linkOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
             #endif
         }
-        if task["xctestStrict"]?.bool == true {
+        if task[Options.XCTestStrict.rawValue]?.bool == true {
             #if os(OSX)
             //inject XCTestCaseProvider.swift
             var xcTestCaseProviderPath = "/tmp/XXXXXXX"
@@ -280,11 +302,11 @@ final class ATllbuild : Tool {
             #endif
         }
 
-        guard let name = task["name"]?.string else { fatalError("No name for atllbuild task") }
+        guard let name = task[Options.Name.rawValue]?.string else { fatalError("No name for atllbuild task") }
         
         let bootstrapOnly: Bool
 
-        if task["bootstrapOnly"]?.bool == true {
+        if task[Options.BootstrapOnly.rawValue]?.bool == true {
             bootstrapOnly = true
         }
         else {
@@ -292,14 +314,14 @@ final class ATllbuild : Tool {
         }
         
         let sdk: Bool
-        if task["linkSDK"]?.bool == false {
+        if task[Options.LinkSDK.rawValue]?.bool == false {
             sdk = false
         }
         else { sdk = true }
         
         let llbuildyamlpath : String
 
-        if let value = task["llbuildyaml"]?.string {
+        if let value = task[Options.llBuildYaml.rawValue]?.string {
             llbuildyamlpath = value
         }
         else {
@@ -307,7 +329,7 @@ final class ATllbuild : Tool {
         }
 
         let swiftCPath: String
-        if let c = task["swiftCPath"]?.string {
+        if let c = task[Options.SwiftCPath.rawValue]?.string {
             swiftCPath = c
         }
         else {
@@ -323,7 +345,7 @@ final class ATllbuild : Tool {
         if system(cmd) != 0 {
             fatalError(cmd)
         }
-        if task["publishProduct"]?.bool == true {
+        if task[Options.PublishProduct.rawValue]?.bool == true {
             if !manager.fileExistsAtPath("bin") {
                 try! manager.createDirectoryAtPath("bin", withIntermediateDirectories: false, attributes: nil)
             }

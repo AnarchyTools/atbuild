@@ -43,10 +43,7 @@ func loadPackageFile() -> Package {
             packageFile = Process.arguments[i+1]
         }
     }
-    guard let package = Package(filepath: packageFile, overlay: overlays) else {
-        print("Unable to load build file: \(packageFile)")
-        exit(1)
-    }
+   let package = try! Package(filepath: packageFile, overlay: overlays)
     
     return package
 }

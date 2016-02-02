@@ -4,9 +4,9 @@
   :tasks {
       :default {
         :tool "atllbuild"
-        :source ["foo.swift"]
+        :sources ["foo.swift"]
         :name "UmbrellaHeader"
-        :outputType "static-library"
+        :output-type "static-library"
         :umbrella-header "UmbrellaHeader.h"
       }
   }

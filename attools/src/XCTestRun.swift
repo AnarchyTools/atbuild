@@ -16,7 +16,7 @@ import Foundation
 
 class XCTestRun : Tool {
     func run(task: Task) {
-        guard let testExecutable = task["testExecutable"]?.string else {
+        guard let testExecutable = task["test-executable"]?.string else {
             fatalError("No testExecutable for XCTestRun")
         }
         #if os(OSX)

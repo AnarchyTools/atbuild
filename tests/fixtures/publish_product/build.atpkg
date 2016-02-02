@@ -4,17 +4,17 @@
      :tasks {
         :executable {
             :tool "atllbuild"
-            :outputType "executable"
+            :output-type "executable"
             :name "executable"
-            :source ["main.swift"]
-            :publishProduct true
+            :sources ["main.swift"]
+            :publish-product true
         }
         :library {
             :tool "atllbuild"
-            :outputType "static-library"
+            :output-type "static-library"
             :name "library"
-            :source ["lib.swift"]
-            :publishProduct true
+            :sources ["lib.swift"]
+            :publish-product true
         }
         :default {
             :tool "nop"

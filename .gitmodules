@@ -1,3 +1,6 @@
 [submodule "atpkg"]
 	path = atpkg
 	url = https://github.com/AnarchyTools/atpkg
+[submodule "docs"]
+	path = docs
+	url = https://github.com/AnarchyTools/AnarchyTools.git

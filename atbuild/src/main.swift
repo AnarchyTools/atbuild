@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let version = "0.6.0-dev"
+let version = "0.7.0-dev"
 
 import Foundation
 import atpkg
 import attools
 
 enum Options: String {
-    case Overlay = "--overlay"
+    case Overlay = "--use-overlay"
     case CustomFile = "-f"
     
     static var allOptions : [Options] { return [Overlay, CustomFile] }

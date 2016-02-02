@@ -5,23 +5,23 @@
         :build-lib {
             :tool "atllbuild"
             :source ["src/**.swift"]
-            :outputType "static-library"
+            :output-type "static-library"
             :name "Foo"
-            :compileOptions ["-enable-testing"]
+            :compile-options ["-enable-testing"]
         }
         :build-tests {
             :tool "atllbuild"
             :source ["test/**.swift"]
-            :outputType "executable"
+            :output-type "executable"
             :name "footests"
             :dependencies ["build-lib"]
             :xctestify true
-            :xctestStrict true
-            :linkWithProduct["Foo.a"]
+            :xctest-strict true
+            :link-with ["Foo.a"]
         }
         :run-tests {
             :tool "xctestrun"
-            :testExecutable ".atllbuild/products/footests"
+            :test-executable ".atllbuild/products/footests"
             :dependencies ["build-tests"]
         }
      }

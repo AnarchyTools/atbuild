@@ -1,6 +1,6 @@
 (package
   :name "NaOH"
-  :import ["remote.atpkg"]
+  :import-packages ["remote.atpkg"]
 
   :tasks {
     :default {

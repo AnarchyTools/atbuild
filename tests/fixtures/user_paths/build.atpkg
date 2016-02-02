@@ -1,6 +1,6 @@
 (package
  :name "user_paths"
- :import ["b/build.atpkg"]
+ :import-packages ["b/build.atpkg"]
 
      :tasks {
         :first {
@@ -18,10 +18,10 @@
         }
         :compile {
             :tool "atllbuild"
-            :source ["bar.swift"]
-            :includeWithUser ["Foo"]
+            :sources ["bar.swift"]
+            :include-with-user ["Foo"]
             :dependencies ["compiledep"]
-            :outputType "static-library"
+            :output-type "static-library"
             :name "bar"
         }
      }

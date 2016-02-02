@@ -260,7 +260,7 @@ final class ATllbuild : Tool {
             outputType = .Executable
         }
         else {
-            fatalError("Unknown outputType \(task["outputType"])")
+            fatalError("Unknown \(Options.OutputType.rawValue) \(task["outputType"])")
         }
         
         var compileOptions: [String] = []
@@ -283,7 +283,7 @@ final class ATllbuild : Tool {
         
         //xctestify
         if task[Options.XCTestify.rawValue]?.bool == true {
-            precondition(outputType == .Executable, "You must use outputType: executable with xctestify.")
+            precondition(outputType == .Executable, "You must use :\(Options.OutputType.rawValue) executable with xctestify.")
             //inject platform-specific flags
             #if os(OSX)
                 compileOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/"])

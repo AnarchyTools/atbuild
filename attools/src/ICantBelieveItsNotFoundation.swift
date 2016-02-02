@@ -37,7 +37,7 @@ extension NSString {
 
 
 // MARK: NSFileManager.copyItemAtPath
-// https://github.com/apple/swift-corelibs-foundation/pull/248 
+// https://github.com/apple/swift-corelibs-foundation/pull/248
 enum CopyError: ErrorType {
     case CantOpenSourceFile(Int32)
     case CantOpenDestFile(Int32)
@@ -53,7 +53,13 @@ extension NSFileManager {
             throw CopyError.CantOpenSourceFile(errno)
         }
         defer { precondition(close(fd_from) >= 0) }
-        let permission = (try! attributesOfItemAtPath(srcPath)[NSFilePosixPermissions] as! NSNumber).unsignedShortValue
+        let permission_ = (try! attributesOfItemAtPath(srcPath)[NSFilePosixPermissions] as! NSNumber)
+
+        #if os(OSX) || os(iOS)
+        let permission = permission_.unsignedShortValue
+        #elseif os(Linux)
+        let permission = permission_.unsignedIntValue
+        #endif
         let fd_to = open(dstPath, O_WRONLY | O_CREAT | O_EXCL, permission)
         if fd_to < 0 {
             throw CopyError.CantOpenDestFile(errno)

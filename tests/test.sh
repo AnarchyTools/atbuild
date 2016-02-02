@@ -10,6 +10,34 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************PUBLISHPRODUCT TEST**************"
+cd $DIR/tests/fixtures/publish_product
+$ATBUILD
+
+if [ ! -f "bin/executable" ]; then
+    echo "No executable"
+    exit 1
+fi
+
+if [ ! -f "bin/executable.swiftmodule" ]; then
+    echo "No module (executable)"
+    exit 1
+fi
+
+if [ ! -f "bin/library.swiftmodule" ]; then
+    echo "No module (library)"
+    exit 1
+fi
+
+if [ ! -f "bin/library.a" ]; then
+    echo "No library"
+    exit 1
+fi
+
+echo "****************NONSTANDARD TEST**************"
+cd $DIR/tests/fixtures/nonstandard_package_file
+$ATBUILD -f nonstandard.atpkg
+
 echo "****************AGRESSIVE TEST**************"
 cd $DIR/tests/fixtures/agressive
 if $ATBUILD 2&> /tmp/warnings.txt; then

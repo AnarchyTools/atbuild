@@ -18,19 +18,32 @@ import Foundation
 import atpkg
 import attools
 
-let defaultBuildFile = "build.atpkg"
+enum Options: String {
+    case Overlay = "--overlay"
+    case CustomFile = "-f"
+    
+    static var allOptions : [Options] { return [Overlay, CustomFile] }
+}
+
+let defaultPackageFile = "build.atpkg"
 
 func loadPackageFile() -> Package {
 
     //build overlays
     var overlays : [String] = []
     for (i, x) in Process.arguments.enumerate() {
-        if x == "--overlay" {
+        if x == Options.Overlay.rawValue {
             let overlay = Process.arguments[i+1]
             overlays.append(overlay)
         }
     }
-    let package = try! Package(filepath: defaultBuildFile, overlay: overlays)
+    var packageFile = defaultPackageFile
+    for (i, x) in Process.arguments.enumerate() {
+        if x == Options.CustomFile.rawValue {
+            packageFile = Process.arguments[i+1]
+        }
+    }
+   let package = try! Package(filepath: packageFile, overlay: overlays)
     
     return package
 }
@@ -42,7 +55,7 @@ if Process.arguments.contains("--help") {
     print("© 2016 Anarchy Tools Contributors.")
     print("")
     print("Usage:")
-    print("atbuild [task]")
+    print("atbuild [-f packagefile] [task]")
     
     let package = loadPackageFile()
     print("tasks:")
@@ -65,9 +78,18 @@ func runtask(taskName: String) {
 //choose which task to run
 var run = false
 if Process.arguments.count > 1 {
-    if !Process.arguments[1].hasPrefix("--") {
-        run = true
-        runtask(Process.arguments[1])
+    var i = 1
+    while i < Process.arguments.count {
+        let arg = Process.arguments[i]
+        if Options.allOptions.map({$0.rawValue}).contains(arg) {
+            i += 1
+        }
+        else {
+            runtask(arg)
+            run = true
+            break
+        }
+        i += 1
     }
 }
 if !run {

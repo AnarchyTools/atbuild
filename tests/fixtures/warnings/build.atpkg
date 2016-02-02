@@ -5,10 +5,10 @@
      :tasks {
         :default {
             :tool "atllbuild"
-            :outputType "static-library"
+            :output-type "static-library"
             :name "test"
             :germany "invalid"
-            :source ["Foo.swift"]
+            :sources ["Foo.swift"]
         }
      }
 )

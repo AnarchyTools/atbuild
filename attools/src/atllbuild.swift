@@ -200,10 +200,12 @@ final class ATllbuild : Tool {
                             "swiftCPath",
                             "xctestify",
                             "xctestStrict",
-                            "includeWithUser"]
+                            "includeWithUser",
+                            "publishProduct"]
+        
         for key in task.allKeys {
             if !knownOptions.contains(key) {
-                print("Warning: unknown option \(key) for task \(task.key)")
+                print("Warning: unknown option \(key) for task \(task.qualifiedName)")
             }
         }
         
@@ -263,7 +265,7 @@ final class ATllbuild : Tool {
         }
         
         guard let sourceDescriptions = task["source"]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
-        var sources = collectSources(sourceDescriptions, task: task)
+        var sources = collectSources(sourceDescriptions, taskForCalculatingPath: task)
         
         //xctestify
         if task["xctestify"]?.bool == true {
@@ -329,5 +331,25 @@ final class ATllbuild : Tool {
         if system(cmd) != 0 {
             fatalError(cmd)
         }
+        if task["publishProduct"]?.bool == true {
+            if !manager.fileExistsAtPath("bin") {
+                try! manager.createDirectoryAtPath("bin", withIntermediateDirectories: false, attributes: nil)
+            }
+            try! copyByOverwriting("\(workDirectory)/products/\(name).swiftmodule", toPath: "bin/\(name).swiftmodule")
+            switch outputType {
+            case .Executable:
+                try! copyByOverwriting("\(workDirectory)/products/\(name)", toPath: "bin/\(name)")
+            case .StaticLibrary:
+                try! copyByOverwriting("\(workDirectory)/products/\(name).a", toPath: "bin/\(name).a")
+            }
+        }
     }
+}
+
+private func copyByOverwriting(fromPath: String, toPath: String) throws {
+    let manager = NSFileManager.defaultManager()
+    if manager.fileExistsAtPath(toPath) {
+        try manager.removeItemAtPath(toPath)
+    }
+    try! manager.copyItemAtPath_SWIFTBUG(fromPath, toPath: toPath)
 }

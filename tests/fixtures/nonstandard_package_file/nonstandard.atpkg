@@ -1,0 +1,10 @@
+(package
+  :name "nonstandard"
+
+  :tasks {
+      :default {
+        :tool "shell"
+        :script "echo nonstandard"
+      }
+  }
+)

@@ -18,11 +18,11 @@
         }
         :compile {
             :tool "atllbuild"
-            :source ["foo.swift"]
+            :source ["bar.swift"]
             :includeWithUser ["Foo"]
             :dependencies ["compiledep"]
             :outputType "static-library"
-            :name "foo"
+            :name "bar"
         }
      }
 )

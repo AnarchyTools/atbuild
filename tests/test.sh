@@ -26,13 +26,41 @@ fi
 $ATBUILD compile
 
 
+echo "****************PUBLISHPRODUCT TEST**************"
+cd $DIR/tests/fixtures/publish_product
+$ATBUILD
+
+if [ ! -f "bin/executable" ]; then
+    echo "No executable"
+    exit 1
+fi
+
+if [ ! -f "bin/executable.swiftmodule" ]; then
+    echo "No module (executable)"
+    exit 1
+fi
+
+if [ ! -f "bin/library.swiftmodule" ]; then
+    echo "No module (library)"
+    exit 1
+fi
+
+if [ ! -f "bin/library.a" ]; then
+    echo "No library"
+    exit 1
+fi
+
+echo "****************NONSTANDARD TEST**************"
+cd $DIR/tests/fixtures/nonstandard_package_file
+$ATBUILD -f nonstandard.atpkg
+
 echo "****************AGRESSIVE TEST**************"
 cd $DIR/tests/fixtures/agressive
 if $ATBUILD 2&> /tmp/warnings.txt; then
     echo "No tool specified but passed anyway?"
     exit 1
 fi
-if ! grep "No tool for task default; did you forget to specify it?" /tmp/warnings.txt; then
+if ! grep "No tool for task agressive.default; did you forget to specify it?" /tmp/warnings.txt; then
     echo "Got an error other than one prompting for the correct tool"
     exit 1
 fi

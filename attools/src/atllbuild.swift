@@ -318,7 +318,7 @@ final class ATllbuild : Tool {
             s += "  module * { export * }\n"
             s += "}\n"
             try! s.writeToFile(workDirectory+"/include/module.modulemap", atomically: false, encoding: NSUTF8StringEncoding)
-            try! manager.copyItemAtPath(umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
+            try! manager.copyItemAtPath_SWIFTBUG(umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
             compileOptions.append("-I")
             compileOptions.append(workDirectory + "/include/")
             compileOptions.append("-import-underlying-module")

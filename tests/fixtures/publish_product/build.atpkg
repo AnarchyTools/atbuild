@@ -1,0 +1,24 @@
+(package
+ :name "publish_product"
+
+     :tasks {
+        :executable {
+            :tool "atllbuild"
+            :outputType "executable"
+            :name "executable"
+            :source ["main.swift"]
+            :publishProduct true
+        }
+        :library {
+            :tool "atllbuild"
+            :outputType "static-library"
+            :name "library"
+            :source ["lib.swift"]
+            :publishProduct true
+        }
+        :default {
+            :tool "nop"
+            :dependencies ["executable" "library"]
+        }
+     }
+)

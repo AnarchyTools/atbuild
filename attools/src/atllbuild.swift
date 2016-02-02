@@ -343,5 +343,5 @@ private func copyByOverwriting(fromPath: String, toPath: String) throws {
     if manager.fileExistsAtPath(toPath) {
         try manager.removeItemAtPath(toPath)
     }
-    try! manager.copyItemAtPath(fromPath, toPath: toPath)
+    try! manager.copyItemAtPath_SWIFTBUG(fromPath, toPath: toPath)
 }

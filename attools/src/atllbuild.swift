@@ -199,6 +199,8 @@ final class ATllbuild : Tool {
         case XCTestify = "xctestify"
         case XCTestStrict = "xctest-strict"
         case PublishProduct = "publish-product"
+        case UmbrellaHeader = "umbrella-header"
+
         
         static var allOptions : [Options] {
             return [
@@ -216,7 +218,8 @@ final class ATllbuild : Tool {
                 SwiftCPath,
                 XCTestify,
                 XCTestStrict,
-                PublishProduct
+                PublishProduct,
+                UmbrellaHeader
             ]
         }
     }
@@ -240,9 +243,12 @@ final class ATllbuild : Tool {
         //multiple invocations of atllbuild.
         let _ = try? manager.removeItemAtPath(workDirectory + "/objects")
         let _ = try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
+        let _ = try? manager.removeItemAtPath(workDirectory + "/include")
+
         let _ = try? manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
         let _ = try? manager.createDirectoryAtPath(workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)
         let _ = try? manager.createDirectoryAtPath(workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.createDirectoryAtPath(workDirectory + "/include", withIntermediateDirectories: false, attributes: nil)
 
         //parse arguments
         var linkWithProduct: [String] = []
@@ -303,6 +309,21 @@ final class ATllbuild : Tool {
         }
 
         guard let name = task[Options.Name.rawValue]?.string else { fatalError("No name for atllbuild task") }
+        
+        if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
+            var s = ""
+            s += "module \(name) {\n"
+            s += "  umbrella header \"Umbrella.h\"\n"
+            s += "\n"
+            s += "  export *\n"
+            s += "  module * { export * }\n"
+            s += "}\n"
+            try! s.writeToFile(workDirectory+"/include/module.modulemap", atomically: false, encoding: NSUTF8StringEncoding)
+            try! manager.copyItemAtPath_SWIFTBUG(umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
+            compileOptions.append("-I")
+            compileOptions.append(workDirectory + "/include/")
+            compileOptions.append("-import-underlying-module")
+        }
         
         let bootstrapOnly: Bool
 

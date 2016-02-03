@@ -10,6 +10,10 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************UMBRELLA TEST**************"
+cd $DIR/tests/fixtures/umbrella_header
+$ATBUILD
+
 echo "****************PUBLISHPRODUCT TEST**************"
 cd $DIR/tests/fixtures/publish_product
 $ATBUILD

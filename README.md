@@ -1,5 +1,7 @@
 # atbuild
 
+[![Anarchy Tools compatible](https://img.shields.io/badge/Anarchy%20Tools-compatible-4BC51D.svg?style=flat)](http://anarchytools.org)
+
 The Anarchy Tools Build Tool.
 
 `atbuild` is a cross-platform build system, primarily for Swift-language projects, following the [Anarchy Tools philosophy](https://github.com/AnarchyTools/AnarchyTools) of simple, unopinionated, hackable tools.
@@ -59,8 +61,8 @@ How do we build a Swift project?  There's a built-in tool called `atllbuild`, wh
   :tasks {
     :build {
       :tool "atllbuild"
-      :source ["src/**.swift"] ;;walk the src directory, looking for Swift files
-      :outputType "executable"
+      :sources ["src/**.swift"] ;;walk the src directory, looking for Swift files
+      :output-type "executable"
       :name "example"
     }
   }
@@ -88,4 +90,12 @@ https://github.com/AnarchyTools
 Usage:
 atbuild [task]
     task: ["default", "helloworld", "bootstrap"]
+```
+
+# Badges
+
+To declare your project to be compatible with Anarchy Tools, simply
+
+```markdown
+[![Anarchy Tools compatible](https://img.shields.io/badge/Anarchy%20Tools-compatible-4BC51D.svg?style=flat)](http://anarchytools.org)
 ```

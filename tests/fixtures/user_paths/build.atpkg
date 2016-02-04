@@ -1,0 +1,28 @@
+(package
+ :name "user_paths"
+ :import-packages ["b/build.atpkg"]
+
+     :tasks {
+        :first {
+            :tool "shell"
+            :script "echo FIRST >> $ATBUILD_USER_PATH/test"
+        }
+        :third {
+            :tool "shell"
+            :script "echo THIRD >> $ATBUILD_USER_PATH/test"
+            :dependencies ["first" "b.second"]
+        }
+        :compiledep {
+            :tool "shell"
+            :script "mkdir $ATBUILD_USER_PATH/Foo &&  echo module Foo { } > $ATBUILD_USER_PATH/Foo/module.modulemap"
+        }
+        :compile {
+            :tool "atllbuild"
+            :sources ["bar.swift"]
+            :include-with-user ["Foo"]
+            :dependencies ["compiledep"]
+            :output-type "static-library"
+            :name "bar"
+        }
+     }
+)

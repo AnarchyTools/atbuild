@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import atpkg
+import Foundation
 
 /** The builtin tools. */
 let tools: [String:Tool] = [
@@ -37,4 +38,19 @@ public protocol Tool {
 func toolByName(name: String) -> Tool {
     guard let tool = tools[name] else { fatalError("Unknown build tool \(name)") }
     return tool
+}
+
+private var userPathCreated = false
+/**Returns the "user" path.  This is a path that the user may use to store artifacts or for any other purposes.  This path is shared for all tasks built as part of the same `atbuild` invocation.
+- postcondition: The path exists at this absolute locaton on disk.
+- warning: This path is cleared between atbuild invocations. */
+func userPath() -> String {
+    let manager = NSFileManager.defaultManager()
+    let userPath = manager.currentDirectoryPath + "/user"
+    if !userPathCreated {
+        let _ = try? manager.removeItemAtPath(userPath)
+        try! manager.createDirectoryAtPath(userPath, withIntermediateDirectories: false, attributes: nil)
+        userPathCreated = true
+    }
+    return userPath
 }

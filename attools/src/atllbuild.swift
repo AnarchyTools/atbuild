@@ -202,7 +202,6 @@ final class ATllbuild : Tool {
         
         static var allOptions : [Options] {
             return [
-                Tool,
                 Name,
                 Dependencies,
                 OutputType,
@@ -224,8 +223,12 @@ final class ATllbuild : Tool {
     func run(task: Task) {
         
         //warn if we don't understand an option
+        var knownOptions = Options.allOptions.map({$0.rawValue})
+        for option in Task.Option.allOptions.map({$0.rawValue}) {
+            knownOptions.append(option)
+        }
         for key in task.allKeys {
-            if !Options.allOptions.map({$0.rawValue}).contains(key) {
+            if !knownOptions.contains(key) {
                 print("Warning: unknown option \(key) for task \(task.qualifiedName)")
             }
         }

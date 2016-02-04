@@ -64,6 +64,13 @@ if ! grep "germany" /tmp/warnings.txt; then
     exit 1
 fi
 
+cd $DIR/tests/fixtures/overlay
+$ATBUILD --use-overlay got-overlay > /tmp/warnings.txt
+if grep "Warning: " /tmp/warnings.txt; then
+    echo "Got a warning when building the overlay fixture"
+    exit 1
+fi
+
 
 echo "****************HELP TEST*********************"
 

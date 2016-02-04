@@ -23,7 +23,7 @@ final public class TaskRunner {
     private init() {}
 
     static public func runTask(task: Task, package: Package) {     
-        print("Running task \(task.qualifiedName)...")
+        print("Running task \(task.qualifiedName) with overlays \(task.appliedOverlays)")
         let tool = toolByName(task.tool)
         tool.run(task)
         print("Completed task \(task.qualifiedName).")

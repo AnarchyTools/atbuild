@@ -23,6 +23,7 @@ import atpkg
  */
 final class Shell : Tool {
     func run(task: Task) {
+        setenv("ATBUILD_USER_PATH", userPath(), 1)
         guard let script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
         do {
             let oldPath = NSFileManager.defaultManager().currentDirectoryPath

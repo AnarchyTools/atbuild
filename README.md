@@ -1,5 +1,7 @@
 # atbuild
 
+[![Anarchy Tools compatible](https://img.shields.io/badge/Anarchy%20Tools-compatible-4BC51D.svg?style=flat)](http://anarchytools.org)
+
 The Anarchy Tools Build Tool.
 
 `atbuild` is a cross-platform build system, primarily for Swift-language projects, following the [Anarchy Tools philosophy](https://github.com/AnarchyTools/AnarchyTools) of simple, unopinionated, hackable tools.
@@ -88,4 +90,12 @@ https://github.com/AnarchyTools
 Usage:
 atbuild [task]
     task: ["default", "helloworld", "bootstrap"]
+```
+
+# Badges
+
+To declare your project to be compatible with Anarchy Tools, simply
+
+```markdown
+[![Anarchy Tools compatible](https://img.shields.io/badge/Anarchy%20Tools-compatible-4BC51D.svg?style=flat)](http://anarchytools.org)
 ```

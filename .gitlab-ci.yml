@@ -9,7 +9,7 @@ linux:
         - docker build -t atbuild .
         - id=$(docker create atbuild)
         - mkdir bin
-        - docker cp $id:atbuild/.atllbuild/products/atbuild bin/atbuild
+        - docker cp $id:atbuild/bin/atbuild bin/atbuild
         - docker rm -v $id
         - docker rmi atbuild
     tags:
@@ -23,9 +23,9 @@ osx:
     script: 
         - export PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:"${PATH}"
         - ./bootstrap/build.sh
-        - .atllbuild/products/atbuild check
+        - bin/atbuild check
     tags:
         - openswift
     artifacts:
         paths:
-            - .atllbuild/products/atbuild
+            - bin/atbuild

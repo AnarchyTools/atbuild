@@ -15,10 +15,6 @@
 import Foundation
 import atpkg
 
-#if os(Linux)
-    import Glibc //need sleep
-#endif
-
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {
@@ -198,6 +194,7 @@ final class ATllbuild : Tool {
         case SwiftCPath = "swiftc-path"
         case XCTestify = "xctestify"
         case XCTestStrict = "xctest-strict"
+		case IncludeWithUser = "include-with-user"
         case PublishProduct = "publish-product"
         
         static var allOptions : [Options] {
@@ -215,6 +212,7 @@ final class ATllbuild : Tool {
                 SwiftCPath,
                 XCTestify,
                 XCTestStrict,
+				IncludeWithUser,
                 PublishProduct
             ]
         }
@@ -271,6 +269,13 @@ final class ATllbuild : Tool {
             for o in opts {
                 guard let os = o.string else { fatalError("Compile option \(o) is not a string") }
                 compileOptions.append(os)
+            }
+        }
+        if let includePaths = task[Options.IncludeWithUser.rawValue]?.vector {
+            for path_s in includePaths {
+                guard let path = path_s.string else { fatalError("Non-string path \(path_s)") }
+                compileOptions.append("-I")
+                compileOptions.append(userPath() + "/" + path)
             }
         }
         var linkOptions: [String] = []

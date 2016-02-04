@@ -7,8 +7,6 @@ class MyTest : XCTestCase {
     }
 }
 
-XCTMain([MyTest()])
-
 extension MyTest : XCTestCaseProvider {
 var allTests : [(String, () throws -> Void)] {
     return [
@@ -16,3 +14,6 @@ var allTests : [(String, () throws -> Void)] {
     ]
 }
 }
+
+XCTMain([MyTest()])
+

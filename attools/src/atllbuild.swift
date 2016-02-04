@@ -15,10 +15,6 @@
 import Foundation
 import atpkg
 
-#if os(Linux)
-    import Glibc //need sleep
-#endif
-
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {

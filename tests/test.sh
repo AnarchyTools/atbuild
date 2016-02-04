@@ -14,6 +14,22 @@ echo "****************UMBRELLA TEST**************"
 cd $DIR/tests/fixtures/umbrella_header
 $ATBUILD check
 
+echo "****************USER PATH TEST**************"
+cd $DIR/tests/fixtures/user_paths
+
+$ATBUILD third
+RESULT=`cat user/test`
+RESULT2="FIRST
+SECOND
+THIRD"
+if [ "$RESULT" != "$RESULT2" ]; then
+    echo "Unusual user path concoction $RESULT $RESULT2"
+    exit 1
+fi
+
+$ATBUILD compile
+
+
 echo "****************PUBLISHPRODUCT TEST**************"
 cd $DIR/tests/fixtures/publish_product
 $ATBUILD

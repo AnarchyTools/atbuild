@@ -1,0 +1,10 @@
+(package
+ :name "b"
+
+     :tasks {
+        :second {
+            :tool "shell"
+            :script "echo SECOND >> $ATBUILD_USER_PATH/test"
+        }
+     }
+)

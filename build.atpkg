@@ -26,7 +26,8 @@
       :output-type "executable"
       :link-with ["attools.a" "atpkg.a"]
       :dependencies ["attools" "atpkg.atpkg"]
-
+      :publish-product true
+      
       :overlays {
         :bootstrap-osx {
           :bootstrap-only true

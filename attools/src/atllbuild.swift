@@ -15,25 +15,22 @@
 import Foundation
 import atpkg
 
-#if os(Linux)
-    import Glibc //need sleep
-#endif
+ /**Synthesize a module map.
+ - parameter name: The name of the module to synthesize
+ - parameter umbrellaHeader: A path to the umbrella header.  The path must be relative to the exported module map file.
+ - returns String contents of the synthesized modulemap
+ */
+ private func synthesizeModuleMap(name: String, umbrellaHeader: String?) -> String {
+     var s = ""
+     s += "module \(name) {\n"
+     if let u = umbrellaHeader {
+         s += "  umbrella header \"\(u)\"\n"
+     }
+     s += "\n"
+     s += "}\n"
+     return s
+ }
 
-/**Synthesize a module map.
-- parameter name: The name of the module to synthesize
-- parameter umbrellaHeader: A path to the umbrella header.  The path must be relative to the exported module map file.
-- returns String contents of the synthesized modulemap
-*/
-private func synthesizeModuleMap(name: String, umbrellaHeader: String?) -> String {
-    var s = ""
-    s += "module \(name) {\n"
-    if let u = umbrellaHeader {
-        s += "  umbrella header \"\(u)\"\n"
-    }
-    s += "\n"
-    s += "}\n"
-    return s
-}
 
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
@@ -219,6 +216,7 @@ final class ATllbuild : Tool {
         case SwiftCPath = "swiftc-path"
         case XCTestify = "xctestify"
         case XCTestStrict = "xctest-strict"
+		case IncludeWithUser = "include-with-user"
         case PublishProduct = "publish-product"
         case UmbrellaHeader = "umbrella-header"
         case ModuleMap = "module-map"
@@ -240,9 +238,9 @@ final class ATllbuild : Tool {
                 SwiftCPath,
                 XCTestify,
                 XCTestStrict,
+				IncludeWithUser,
                 PublishProduct,
-                UmbrellaHeader,
-                ModuleMap
+				UmbrellaHeader
             ]
         }
     }
@@ -297,6 +295,13 @@ final class ATllbuild : Tool {
             for o in opts {
                 guard let os = o.string else { fatalError("Compile option \(o) is not a string") }
                 compileOptions.append(os)
+            }
+        }
+        if let includePaths = task[Options.IncludeWithUser.rawValue]?.vector {
+            for path_s in includePaths {
+                guard let path = path_s.string else { fatalError("Non-string path \(path_s)") }
+                compileOptions.append("-I")
+                compileOptions.append(userPath() + "/" + path)
             }
         }
         var linkOptions: [String] = []

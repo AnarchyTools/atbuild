@@ -19,6 +19,22 @@ import atpkg
     import Glibc //need sleep
 #endif
 
+/**Synthesize a module map.
+- parameter name: The name of the module to synthesize
+- parameter umbrellaHeader: A path to the umbrella header.  The path must be relative to the exported module map file.
+- returns String contents of the synthesized modulemap
+*/
+private func synthesizeModuleMap(name: String, umbrellaHeader: String?) -> String {
+    var s = ""
+    s += "module \(name) {\n"
+    if let u = umbrellaHeader {
+        s += "  umbrella header \"\(u)\"\n"
+    }
+    s += "\n"
+    s += "}\n"
+    return s
+}
+
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {
@@ -76,6 +92,11 @@ final class ATllbuild : Tool {
     enum OutputType {
         case Executable
         case StaticLibrary
+    }
+
+    enum ModuleMapType {
+        case None
+        case Synthesized
     }
     
     /**
@@ -200,6 +221,7 @@ final class ATllbuild : Tool {
         case XCTestStrict = "xctest-strict"
         case PublishProduct = "publish-product"
         case UmbrellaHeader = "umbrella-header"
+        case ModuleMap = "module-map"
 
         
         static var allOptions : [Options] {
@@ -219,7 +241,8 @@ final class ATllbuild : Tool {
                 XCTestify,
                 XCTestStrict,
                 PublishProduct,
-                UmbrellaHeader
+                UmbrellaHeader,
+                ModuleMap
             ]
         }
     }
@@ -283,7 +306,25 @@ final class ATllbuild : Tool {
                 linkOptions.append(os)
             }
         }
-        
+
+        //check for modulemaps
+        for product in linkWithProduct {
+            let productName = product.componentsSeparatedByString(".")[0]
+            let moduleMapPath = workDirectory + "/products/\(productName).modulemap"
+            if manager.fileExistsAtPath(moduleMapPath) {
+                        print("a")
+
+                /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much
+                the only way to do this is to create a file called `module.modulemap`.  That
+                potentially conflicts with other modulemaps, so we give it its own directory, namespaced
+                by the product name. */
+                let pathName = workDirectory + "/include/\(productName)"
+                try! manager.createDirectoryAtPath(pathName, withIntermediateDirectories:false, attributes: nil)
+                try! manager.copyItemAtPath_SWIFTBUG(moduleMapPath, toPath: pathName + "/module.modulemap")
+                compileOptions.appendContentsOf(["-I",pathName])
+            }
+        }
+
         guard let sourceDescriptions = task[Options.Source.rawValue]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
         var sources = collectSources(sourceDescriptions, taskForCalculatingPath: task)
         
@@ -307,19 +348,21 @@ final class ATllbuild : Tool {
             sources.append(xcTestCaseProviderPath)
             #endif
         }
+        let moduleMap: ModuleMapType
+        if task[Options.ModuleMap.rawValue]?.string == "synthesized" {
+            moduleMap = .Synthesized
+        }
+        else {
+            moduleMap = .None
+        }
 
         guard let name = task[Options.Name.rawValue]?.string else { fatalError("No name for atllbuild task") }
         
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
-            var s = ""
-            s += "module \(name) {\n"
-            s += "  umbrella header \"Umbrella.h\"\n"
-            s += "\n"
-            s += "  export *\n"
-            s += "  module * { export * }\n"
-            s += "}\n"
+            precondition(moduleMap == .Synthesized, ":\(Options.UmbrellaHeader.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
+            let s = synthesizeModuleMap(name, umbrellaHeader: "Umbrella.h")
             try! s.writeToFile(workDirectory+"/include/module.modulemap", atomically: false, encoding: NSUTF8StringEncoding)
-            try! manager.copyItemAtPath_SWIFTBUG(umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
+            try! manager.copyItemAtPath_SWIFTBUG(task.importedPath + umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
             compileOptions.append("-I")
             compileOptions.append(workDirectory + "/include/")
             compileOptions.append("-import-underlying-module")
@@ -360,6 +403,14 @@ final class ATllbuild : Tool {
         let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath)
         let _ = try? yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
+
+        switch moduleMap {
+                case .None:
+                break
+                case .Synthesized:
+                let s = synthesizeModuleMap(name, umbrellaHeader: nil)
+                try! s.writeToFile(workDirectory + "/products/\(name).modulemap", atomically: false, encoding: NSUTF8StringEncoding)
+        }
         
         //SR-566
         let cmd = "\(SwiftBuildToolpath) -f \(llbuildyamlpath)"
@@ -377,6 +428,14 @@ final class ATllbuild : Tool {
             case .StaticLibrary:
                 try! copyByOverwriting("\(workDirectory)/products/\(name).a", toPath: "bin/\(name).a")
             }
+
+            switch moduleMap {
+                case .None:
+                break
+                case .Synthesized:
+                try! copyByOverwriting("\(workDirectory)/products/\(name).modulemap", toPath: "bin/\(name).modulemap")
+            }
+
         }
     }
 }

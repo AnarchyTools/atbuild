@@ -12,7 +12,7 @@ $ATBUILD atbuild
 
 echo "****************UMBRELLA TEST**************"
 cd $DIR/tests/fixtures/umbrella_header
-$ATBUILD
+$ATBUILD check
 
 echo "****************PUBLISHPRODUCT TEST**************"
 cd $DIR/tests/fixtures/publish_product

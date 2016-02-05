@@ -15,9 +15,13 @@ import atpkg
 import Foundation
 
 class XCTestRun : Tool {
+    enum Option: String {
+        case TestExecutable = "test-executable"
+    }
+
     func run(task: Task) {
-        guard let testExecutable = task["test-executable"]?.string else {
-            fatalError("No testExecutable for XCTestRun")
+        guard let testExecutable = task[Option.TestExecutable.rawValue]?.string else {
+            fatalError("No \(task[Option.TestExecutable.rawValue]) for XCTestRun")
         }
         #if os(OSX)
             var workingDirectory = "/tmp/XXXXXXXXXXX"

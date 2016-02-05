@@ -10,6 +10,10 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************UMBRELLA TEST**************"
+cd $DIR/tests/fixtures/umbrella_header
+$ATBUILD check
+
 echo "****************USER PATH TEST**************"
 cd $DIR/tests/fixtures/user_paths
 
@@ -80,12 +84,18 @@ if ! grep "germany" /tmp/warnings.txt; then
     exit 1
 fi
 
+if ! grep "poland" /tmp/warnings.txt; then
+    echo "Was not warmed about invalid package key"
+    exit 1
+fi
+
 cd $DIR/tests/fixtures/overlay
 $ATBUILD --use-overlay got-overlay > /tmp/warnings.txt
 if grep "Warning: " /tmp/warnings.txt; then
     echo "Got a warning when building the overlay fixture"
     exit 1
 fi
+
 
 
 echo "****************HELP TEST*********************"
@@ -135,4 +145,4 @@ if $ATBUILD --use-overlay foo; then
     exit 1
 fi
 
-echo "***ATBUILD TEST SCRIPT PASSED SUCCESSFULLY*****"
+printf "\e[1m\e[32m***ATBUILD TEST SCRIPT PASSED SUCCESSFULLY*****\e[0m"

@@ -128,4 +128,4 @@ if $ATBUILD --use-overlay foo; then
     exit 1
 fi
 
-echo "***ATBUILD TEST SCRIPT PASSED SUCCESSFULLY*****"
+printf "\e[1m\e[32m***ATBUILD TEST SCRIPT PASSED SUCCESSFULLY*****\e[0m"

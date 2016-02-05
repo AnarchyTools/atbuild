@@ -1,0 +1,35 @@
+(package
+  :name "umbrella_header"
+  
+  :tasks {
+      :default {
+        :tool "atllbuild"
+        :sources ["foo.swift"]
+        :name "UmbrellaHeader"
+        :output-type "static-library"
+        :umbrella-header "UmbrellaHeader.h"
+        :module-map "synthesized"
+        :publish-product true
+      }
+
+      :build-test {
+        :tool "atllbuild"
+        :sources ["tests/**.swift"]
+        :name "UmbrellaHeaderTests"
+        :output-type "executable"
+        :xctestify true
+        :xctest-strict true
+        :dependencies ["default"]
+        :publish-product true
+        :link-with ["UmbrellaHeader.a"]
+      }
+
+      :check {
+        :tool "xctestrun"
+        :dependencies ["build-test"]
+        :test-executable "bin/UmbrellaHeaderTests"
+      }
+
+
+  }
+)

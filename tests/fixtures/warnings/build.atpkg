@@ -1,6 +1,6 @@
 (package
  :name "warnings"
- :poland "invalid" ;; we can't currently warn for this, but we should someday
+ :poland "invalid"
 
      :tasks {
         :default {

@@ -80,6 +80,11 @@ if ! grep "germany" /tmp/warnings.txt; then
     exit 1
 fi
 
+if ! grep "poland" /tmp/warnings.txt; then
+    echo "Was not warmed about invalid package key"
+    exit 1
+fi
+
 
 echo "****************HELP TEST*********************"
 

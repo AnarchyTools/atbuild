@@ -320,8 +320,6 @@ final class ATllbuild : Tool {
             let productName = product.componentsSeparatedByString(".")[0]
             let moduleMapPath = workDirectory + "/products/\(productName).modulemap"
             if manager.fileExistsAtPath(moduleMapPath) {
-                        print("a")
-
                 /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much
                 the only way to do this is to create a file called `module.modulemap`.  That
                 potentially conflicts with other modulemaps, so we give it its own directory, namespaced

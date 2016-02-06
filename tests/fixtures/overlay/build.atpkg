@@ -27,7 +27,6 @@
         :sources ["src/**.swift"]
         :name "overlay"
         :output-type "static-library"
-        :germany "awesome"
         :compile-options []
       }
   }

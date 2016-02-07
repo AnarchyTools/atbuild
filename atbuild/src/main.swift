@@ -21,6 +21,8 @@ import attools
 enum Options: String {
     case Overlay = "--use-overlay"
     case CustomFile = "-f"
+    case Help = "--help"
+    case Clean = "--clean"
     
     static var allOptions : [Options] { return [Overlay, CustomFile] }
 }
@@ -55,7 +57,7 @@ if Process.arguments.contains("--help") {
     print("© 2016 Anarchy Tools Contributors.")
     print("")
     print("Usage:")
-    print("atbuild [-f packagefile] [task]")
+    print("atbuild [-f packagefile] [task] [--clean]")
     
     let package = loadPackageFile()
     print("tasks:")

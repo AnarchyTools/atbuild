@@ -265,9 +265,13 @@ final class ATllbuild : Tool {
         //We just want to create a state where .atllbuild/objects and .atllbuild/llbuildtmp and .atllbuild/products exists.
         //and in particular, without erasing the product directory, since that accumulates build products across
         //multiple invocations of atllbuild.
-        let _ = try? manager.removeItemAtPath(workDirectory + "/objects")
-        let _ = try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
+        if Process.arguments.contains("--clean") {
+            let _ = try? manager.removeItemAtPath(workDirectory + "/objects")
+            let _ = try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
+        }
         let _ = try? manager.removeItemAtPath(workDirectory + "/include")
+
+
 
         let _ = try? manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
         let _ = try? manager.createDirectoryAtPath(workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)

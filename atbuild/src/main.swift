@@ -27,26 +27,23 @@ enum Options: String {
 
 let defaultPackageFile = "build.atpkg"
 
-func loadPackageFile(task: String?) -> Package {
+var focusOnTask : String? = nil
 
-    //build overlays
-    var overlays : [String] = []
-    for (i, x) in Process.arguments.enumerate() {
-        if x == Options.Overlay.rawValue {
-            let overlay = Process.arguments[i+1]
-            overlays.append(overlay)
-        }
+//build overlays
+var overlays : [String] = []
+for (i, x) in Process.arguments.enumerate() {
+    if x == Options.Overlay.rawValue {
+        let overlay = Process.arguments[i+1]
+        overlays.append(overlay)
     }
-    var packageFile = defaultPackageFile
-    for (i, x) in Process.arguments.enumerate() {
-        if x == Options.CustomFile.rawValue {
-            packageFile = Process.arguments[i+1]
-        }
-    }
-   let package = try! Package(filepath: packageFile, overlay: overlays, focusOnTask: task)
-    
-    return package
 }
+var packageFile = defaultPackageFile
+for (i, x) in Process.arguments.enumerate() {
+    if x == Options.CustomFile.rawValue {
+        packageFile = Process.arguments[i+1]
+    }
+}
+let package = try! Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
 
 //usage message
 if Process.arguments.contains("--help") {
@@ -57,7 +54,6 @@ if Process.arguments.contains("--help") {
     print("Usage:")
     print("atbuild [-f packagefile] [task]")
     
-    let package = loadPackageFile(nil)
     print("tasks:")
     for (key, task) in package.tasks {
         print("    \(key)")
@@ -65,7 +61,7 @@ if Process.arguments.contains("--help") {
     exit(1)
 }
 
-func runtask(taskName: String, package: Package) {
+func runTask(taskName: String, package: Package) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
     for task in package.prunedDependencyGraph(task) {
         TaskRunner.runTask(task, package: package)
@@ -73,7 +69,6 @@ func runtask(taskName: String, package: Package) {
 }
 
 //choose which task to run
-var task : String? = nil
 if Process.arguments.count > 1 {
     var i = 1
     while i < Process.arguments.count {
@@ -82,20 +77,19 @@ if Process.arguments.count > 1 {
             i += 1
         }
         else {
-            task = arg
+            focusOnTask = arg
             break
         }
         i += 1
     }
 }
-if task == nil {
-    task = "default"
+if focusOnTask == nil {
+    focusOnTask = "default"
 }
 
-let package = loadPackageFile(task)
 print("Building package \(package.name)...")
 
-runtask(task!, package: package)
+runTask(focusOnTask!, package: package)
 
 //success message
 print("Built package \(package.name).")

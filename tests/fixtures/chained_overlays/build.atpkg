@@ -1,0 +1,15 @@
+(package
+  :name "chained_overlays"
+  
+  :tasks {
+      :default {
+        :tool "nop"
+        :dependencies ["child"]
+        :overlays {
+        }
+      }
+      :child {
+        :tool "nop"
+      }
+  }
+)

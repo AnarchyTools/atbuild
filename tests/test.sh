@@ -10,6 +10,22 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************STATIC TEST**************"
+cd $DIR/tests/fixtures/static
+$ATBUILD
+if [ "`uname`" == "Darwin" ]; then
+    otool -L .atllbuild/products/static > /tmp/linkage.txt
+else
+    ldd -r .atllbuild/products/static > /tmp/linkage.txt
+fi
+cat /tmp/linkage.txt
+if grep libswiftCore /tmp/linkage.txt; then
+    echo "Failed to statically link a binary."
+    exit 1
+fi
+#try the binary itself
+.atllbuild/products/static
+
 echo "****************UMBRELLA TEST**************"
 cd $DIR/tests/fixtures/umbrella_header
 $ATBUILD check

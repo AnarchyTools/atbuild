@@ -1,0 +1,13 @@
+(package
+ :name "static"
+
+     :tasks {
+        :default {
+            :tool "atllbuild"
+            :output-type "executable"
+            :name "static"
+            :static-stdlib true
+            :sources ["foo.swift"]
+        }
+     }
+)

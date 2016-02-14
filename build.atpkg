@@ -27,6 +27,7 @@
       :link-with ["attools.a" "atpkg.a"]
       :dependencies ["attools" "atpkg.atpkg"]
       :publish-product true
+      ;; :static-stdlib true
       
       :overlays {
         :bootstrap-osx {

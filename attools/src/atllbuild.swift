@@ -220,6 +220,7 @@ final class ATllbuild : Tool {
         case PublishProduct = "publish-product"
         case UmbrellaHeader = "umbrella-header"
         case ModuleMap = "module-map"
+        case StaticStandardLib = "static-stdlib"
 
         
         static var allOptions : [Options] {
@@ -239,7 +240,8 @@ final class ATllbuild : Tool {
                 XCTestStrict,
 				IncludeWithUser,
                 PublishProduct,
-				UmbrellaHeader
+				UmbrellaHeader,
+                StaticStandardLib
             ]
         }
     }
@@ -333,6 +335,23 @@ final class ATllbuild : Tool {
                 try! manager.copyItemAtPath_SWIFTBUG(moduleMapPath, toPath: pathName + "/module.modulemap")
                 compileOptions.appendContentsOf(["-I",pathName])
             }
+        }
+        
+        if task[Options.StaticStandardLib.rawValue]?.bool == true {
+            linkOptions.appendContentsOf(["-L\(SwiftStaticLibsPath)"])
+
+            #if os(OSX)
+            linkOptions.appendContentsOf(["-framework", "Foundation"])
+            linkOptions.appendContentsOf(["-Xlinker", "-force_load_swift_libs"])
+            linkOptions.append("-lc++")
+            #endif
+
+            #if os(Linux)
+                linkOptions.appendContentsOf(["\(SwiftStaticLibsPath)libswiftGlibc.a", "\(SwiftStaticLibsPath)libswiftCore.a"])
+                linkOptions.append("-licuuc")
+                linkOptions.append("-licui18n")
+                linkOptions.append("-lbsd")
+            #endif
         }
 
         guard let sourceDescriptions = task[Options.Source.rawValue]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }

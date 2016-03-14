@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let version = "0.8.0-dev"
+let version = "0.9.0-dev"
 
 import Foundation
 import atpkg

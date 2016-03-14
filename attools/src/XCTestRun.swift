@@ -21,7 +21,7 @@ class XCTestRun : Tool {
 
     func run(task: Task) {
         guard let testExecutable = task[Option.TestExecutable.rawValue]?.string else {
-            fatalError("No \(task[Option.TestExecutable.rawValue]) for XCTestRun")
+            fatalError("No \(Option.TestExecutable.rawValue) for XCTestRun task \(task.qualifiedName)")
         }
         #if os(OSX)
             var workingDirectory = "/tmp/XXXXXXXXXXX"

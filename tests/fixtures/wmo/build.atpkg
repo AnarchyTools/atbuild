@@ -1,0 +1,16 @@
+(package
+  :name "wmo"
+  
+  :tasks {
+    :default {
+      :tool "atllbuild"
+      :sources ["src/**.swift"]
+      :name "wmo"
+      :output-type "static-library"
+      :publish-product true
+      :whole-module-optimization true
+    }
+            
+  }
+
+)

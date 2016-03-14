@@ -220,6 +220,7 @@ final class ATllbuild : Tool {
         case PublishProduct = "publish-product"
         case UmbrellaHeader = "umbrella-header"
         case ModuleMap = "module-map"
+        case WholeModuleOptimization = "whole-module-optimization"
 
         
         static var allOptions : [Options] {
@@ -239,12 +240,17 @@ final class ATllbuild : Tool {
                 XCTestStrict,
 				IncludeWithUser,
                 PublishProduct,
-				UmbrellaHeader
+				UmbrellaHeader,
+                WholeModuleOptimization
             ]
         }
     }
-    
+
     func run(task: Task) {
+        run(task, wmoHack: false)
+    }
+    
+    func run(task: Task, wmoHack : Bool = false) {
         
         //warn if we don't understand an option
         var knownOptions = Options.allOptions.map({$0.rawValue})
@@ -304,6 +310,11 @@ final class ATllbuild : Tool {
                 compileOptions.append(os)
             }
         }
+
+        if wmoHack {
+            compileOptions.append("-whole-module-optimization")
+        }
+        
         if let includePaths = task[Options.IncludeWithUser.rawValue]?.vector {
             for path_s in includePaths {
                 guard let path = path_s.string else { fatalError("Non-string path \(path_s)") }
@@ -447,6 +458,12 @@ final class ATllbuild : Tool {
             }
 
         }
+
+        if task[Options.WholeModuleOptimization.rawValue]?.bool == true && !wmoHack {
+            print("Work around SR-881")
+            run(task, wmoHack: true)
+        }
+
     }
 }
 

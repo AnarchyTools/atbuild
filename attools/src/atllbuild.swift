@@ -43,44 +43,12 @@ final class ATllbuild : Tool {
     private static let xcTestCaseProvider: String = { () -> String in
         var s = ""
         s += "import XCTest\n"
-        s += "\n"
-        s += "protocol XCTestCaseProvider {\n"
-        s += "    var allTests : [(String, () throws -> Void)] { get }\n"
+        s += "public func testCase<T: XCTestCase>(allTests: [(String, T -> () throws -> Void)]) -> XCTestCase {\n"
+        s += "    fatalError(\"Can't get here.\")\n"
         s += "}\n"
         s += "\n"
         s += "public func XCTMain(testCases: [XCTestCase]) {\n"
         s += "    fatalError(\"Can't get here.\")\n"
-        s += "}\n"
-        s += "\n"
-        s += "extension XCTestCase {\n"
-        s += "    private func implementAllTests() {\n"
-        s += "        print(\"Make sure to implement allTests via\")\n"
-        s += "        print(\"extension \\(self.dynamicType) : XCTestCaseProvider {\")\n"
-        s += "        print(\"    var allTests : [(String, () throws -> Void)] {\")\n"
-        s += "        print(\"        return [\")\n"
-        s += "        print(\"        (\\\"testFoo\\\", testFoo)\")\n"
-        s += "        print(\"        ]\")\n"
-        s += "        print(\"    }\")\n"
-        s += "        print(\"}\")\n"
-        s += "        print(\"(Or disable xctestStrict.)\")\n"
-        s += "        print(\"Cheers! -- Anarchy Tools Team\")\n"
-        s += "    }\n"
-        s += "    override public func tearDown() {\n"
-        s += "        if let provider = self as? XCTestCaseProvider {\n"
-        s += "            let contains = provider.allTests.contains({ test in\n"
-        s += "                return test.0 == invocation!.selector.description\n"
-        s += "            })\n"
-        s += "            if !contains {\n"
-        s += "               XCTFail(\"Test \\(name) is missing from \\(self.dynamicType)\")\n"
-        s += "               implementAllTests()\n"
-        s += "            }\n"
-        s += "        }\n"
-        s += "        else {\n"
-        s += "            XCTFail(\"Whoops!  \\(self.dynamicType) doesn't conform to XCTestCaseProvider.\")\n"
-        s += "            implementAllTests()\n"
-        s += "        }\n"
-        s += "        super.tearDown()\n"
-        s += "    }\n"
         s += "}\n"
         s += "\n"
         return s
@@ -131,7 +99,7 @@ final class ATllbuild : Tool {
         yaml += "     objects: \(objects)\n"
         //this crazy syntax is how llbuild specifies outputs
         var llbuild_outputs = ["<atllbuild-swiftc>"]
-        llbuild_outputs.appendContentsOf(objects)
+        llbuild_outputs.append(contentsOf: objects)
         yaml += "     outputs: \(llbuild_outputs)\n"
         
         switch(outputType) {
@@ -147,14 +115,14 @@ final class ATllbuild : Tool {
         yaml += "     temps-path: \(workdir)/llbuildtmp\n"
         
         var args : [String] = []
-        args.appendContentsOf(["-j8", "-D","ATBUILD","-I",workdir+"products/"])
+        args.append(contentsOf: ["-j8", "-D","ATBUILD","-I",workdir+"products/"])
         
         if linkSDK {
             #if os(OSX) //we don't have SDKPath on linux
-            args.appendContentsOf(["-sdk", SDKPath])
+            args.append(contentsOf: ["-sdk", SDKPath])
             #endif
         }
-        args.appendContentsOf(compileOptions)
+        args.append(contentsOf: compileOptions)
         
         yaml += "     other-args: \(args)\n"
         
@@ -165,17 +133,17 @@ final class ATllbuild : Tool {
             yaml += "    tool: shell\n"
             //this crazy syntax is how sbt declares a dependency
             var llbuild_inputs = ["<atllbuild-swiftc>"]
-            llbuild_inputs.appendContentsOf(objects)
+            llbuild_inputs.append(contentsOf: objects)
             let builtProducts = linkWithProduct.map {workdir+"products/"+$0}
-            llbuild_inputs.appendContentsOf(builtProducts)
+            llbuild_inputs.append(contentsOf: builtProducts)
             let executablePath = productPath+modulename
             yaml += "    inputs: \(llbuild_inputs)\n"
             yaml += "    outputs: [\"<atllbuild>\", \"\(executablePath)\"]\n"
             //and now we have the crazy 'args'
             args = [swiftCPath, "-o",executablePath]
-            args.appendContentsOf(objects)
-            args.appendContentsOf(builtProducts)
-            args.appendContentsOf(linkOptions)
+            args.append(contentsOf: objects)
+            args.append(contentsOf: builtProducts)
+            args.append(contentsOf: linkOptions)
             yaml += "    args: \(args)\n"
             yaml += "    description: Linking executable \(executablePath)\n"
             return yaml
@@ -184,7 +152,7 @@ final class ATllbuild : Tool {
         case .StaticLibrary:
             yaml += "    tool: shell\n"
             var llbuild_inputs = ["<atllbuild-swiftc>"]
-            llbuild_inputs.appendContentsOf(objects)
+            llbuild_inputs.append(contentsOf: objects)
             yaml += "    inputs: \(llbuild_inputs)\n"
             let libPath = productPath + modulename + ".a"
             yaml += "    outputs: [\"<atllbuild>\", \"\(libPath)\"]\n"
@@ -272,17 +240,17 @@ final class ATllbuild : Tool {
         //and in particular, without erasing the product directory, since that accumulates build products across
         //multiple invocations of atllbuild.
         if Process.arguments.contains("--clean") {
-            let _ = try? manager.removeItemAtPath(workDirectory + "/objects")
-            let _ = try? manager.removeItemAtPath(workDirectory + "/llbuildtmp")
+            let _ = try? manager.removeItem(atPath: workDirectory + "/objects")
+            let _ = try? manager.removeItem(atPath: workDirectory + "/llbuildtmp")
         }
-        let _ = try? manager.removeItemAtPath(workDirectory + "/include")
+        let _ = try? manager.removeItem(atPath: workDirectory + "/include")
 
 
 
-        let _ = try? manager.createDirectoryAtPath(workDirectory, withIntermediateDirectories: false, attributes: nil)
-        let _ = try? manager.createDirectoryAtPath(workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)
-        let _ = try? manager.createDirectoryAtPath(workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
-        let _ = try? manager.createDirectoryAtPath(workDirectory + "/include", withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.createDirectory(atPath: workDirectory, withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.createDirectory(atPath: workDirectory + "/products", withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.createDirectory(atPath: workDirectory + "/objects", withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.createDirectory(atPath: workDirectory + "/include", withIntermediateDirectories: false, attributes: nil)
 
         //parse arguments
         var linkWithProduct: [String] = []
@@ -332,17 +300,17 @@ final class ATllbuild : Tool {
 
         //check for modulemaps
         for product in linkWithProduct {
-            let productName = product.componentsSeparatedByString(".")[0]
+            let productName = product.componentsSeparated(by: ".")[0]
             let moduleMapPath = workDirectory + "/products/\(productName).modulemap"
-            if manager.fileExistsAtPath(moduleMapPath) {
+            if manager.fileExists(atPath: moduleMapPath) {
                 /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much
                 the only way to do this is to create a file called `module.modulemap`.  That
                 potentially conflicts with other modulemaps, so we give it its own directory, namespaced
                 by the product name. */
                 let pathName = workDirectory + "/include/\(productName)"
-                try! manager.createDirectoryAtPath(pathName, withIntermediateDirectories:false, attributes: nil)
+                try! manager.createDirectory(atPath: pathName, withIntermediateDirectories:false, attributes: nil)
                 try! manager.copyItemAtPath_SWIFTBUG(moduleMapPath, toPath: pathName + "/module.modulemap")
-                compileOptions.appendContentsOf(["-I",pathName])
+                compileOptions.append(contentsOf: ["-I",pathName])
             }
         }
 
@@ -354,18 +322,21 @@ final class ATllbuild : Tool {
             precondition(outputType == .Executable, "You must use :\(Options.OutputType.rawValue) executable with xctestify.")
             //inject platform-specific flags
             #if os(OSX)
-                compileOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/"])
-                linkOptions.appendContentsOf(["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
+                compileOptions.append(contentsOf: ["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/"])
+                linkOptions.append(contentsOf: ["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
             #endif
         }
         if task[Options.XCTestStrict.rawValue]?.bool == true {
             #if os(OSX)
             //inject XCTestCaseProvider.swift
             var xcTestCaseProviderPath = "/tmp/XXXXXXX"
-            var template = xcTestCaseProviderPath.cStringUsingEncoding(NSUTF8StringEncoding)!
-            xcTestCaseProviderPath = String(CString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
+            var template = xcTestCaseProviderPath.cString(usingEncoding: NSUTF8StringEncoding)!
+            xcTestCaseProviderPath = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
+            fputs("pp \(xcTestCaseProviderPath)", stderr)
+
             xcTestCaseProviderPath += "/XCTestCaseProvider.swift"
-            try! ATllbuild.xcTestCaseProvider.writeToFile(xcTestCaseProviderPath, atomically: false, encoding: NSUTF8StringEncoding)
+
+            try! ATllbuild.xcTestCaseProvider.write(toFile: xcTestCaseProviderPath, atomically: false, encoding: NSUTF8StringEncoding)
             sources.append(xcTestCaseProviderPath)
             #endif
         }
@@ -382,7 +353,7 @@ final class ATllbuild : Tool {
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
             precondition(moduleMap == .Synthesized, ":\(Options.UmbrellaHeader.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
             let s = synthesizeModuleMap(name, umbrellaHeader: "Umbrella.h")
-            try! s.writeToFile(workDirectory+"/include/module.modulemap", atomically: false, encoding: NSUTF8StringEncoding)
+            try! s.write(toFile: workDirectory+"/include/module.modulemap", atomically: false, encoding: NSUTF8StringEncoding)
             try! manager.copyItemAtPath_SWIFTBUG(task.importedPath + umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
             compileOptions.append("-I")
             compileOptions.append(workDirectory + "/include/")
@@ -422,7 +393,7 @@ final class ATllbuild : Tool {
         }
         
         let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath)
-        let _ = try? yaml.writeToFile(llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
+        let _ = try? yaml.write(toFile: llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
 
         switch moduleMap {
@@ -430,7 +401,7 @@ final class ATllbuild : Tool {
                 break
                 case .Synthesized:
                 let s = synthesizeModuleMap(name, umbrellaHeader: nil)
-                try! s.writeToFile(workDirectory + "/products/\(name).modulemap", atomically: false, encoding: NSUTF8StringEncoding)
+                try! s.write(toFile: workDirectory + "/products/\(name).modulemap", atomically: false, encoding: NSUTF8StringEncoding)
         }
         
         //SR-566
@@ -439,8 +410,8 @@ final class ATllbuild : Tool {
             fatalError(cmd)
         }
         if task[Options.PublishProduct.rawValue]?.bool == true {
-            if !manager.fileExistsAtPath("bin") {
-                try! manager.createDirectoryAtPath("bin", withIntermediateDirectories: false, attributes: nil)
+            if !manager.fileExists(atPath: "bin") {
+                try! manager.createDirectory(atPath: "bin", withIntermediateDirectories: false, attributes: nil)
             }
             try! copyByOverwriting("\(workDirectory)/products/\(name).swiftmodule", toPath: "bin/\(name).swiftmodule")
             switch outputType {
@@ -469,8 +440,8 @@ final class ATllbuild : Tool {
 
 private func copyByOverwriting(fromPath: String, toPath: String) throws {
     let manager = NSFileManager.defaultManager()
-    if manager.fileExistsAtPath(toPath) {
-        try manager.removeItemAtPath(toPath)
+    if manager.fileExists(atPath: toPath) {
+        try manager.removeItem(atPath: toPath)
     }
     try! manager.copyItemAtPath_SWIFTBUG(fromPath, toPath: toPath)
 }

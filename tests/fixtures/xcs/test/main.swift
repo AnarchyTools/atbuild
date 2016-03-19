@@ -13,4 +13,4 @@
 // limitations under the License.
 import XCTest
 
-XCTMain([FooTests()])
+XCTMain([testCase(FooTests.allTests)])

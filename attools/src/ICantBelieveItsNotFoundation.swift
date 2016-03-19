@@ -38,7 +38,7 @@ extension NSString {
 
 // MARK: NSFileManager.copyItemAtPath
 // https://github.com/apple/swift-corelibs-foundation/pull/248
-enum CopyError: ErrorType {
+enum CopyError: ErrorProtocol {
     case CantOpenSourceFile(Int32)
     case CantOpenDestFile(Int32)
     case CantReadSourceFile(Int32)
@@ -53,7 +53,7 @@ extension NSFileManager {
             throw CopyError.CantOpenSourceFile(errno)
         }
         defer { precondition(close(fd_from) >= 0) }
-        let permission_ = (try! attributesOfItemAtPath(srcPath)[NSFilePosixPermissions] as! NSNumber)
+        let permission_ = (try! attributesOfItem(atPath: srcPath)[NSFilePosixPermissions] as! NSNumber)
 
         #if os(OSX) || os(iOS)
         let permission = permission_.unsignedShortValue
@@ -66,7 +66,7 @@ extension NSFileManager {
         }
         defer { precondition(close(fd_to) >= 0) }
         
-        var buf = [UInt8](count: 4096, repeatedValue: 0)
+        var buf = [UInt8](repeating: 0, count: 4096)
         
         while true {
             let nread = read(fd_from, &buf, buf.count)
@@ -82,9 +82,39 @@ extension NSFileManager {
                 if nwritten < 0 {
                     throw CopyError.CantWriteDestFile(errno)
                 }
-                writeSlice = writeSlice[writeSlice.startIndex.advancedBy(nwritten)..<writeSlice.endIndex]
+                writeSlice = writeSlice[writeSlice.startIndex.advanced(by: nwritten)..<writeSlice.endIndex]
                 if writeSlice.count == 0 { break }
             }
         }
     }
 }
+
+//These parts of Swift 3 Renaming are not yet implemented on Linux
+
+#if os(Linux)
+extension NSFileManager {
+    func enumerator(atPath path: String) -> NSDirectoryEnumerator? {
+        return self.enumeratorAtPath(path)
+    }
+    func createDirectory(atPath path: String, withIntermediateDirectories createIntermediates: Bool,  attributes: [String : AnyObject]? = [:]) throws {
+        return try self.createDirectoryAtPath(path, withIntermediateDirectories: createIntermediates, attributes: attributes)
+    }
+    func attributesOfItem(atPath path: String) throws -> [String : Any] {
+        return try self.attributesOfItemAtPath(path)
+    }
+    func removeItem(atPath path: String) throws {
+        return try self.removeItemAtPath(path)
+    }
+    func fileExists(atPath path: String) -> Bool {
+        return self.fileExistsAtPath(path)
+    }
+}
+extension String {
+    func componentsSeparated(by separator: String) -> [String] {
+        return self.componentsSeparatedByString(separator)
+    }
+    func write(toFile path: String, atomically useAuxiliaryFile:Bool, encoding enc: NSStringEncoding) throws {
+        return try self.writeToFile(path, atomically: useAuxiliaryFile, encoding: enc)
+    }
+}
+#endif

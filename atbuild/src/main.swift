@@ -33,14 +33,14 @@ var focusOnTask : String? = nil
 
 //build overlays
 var overlays : [String] = []
-for (i, x) in Process.arguments.enumerate() {
+for (i, x) in Process.arguments.enumerated() {
     if x == Options.Overlay.rawValue {
         let overlay = Process.arguments[i+1]
         overlays.append(overlay)
     }
 }
 var packageFile = defaultPackageFile
-for (i, x) in Process.arguments.enumerate() {
+for (i, x) in Process.arguments.enumerated() {
     if x == Options.CustomFile.rawValue {
         packageFile = Process.arguments[i+1]
     }

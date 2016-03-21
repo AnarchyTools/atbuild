@@ -48,8 +48,8 @@ func userPath() -> String {
     let manager = NSFileManager.defaultManager()
     let userPath = manager.currentDirectoryPath + "/user"
     if !userPathCreated {
-        let _ = try? manager.removeItemAtPath(userPath)
-        try! manager.createDirectoryAtPath(userPath, withIntermediateDirectories: false, attributes: nil)
+        let _ = try? manager.removeItem(atPath: userPath)
+        try! manager.createDirectory(atPath: userPath, withIntermediateDirectories: false, attributes: nil)
         userPathCreated = true
     }
     return userPath

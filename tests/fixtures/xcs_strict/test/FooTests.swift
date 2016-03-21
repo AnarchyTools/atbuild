@@ -20,8 +20,8 @@ class FooTests: XCTestCase {
     }
 }
 
-extension FooTests: XCTestCaseProvider {
-    var allTests : [(String, () throws -> Void)] {
+extension FooTests {
+    static var allTests : [(String, FooTests -> () throws -> Void)] {
         return [
             //("testFoo", testFoo) oops!  Forgot this one!
         ]

@@ -25,13 +25,13 @@ class XCTestRun : Tool {
         }
         #if os(OSX)
             var workingDirectory = "/tmp/XXXXXXXXXXX"
-            var template = workingDirectory.cStringUsingEncoding(NSUTF8StringEncoding)!
-            workingDirectory = String(CString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
+            var template = workingDirectory.cString(usingEncoding: NSUTF8StringEncoding)!
+            workingDirectory = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
             
             let manager = NSFileManager.defaultManager()
             let executablePath = workingDirectory + "/XCTestRun.xctest/Contents/MacOS"
-            try! manager.createDirectoryAtPath(executablePath, withIntermediateDirectories: true, attributes: nil)
-            try! manager.copyItemAtPath(testExecutable, toPath: executablePath + "/XCTestRun")
+            try! manager.createDirectory(atPath: executablePath, withIntermediateDirectories: true, attributes: nil)
+            try! manager.copyItem(atPath: testExecutable, toPath: executablePath + "/XCTestRun")
             var s = ""
             s += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             s += "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
@@ -61,7 +61,7 @@ class XCTestRun : Tool {
             s += "<string>1</string>\n"
             s += "</dict>\n"
             s += "</plist>\n"
-            try! s.writeToFile(workingDirectory + "/XCTestRun.xctest/Contents/Info.plist", atomically: false, encoding: NSUTF8StringEncoding)
+            try! s.write(toFile: workingDirectory + "/XCTestRun.xctest/Contents/Info.plist", atomically: false, encoding: NSUTF8StringEncoding)
             if system("xcrun xctest \(workingDirectory)/XCTestRun.xctest") != 0 {
                 fatalError("Test execution failed.")
             }

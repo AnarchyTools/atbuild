@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let version = "0.9.0-dev"
+let version = "0.8.1"
 
 import Foundation
 import atpkg
@@ -33,14 +33,14 @@ var focusOnTask : String? = nil
 
 //build overlays
 var overlays : [String] = []
-for (i, x) in Process.arguments.enumerate() {
+for (i, x) in Process.arguments.enumerated() {
     if x == Options.Overlay.rawValue {
         let overlay = Process.arguments[i+1]
         overlays.append(overlay)
     }
 }
 var packageFile = defaultPackageFile
-for (i, x) in Process.arguments.enumerate() {
+for (i, x) in Process.arguments.enumerated() {
     if x == Options.CustomFile.rawValue {
         packageFile = Process.arguments[i+1]
     }

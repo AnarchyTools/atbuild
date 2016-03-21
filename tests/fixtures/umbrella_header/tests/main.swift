@@ -7,13 +7,13 @@ class MyTest : XCTestCase {
     }
 }
 
-extension MyTest : XCTestCaseProvider {
-var allTests : [(String, () throws -> Void)] {
-    return [
-    ("testLoad", testLoad)
-    ]
-}
+extension MyTest  {
+    static var allTests : [(String, MyTest -> () throws -> Void)] {
+        return [
+            ("testLoad", testLoad)
+        ]
+    }
 }
 
-XCTMain([MyTest()])
+XCTMain([testCase(MyTest.allTests)])
 

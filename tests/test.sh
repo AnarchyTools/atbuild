@@ -128,14 +128,6 @@ else
     else
         echo "Strict failed as expected"
     fi
-
-    cd $DIR/tests/fixtures/xcs_strict_2
-    if $ATBUILD run-tests; then
-        echo "Expected a failure in xcs_strict"
-        exit 1
-    else
-        echo "Strict failed as expected"
-    fi
 fi
 
 echo "*****************OVERLAY CHECKS**********************"

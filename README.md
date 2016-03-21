@@ -4,7 +4,7 @@
 
 The Anarchy Tools Build Tool.
 
-`atbuild` is a cross-platform build system, primarily for Swift-language projects, following the [Anarchy Tools philosophy](https://github.com/AnarchyTools/AnarchyTools) of simple, unopinionated, hackable tools.
+`atbuild` is a cross-platform build system, primarily for Swift-language projects, following the [Anarchy Tools philosophy](http://anarchytools.org/) of simple, unopinionated, hackable tools.
 
 # Tasks
 

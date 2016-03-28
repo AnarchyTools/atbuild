@@ -19,7 +19,9 @@ import Foundation
     let SDKPath = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
     let SwiftCPath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
     let SwiftBuildToolpath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swift-build-tool"
+    let DynamicLibraryExtension = ".dylib"
 #elseif os(Linux)
     let SwiftCPath = "/usr/local/bin/swiftc"
     let SwiftBuildToolpath = "/usr/local/bin/swift-build-tool"
+    let DynamicLibraryExtension = ".so"
 #endif

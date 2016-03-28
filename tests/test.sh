@@ -10,6 +10,11 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************DYNAMIC LIBRARY TEST**************"
+cd $DIR/tests/fixtures/dynamic_library
+$ATBUILD
+.atllbuild/products/dynamic_library_tester
+
 echo "****************WMO TEST**************"
 cd $DIR/tests/fixtures/wmo
 $ATBUILD

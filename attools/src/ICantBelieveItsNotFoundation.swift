@@ -116,5 +116,8 @@ extension String {
     func write(toFile path: String, atomically useAuxiliaryFile:Bool, encoding enc: NSStringEncoding) throws {
         return try self.writeToFile(path, atomically: useAuxiliaryFile, encoding: enc)
     }
+    func replacingOccurrences(of str: String, with: String) -> String {
+        return self.stringByReplacingOccurrencesOfString(str, withString: with)
+    }
 }
 #endif

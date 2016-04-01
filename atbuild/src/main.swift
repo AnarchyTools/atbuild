@@ -18,6 +18,9 @@ import Foundation
 import atpkg
 import attools
 
+// This is a workaround for jumbled up output from print statements
+setbuf(stdout, nil)
+
 enum Options: String {
     case Overlay = "--use-overlay"
     case CustomFile = "-f"

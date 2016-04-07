@@ -360,7 +360,6 @@ final class ATllbuild : Tool {
             var xcTestCaseProviderPath = "/tmp/XXXXXXX"
             var template = xcTestCaseProviderPath.cString(usingEncoding: NSUTF8StringEncoding)!
             xcTestCaseProviderPath = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
-            fputs("pp \(xcTestCaseProviderPath)", stderr)
 
             xcTestCaseProviderPath += "/XCTestCaseProvider.swift"
 

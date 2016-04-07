@@ -20,8 +20,10 @@ import Foundation
     let SwiftCPath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
     let SwiftBuildToolpath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swift-build-tool"
     let DynamicLibraryExtension = ".dylib"
+    let Architecture = "x86_64"
 #elseif os(Linux)
     let SwiftCPath = "/usr/local/bin/swiftc"
     let SwiftBuildToolpath = "/usr/local/bin/swift-build-tool"
     let DynamicLibraryExtension = ".so"
+    let Architecture = "x86_64"
 #endif

@@ -207,6 +207,7 @@ final class ATllbuild : Tool {
         case UmbrellaHeader = "umbrella-header"
         case ModuleMap = "module-map"
         case WholeModuleOptimization = "whole-module-optimization"
+        case Framework = "framework"
 
         
         static var allOptions : [Options] {
@@ -227,7 +228,8 @@ final class ATllbuild : Tool {
 				IncludeWithUser,
                 PublishProduct,
 				UmbrellaHeader,
-                WholeModuleOptimization
+                WholeModuleOptimization,
+                Framework
             ]
         }
     }
@@ -377,6 +379,16 @@ final class ATllbuild : Tool {
         }
 
         guard let name = task[Options.Name.rawValue]?.string else { fatalError("No name for atllbuild task") }
+
+        if task[Options.Framework.rawValue]?.bool == true {
+            #if !os(OSX)
+            fatalError("\(Options.Framework.rawValue) is not supported on this platform.")
+            #endif
+            linkOptions.append("-Xlinker")
+            linkOptions.append("-install_name")
+            linkOptions.append("-Xlinker")
+            linkOptions.append("@rpath/\(name).framework/Versions/A/\(name)")
+        }
         
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
             precondition(moduleMap == .Synthesized, ":\(Options.UmbrellaHeader.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
@@ -442,13 +454,14 @@ final class ATllbuild : Tool {
                 try! manager.createDirectory(atPath: "bin", withIntermediateDirectories: false, attributes: nil)
             }
             try! copyByOverwriting("\(workDirectory)/products/\(name).swiftmodule", toPath: "bin/\(name).swiftmodule")
+            try! copyByOverwriting("\(workDirectory)/products/\(name).swiftdoc", toPath: "bin/\(name).swiftdoc")
             switch outputType {
             case .Executable:
                 try! copyByOverwriting("\(workDirectory)/products/\(name)", toPath: "bin/\(name)")
             case .StaticLibrary:
                 try! copyByOverwriting("\(workDirectory)/products/\(name).a", toPath: "bin/\(name).a")
             case .DynamicLibrary:
-                try! copyByOverwriting("\(workDirectory)/products/\(name).\(DynamicLibraryExtension)", toPath: "bin/\(name).\(DynamicLibraryExtension)")
+                try! copyByOverwriting("\(workDirectory)/products/\(name)\(DynamicLibraryExtension)", toPath: "bin/\(name)\(DynamicLibraryExtension)")
             }
             switch moduleMap {
                 case .None:

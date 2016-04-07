@@ -10,6 +10,15 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************PACKAGE FRAMEWORK TESTS**************"
+UNAME=`uname`
+if [ "$UNAME" == "Darwin" ]; then
+    cd $DIR/tests/fixtures/package_framework
+    $ATBUILD check
+else
+    echo "Skipping framework tests on this platform"
+fi
+
 echo "****************DYNAMIC LIBRARY TEST**************"
 cd $DIR/tests/fixtures/dynamic_library
 $ATBUILD

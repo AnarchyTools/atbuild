@@ -22,7 +22,7 @@ import atpkg
  * If the tool returns with an error code of non-zero, the tool will fail.
  */
 final class Shell : Tool {
-    func run(task: Task) {
+    func run(task: Task, toolchain: String) {
         setenv("ATBUILD_USER_PATH", userPath(), 1)
         guard let script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
         do {

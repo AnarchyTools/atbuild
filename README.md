@@ -71,6 +71,16 @@ How do we build a Swift project?  There's a built-in tool called `atllbuild`, wh
 
 That's all you need to get started!  `atbuild` supports many more usecases than can fit in a README.  For more information, browse our [documentation](http://anarchytools.org).
 
+# Options
+
+`atbuild` supports several command-line options:
+
+* `--use-overlay [overlay]`, which you can read more about in our [overlays](overlays.html) documentation.
+* `-f [atpkg-file]` which builds a package file other than `build.atpkg`
+* `--help`, which displays a usage message
+* `--clean`, which forces a clean build
+* `--toolchain` which specifies a nonstandard toolchain (swift installation).  By default we try to guess, but you can override our guess here.  The special string `xcode` uses "xcode swift" for building.  (Swift 2.2 does not contain all the tools we use, so you need to have a 3.x snapshot installed as well.  However, this is a "mostly" xcode-flavored buildchain.)
+
 # Building
 
 We publish [binary releases](https://github.com/AnarchyTools/atbuild/releases), which are the easiest way to get started.
@@ -99,3 +109,6 @@ To declare your project to be compatible with Anarchy Tools, simply
 ```markdown
 [![Anarchy Tools compatible](https://img.shields.io/badge/Anarchy%20Tools-compatible-4BC51D.svg?style=flat)](http://anarchytools.org)
 ```
+
+
+*Maintainer note: if you edit this file, edit the one in [this repo](https://github.com/AnarchyTools/anarchytools.github.io) as well.*

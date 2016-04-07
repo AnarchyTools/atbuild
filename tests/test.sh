@@ -10,6 +10,15 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************XCODE TOOLCHAIN TEST**************"
+
+if [ -e "/Applications/Xcode.app" ]; then
+    cd $DIR/tests/fixtures/xcode_toolchain
+    $ATBUILD --toolchain xcode 
+else
+    echo "Xcode is not installed; skipping test"
+fi
+
 echo "****************DYNAMIC LIBRARY TEST**************"
 cd $DIR/tests/fixtures/dynamic_library
 $ATBUILD

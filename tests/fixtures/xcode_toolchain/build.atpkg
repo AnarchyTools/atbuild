@@ -1,0 +1,14 @@
+(package
+  :name "xcode_toolchain"
+  
+  :tasks {
+    :default {
+      :tool "atllbuild"
+      :sources ["test.swift"]
+      :name "hello"
+      :output-type "executable"
+      :publish-product true
+    }            
+  }
+
+)

@@ -19,7 +19,7 @@ class XCTestRun : Tool {
         case TestExecutable = "test-executable"
     }
 
-    func run(task: Task) {
+    func run(task: Task, toolchain: String) {
         guard let testExecutable = task[Option.TestExecutable.rawValue]?.string else {
             fatalError("No \(Option.TestExecutable.rawValue) for XCTestRun task \(task.qualifiedName)")
         }

@@ -14,14 +14,33 @@
 
 import Foundation
 
-//todo, support multiple toolchains
+func findToolPath(toolName: String, toolchain: String) -> String {
+    //look in /usr/bin
+    let manager = NSFileManager.defaultManager()
+    let usrBin = "\(toolchain)/usr/bin/\(toolName)"
+    if manager.fileExists(atPath: usrBin) { return usrBin }
+    //look in /usr/local/bin
+    let usrLocalBin = "\(toolchain)/usr/local/bin/\(toolName)"
+    if manager.fileExists(atPath: usrLocalBin) { return usrLocalBin }
+
+    //swift-build-tool isn't available in 2.2.
+    //If we're looking for SBT, try in the default location
+    if toolName == "swift-build-tool" {
+        let sbtPath = "\(DefaultToolchainPath)/usr/bin/\(toolName)"
+        if manager.fileExists(atPath: sbtPath) { return sbtPath }
+
+    }
+
+    
+    fatalError("Can't find a path for \(toolName)")
+}
+
 #if os(OSX)
     let SDKPath = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
-    let SwiftCPath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
-    let SwiftBuildToolpath = "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swift-build-tool"
+    public let DefaultToolchainPath = "/Library/Developer/Toolchains/swift-latest.xctoolchain"
     let DynamicLibraryExtension = ".dylib"
 #elseif os(Linux)
     let SwiftCPath = "/usr/local/bin/swiftc"
-    let SwiftBuildToolpath = "/usr/local/bin/swift-build-tool"
+    public let DefaultToolchainPath = "/"
     let DynamicLibraryExtension = ".so"
 #endif

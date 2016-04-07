@@ -1,0 +1,27 @@
+(package
+ :name "dynamic_library"
+
+     :tasks {
+        :foo {
+            :tool "atllbuild"
+            :output-type "dynamic-library"
+            :name "dynamicFoo"
+            :sources ["src/foo.swift"]
+        }
+        :bar {
+            :tool "atllbuild"
+            :output-type "dynamic-library"
+            :name "dynamicBar"
+            :sources ["src/bar.swift"]
+            :link-with ["dynamicFoo.dynamic"]
+        }
+        :default {
+            :dependencies ["foo" "bar"]
+            :tool "atllbuild"
+            :output-type "executable"
+            :name "dynamic_library_tester"
+            :sources ["src/main.swift"]
+            :link-with ["dynamicBar.dynamic" "dynamicFoo.dynamic"]
+        }
+     }
+)

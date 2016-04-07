@@ -57,6 +57,7 @@ final class ATllbuild : Tool {
     enum OutputType {
         case Executable
         case StaticLibrary
+        case DynamicLibrary
     }
 
     enum ModuleMapType {
@@ -105,7 +106,7 @@ final class ATllbuild : Tool {
         switch(outputType) {
         case .Executable:
             break
-        case .StaticLibrary:
+        case .StaticLibrary, .DynamicLibrary:
             yaml += "     is-library: true\n" //I have no idea what the effect of this is, but swiftPM does it, so I'm including it.
         }
         
@@ -163,6 +164,23 @@ final class ATllbuild : Tool {
                 shellCmd += " '\(obj)'"
             }
             let args = "[\"/bin/sh\",\"-c\",\(shellCmd)]"
+            yaml += "    args: \(args)\n"
+            yaml += "    description: \"Linking Library:  \(libPath)\""
+            return yaml
+
+        case .DynamicLibrary:
+            yaml += "    tool: shell\n"
+            var llbuild_inputs = ["<atllbuild-swiftc>"]
+            llbuild_inputs.append(contentsOf: objects)
+            let builtProducts = linkWithProduct.map {workdir+"products/"+$0}
+            llbuild_inputs.append(contentsOf: builtProducts)
+            yaml += "    inputs: \(llbuild_inputs)\n"
+            let libPath = productPath + modulename + DynamicLibraryExtension
+            yaml += "    outputs: [\"<atllbuild>\", \"\(libPath)\"]\n"
+            var args = [swiftCPath, "-o", libPath, "-emit-library"]
+            args.append(contentsOf: objects)
+            args.append(contentsOf: builtProducts)
+            args.append(contentsOf: linkOptions)
             yaml += "    args: \(args)\n"
             yaml += "    description: \"Linking Library:  \(libPath)\""
             return yaml
@@ -254,18 +272,28 @@ final class ATllbuild : Tool {
 
         //parse arguments
         var linkWithProduct: [String] = []
-        if let arr = task[Options.LinkWithProduct.rawValue]?.vector {
+        if let arr_ = task[Options.LinkWithProduct.rawValue] {
+            guard let arr = arr_.vector else {
+                fatalError("Non-vector link directive \(arr_)")
+            }
             for product in arr {
-                guard let p = product.string else { fatalError("non-string product \(product)") }
+                guard var p = product.string else { fatalError("non-string product \(product)") }
+                if p.hasSuffix(".dynamic") {
+                    p = p.replacingOccurrences(of: ".dynamic", with: DynamicLibraryExtension)
+                }
                 linkWithProduct.append(p)
             }
         }
+
         let outputType: OutputType
         if task[Options.OutputType.rawValue]?.string == "static-library" {
             outputType = .StaticLibrary
         }
         else if task[Options.OutputType.rawValue]?.string == "executable" {
             outputType = .Executable
+        }
+        else if task[Options.OutputType.rawValue]?.string == "dynamic-library" {
+            outputType = .DynamicLibrary
         }
         else {
             fatalError("Unknown \(Options.OutputType.rawValue) \(task["outputType"])")
@@ -419,15 +447,15 @@ final class ATllbuild : Tool {
                 try! copyByOverwriting("\(workDirectory)/products/\(name)", toPath: "bin/\(name)")
             case .StaticLibrary:
                 try! copyByOverwriting("\(workDirectory)/products/\(name).a", toPath: "bin/\(name).a")
+            case .DynamicLibrary:
+                try! copyByOverwriting("\(workDirectory)/products/\(name).\(DynamicLibraryExtension)", toPath: "bin/\(name).\(DynamicLibraryExtension)")
             }
-
             switch moduleMap {
                 case .None:
                 break
                 case .Synthesized:
                 try! copyByOverwriting("\(workDirectory)/products/\(name).modulemap", toPath: "bin/\(name).modulemap")
             }
-
         }
 
         if task[Options.WholeModuleOptimization.rawValue]?.bool == true && !wmoHack {

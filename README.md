@@ -69,7 +69,7 @@ How do we build a Swift project?  There's a built-in tool called `atllbuild`, wh
 )
 ```
 
-That's all you need to get started!  `atbuild` supports many more usecases than can fit in a README.  For more information, browse our [documentation](/docs).
+That's all you need to get started!  `atbuild` supports many more usecases than can fit in a README.  For more information, browse our [documentation](http://anarchytools.org).
 
 # Building
 

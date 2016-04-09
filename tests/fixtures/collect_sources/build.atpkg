@@ -1,0 +1,19 @@
+;; This is the most basic of sample files.
+
+(package
+  :name "collect_sources"
+  :version "0.1.0-dev"
+  
+  :tasks {
+    :default {
+      :tool "nop"
+      :sources ["src/**.swift"]
+    }
+    :collect-sources {
+        :tool "shell"
+        :script "echo sources ${collect_sources:default}"
+    }
+  }
+)
+
+;; End of the sample.

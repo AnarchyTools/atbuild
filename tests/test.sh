@@ -19,6 +19,15 @@ else
     echo "Xcode is not installed; skipping test"
 fi
 
+echo "****************COLLECT SOURCES TEST**************"
+cd $DIR/tests/fixtures/collect_sources
+$ATBUILD collect-sources 2&> /tmp/sources.txt
+if ! grep "sources src/a.swift src/b.swift" /tmp/sources.txt; then
+    echo "Unexpected sources $COLLECT_SOURCES"
+    exit 1
+fi
+echo "sources $COLLECT_SOURCES"
+
 echo "****************DYNAMIC LIBRARY TEST**************"
 cd $DIR/tests/fixtures/dynamic_library
 $ATBUILD

@@ -18,6 +18,13 @@ if [ "$UNAME" == "Darwin" ]; then
 else
     echo "Skipping framework tests on this platform"
 fi
+echo "****************COLLECT SOURCES TEST**************"
+cd $DIR/tests/fixtures/collect_sources
+$ATBUILD collect-sources 2&> /tmp/sources.txt
+if ! grep "sources src/a.swift src/b.swift" /tmp/sources.txt; then
+    echo "Unexpected sources $COLLECT_SOURCES"
+    exit 1
+fi
 
 echo "****************DYNAMIC LIBRARY TEST**************"
 cd $DIR/tests/fixtures/dynamic_library

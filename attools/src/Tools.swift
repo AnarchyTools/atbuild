@@ -20,7 +20,8 @@ let tools: [String:Tool] = [
     "shell": Shell(),
     "atllbuild": ATllbuild(),
     "nop": Nop(),
-    "xctestrun":XCTestRun()
+    "xctestrun":XCTestRun(),
+    "packageframework":PackageFramework()
 ]
 
 /**

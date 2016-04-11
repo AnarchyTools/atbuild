@@ -39,8 +39,10 @@ func findToolPath(toolName: String, toolchain: String) -> String {
     let SDKPath = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
     public let DefaultToolchainPath = "/Library/Developer/Toolchains/swift-latest.xctoolchain"
     let DynamicLibraryExtension = ".dylib"
+    let Architecture = "x86_64"
 #elseif os(Linux)
     let SwiftCPath = "/usr/local/bin/swiftc"
     public let DefaultToolchainPath = "/"
     let DynamicLibraryExtension = ".so"
+    let Architecture = "x86_64"
 #endif

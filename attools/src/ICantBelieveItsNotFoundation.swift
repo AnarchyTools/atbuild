@@ -96,6 +96,9 @@ extension NSFileManager {
     func enumerator(atPath path: String) -> NSDirectoryEnumerator? {
         return self.enumeratorAtPath(path)
     }
+    func createSymbolicLink(atPath path: String, withDestinationPath destPath: String) throws {
+        return try self.createSymbolicLinkAtPath(path, withDestinationPath: destPath)
+    }
     func createDirectory(atPath path: String, withIntermediateDirectories createIntermediates: Bool,  attributes: [String : AnyObject]? = [:]) throws {
         return try self.createDirectoryAtPath(path, withIntermediateDirectories: createIntermediates, attributes: attributes)
     }

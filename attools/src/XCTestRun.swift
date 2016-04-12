@@ -23,7 +23,8 @@ class XCTestRun : Tool {
         guard let testExecutable = task[Option.TestExecutable.rawValue]?.string else {
             fatalError("No \(Option.TestExecutable.rawValue) for XCTestRun task \(task.qualifiedName)")
         }
-        #if os(OSX)
+        switch (Platform.targetPlatform) {
+            case .OSX:
             var workingDirectory = "/tmp/XXXXXXXXXXX"
             var template = workingDirectory.cString(using: NSUTF8StringEncoding)!
             workingDirectory = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
@@ -66,12 +67,10 @@ class XCTestRun : Tool {
                 fatalError("Test execution failed.")
             }
 
-        #elseif os(Linux)
+            case .Linux:
             if system("\(testExecutable)") != 0 {
                 fatalError("Test execution failed.")
             }
-        #else
-            fatalError("Not implemented")
-        #endif
+        }
     }
 }

@@ -102,7 +102,19 @@ extension String {
     func replacingOccurrences(of str: String, with: String) -> String {
         return self.stringByReplacingOccurrencesOfString(str, withString: with)
     }
+    func cString(usingEncoding encoding: NSStringEncoding) -> [CChar]? {
+        return self.cStringUsingEncoding(encoding)
+    }
+    init?(cString: UnsafePointer<CChar>, encoding: NSStringEncoding) {
+        precondition(encoding == NSUTF8StringEncoding)
+        self.init(validatingUTF8: cString)
+    }
+
+    func cString(using: NSStringEncoding) -> [CChar]? {
+        return self.cString(usingEncoding: using)
+    }
 }
+
 #endif
 
 //These parts are possibly? not yet implemented on OSX

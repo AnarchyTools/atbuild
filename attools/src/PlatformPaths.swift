@@ -14,35 +14,119 @@
 
 import Foundation
 
-func findToolPath(toolName: String, toolchain: String) -> String {
-    //look in /usr/bin
-    let manager = NSFileManager.defaultManager()
-    let usrBin = "\(toolchain)/usr/bin/\(toolName)"
-    if manager.fileExists(atPath: usrBin) { return usrBin }
-    //look in /usr/local/bin
-    let usrLocalBin = "\(toolchain)/usr/local/bin/\(toolName)"
-    if manager.fileExists(atPath: usrLocalBin) { return usrLocalBin }
+public enum Platform {
+    case OSX
+    case Linux
 
-    //swift-build-tool isn't available in 2.2.
-    //If we're looking for SBT, try in the default location
-    if toolName == "swift-build-tool" {
-        let sbtPath = "\(DefaultToolchainPath)/usr/bin/\(toolName)"
-        if manager.fileExists(atPath: sbtPath) { return sbtPath }
-
+    public init(string: String) {
+        switch(string) {
+            case "osx", "mac":
+                self = Platform.OSX
+            case "linux":
+                self = Platform.Linux
+            default:
+                fatalError("Unknown platform \(string)")
+        }
     }
 
+    ///The overlays that should be enabled when building for this platform
+    public var overlays: [String] {
+        switch(self) {
+            case .OSX:
+                return ["atbuild.platform.osx", "atbuild.platform.mac"]
+            case .Linux:
+                return ["atbuild.platform.linux"]
+        }
+    }
+
+    ///The typical path to a toolchain binary of the platform
+    var defaultToolchainBinaryPath: String {
+        switch(self) {
+            case .OSX:
+            return "\(defaultToolchainPath)/usr/bin/"
+            case .Linux:
+            return "\(defaultToolchainPath)/usr/local/bin/"
+        }
+    }
+
+    public var defaultToolchainPath: String {
+        switch(self) {
+            case .OSX:
+                return "/Library/Developer/Toolchains/swift-latest.xctoolchain"
+            case .Linux:
+                return "/"
+        }
+    }
+
+    var sdkPath: String? {
+        switch(self) {
+            case .OSX:
+                return "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
+            case .Linux:
+                return nil
+        }
+    }
+
+    var architecture: String {
+        switch(self) {
+            case .OSX, .Linux:
+                return "x86_64"
+        }
+    }
+
+    var dynamicLibraryExtension: String {
+        switch(self) {
+            case .OSX:
+                return ".dylib"
+            case .Linux:
+                return ".so"
+        }
+    }
+
+    ///The platform on which atbuild is currently running
+    public static var hostPlatform: Platform {
+        #if os(OSX)
+        return Platform.OSX
+        #elseif os(Linux)
+        return Platform.Linux
+        #endif
+    }
+
+    ///The platform for which atbuild is currently building
+    ///By default, we build for the hostPlatform
+    public static var targetPlatform: Platform = Platform.hostPlatform
+
+    ///The platform on which the build will take place (e.g. swift-build-tool will run).
+    ///Ordinarily we build on the hostPlatform, but in the case of bootstrapping,
+    ///we may be only emitting a yaml, which the actual build occuring
+    /// on some other platform than either the host or the target.
+    public static var buildPlatform: Platform = Platform.hostPlatform
+}
+
+func findToolPath(toolName: String, toolchain: String) -> String {
+
+    if Platform.buildPlatform == Platform.hostPlatform {
+        //poke around on the filesystem
+        //look in /usr/bin
+        let manager = NSFileManager.defaultManager()
+        let usrBin = "\(toolchain)/usr/bin/\(toolName)"
+        if manager.fileExists(atPath: usrBin) { return usrBin }
+        //look in /usr/local/bin
+        let usrLocalBin = "\(toolchain)/usr/local/bin/\(toolName)"
+        if manager.fileExists(atPath: usrLocalBin) { return usrLocalBin }
+
+        //swift-build-tool isn't available in 2.2.
+        //If we're looking for SBT, try in the default location
+        if toolName == "swift-build-tool" {
+            let sbtPath = "\(Platform.hostPlatform.defaultToolchainPath)/usr/bin/\(toolName)"
+            if manager.fileExists(atPath: sbtPath) { return sbtPath }
+
+        }
+    }
+    else {
+        //file system isn't live; hope the path is in a typical place
+        return "\(Platform.buildPlatform.defaultToolchainBinaryPath)\(toolName)"
+    }
     
     fatalError("Can't find a path for \(toolName)")
 }
-
-#if os(OSX)
-    let SDKPath = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
-    public let DefaultToolchainPath = "/Library/Developer/Toolchains/swift-latest.xctoolchain"
-    let DynamicLibraryExtension = ".dylib"
-    let Architecture = "x86_64"
-#elseif os(Linux)
-    let SwiftCPath = "/usr/local/bin/swiftc"
-    public let DefaultToolchainPath = "/"
-    let DynamicLibraryExtension = ".so"
-    let Architecture = "x86_64"
-#endif

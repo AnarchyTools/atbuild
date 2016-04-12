@@ -27,24 +27,25 @@ enum Options: String {
     case Help = "--help"
     case Clean = "--clean"
     case Toolchain = "--toolchain"
-
-    static var allOptions : [Options] { return [Overlay, CustomFile, Help, Clean, Toolchain] }
+    case Platform = "--platform"
+    
+    static var allOptions : [Options] { return [
+        Overlay, 
+        CustomFile, 
+        Help, 
+        Clean, 
+        Toolchain, 
+        Platform
+        ] 
+    }
 }
 
 let defaultPackageFile = "build.atpkg"
 
 var focusOnTask : String? = nil
 
-//build overlays
-var overlays : [String] = []
-for (i, x) in Process.arguments.enumerated() {
-    if x == Options.Overlay.rawValue {
-        let overlay = Process.arguments[i+1]
-        overlays.append(overlay)
-    }
-}
 var packageFile = defaultPackageFile
-var toolchain = DefaultToolchainPath
+var toolchain = Platform.buildPlatform.defaultToolchainPath
 for (i, x) in Process.arguments.enumerated() {
     if x == Options.CustomFile.rawValue {
         packageFile = Process.arguments[i+1]
@@ -55,7 +56,24 @@ for (i, x) in Process.arguments.enumerated() {
             toolchain = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain"
         }
     }
+    if x == Options.Platform.rawValue {
+        let platformString = Process.arguments[i+1]
+        Platform.targetPlatform = Platform(string: platformString)
+    }
 }
+
+//build overlays
+var overlays : [String] = []
+for (i, x) in Process.arguments.enumerated() {
+    if x == Options.Overlay.rawValue {
+        let overlay = Process.arguments[i+1]
+        overlays.append(overlay)
+    }
+}
+overlays.append(contentsOf: Platform.targetPlatform.overlays)
+
+print("enabling overlays \(overlays)")
+
 let package = try! Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
 
 //usage message

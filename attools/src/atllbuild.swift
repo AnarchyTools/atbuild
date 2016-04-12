@@ -234,11 +234,11 @@ final class ATllbuild : Tool {
         }
     }
 
-    func run(task: Task) {
-        run(task, wmoHack: false)
+    func run(task: Task, toolchain: String) {
+        run(task, toolchain: toolchain, wmoHack: false)
     }
     
-    func run(task: Task, wmoHack : Bool = false) {
+    func run(task: Task, toolchain: String, wmoHack : Bool = false) {
         
         //warn if we don't understand an option
         var knownOptions = Options.allOptions.map({$0.rawValue})
@@ -428,7 +428,7 @@ final class ATllbuild : Tool {
             swiftCPath = c
         }
         else {
-            swiftCPath = SwiftCPath
+            swiftCPath = findToolPath("swiftc",toolchain: toolchain)
         }
         
         let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath)
@@ -444,7 +444,7 @@ final class ATllbuild : Tool {
         }
         
         //SR-566
-        let cmd = "\(SwiftBuildToolpath) -f \(llbuildyamlpath)"
+        let cmd = "\(findToolPath("swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
         if system(cmd) != 0 {
             fatalError(cmd)
         }
@@ -472,7 +472,7 @@ final class ATllbuild : Tool {
 
         if task[Options.WholeModuleOptimization.rawValue]?.bool == true && !wmoHack {
             print("Work around SR-881")
-            run(task, wmoHack: true)
+            run(task, toolchain: toolchain, wmoHack: true)
         }
 
     }

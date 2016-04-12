@@ -30,7 +30,7 @@ let tools: [String:Tool] = [
  * can build new ones out of the existing ones.
  */
 public protocol Tool {
-    func run(task: Task)
+    func run(task: Task, toolchain: String)
 }
 
 /**

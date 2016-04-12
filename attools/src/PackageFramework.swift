@@ -31,7 +31,7 @@ class PackageFramework: Tool {
         fatalError("packageframework is unsupported on this platform")
         #endif
     }
-    func run(task: Task) {
+    func run(task: Task, toolchain: String) {
         compiler_crash() //work around a compiler crash
 
         guard let moduleMapType = task[Options.ModuleMapType.rawValue]?.string else {

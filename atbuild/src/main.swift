@@ -26,8 +26,9 @@ enum Options: String {
     case CustomFile = "-f"
     case Help = "--help"
     case Clean = "--clean"
+    case Toolchain = "--toolchain"
     
-    static var allOptions : [Options] { return [Overlay, CustomFile] }
+    static var allOptions : [Options] { return [Overlay, CustomFile, Help, Clean, Toolchain] }
 }
 
 let defaultPackageFile = "build.atpkg"
@@ -43,9 +44,16 @@ for (i, x) in Process.arguments.enumerated() {
     }
 }
 var packageFile = defaultPackageFile
+var toolchain = DefaultToolchainPath
 for (i, x) in Process.arguments.enumerated() {
     if x == Options.CustomFile.rawValue {
         packageFile = Process.arguments[i+1]
+    }
+    if x == Options.Toolchain.rawValue {
+        toolchain = Process.arguments[i+1]
+        if toolchain == "xcode" {
+            toolchain = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain"
+        }
     }
 }
 let package = try! Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
@@ -57,7 +65,7 @@ if Process.arguments.contains("--help") {
     print("© 2016 Anarchy Tools Contributors.")
     print("")
     print("Usage:")
-    print("atbuild [-f packagefile] [task] [--clean]")
+    print("atbuild [--toolchain (/toolchain/path | xcode)] [-f packagefile] [task] [--clean]")
     
     print("tasks:")
     for (key, task) in package.tasks {
@@ -66,10 +74,11 @@ if Process.arguments.contains("--help") {
     exit(1)
 }
 
+
 func runTask(taskName: String, package: Package) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
     for task in package.prunedDependencyGraph(task) {
-        TaskRunner.runTask(task, package: package)
+        TaskRunner.runTask(task, package: package, toolchain: toolchain)
     }
 }
 

@@ -445,9 +445,7 @@ final class ATllbuild : Tool {
 
         //SR-566
         let cmd = "\(findToolPath(toolName: "swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
-        if system(cmd) != 0 {
-            fatalError(cmd)
-        }
+        anarchySystem(cmd)
         if task[Options.PublishProduct.rawValue]?.bool == true {
             if !manager.fileExists(atPath: "bin") {
                 try! manager.createDirectory(atPath: "bin", withIntermediateDirectories: false, attributes: nil)

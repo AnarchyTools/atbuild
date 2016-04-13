@@ -55,3 +55,16 @@ func userPath() -> String {
     }
     return userPath
 }
+
+///A wrapper for POSIX "system" call.
+///If return value is non-zero, we exit (not fatalError)
+///See #72 for details.
+///- note: This function call is appropriate for commands that are user-perceivable (such as compilation)
+///Rather than calls that aren't
+func anarchySystem(_ cmd: String) {
+    let returnCode = system(cmd)
+    if returnCode != 0 {
+        print("\(cmd) exited with return code \(returnCode)")
+        exit(42)
+    }
+}

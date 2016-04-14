@@ -56,7 +56,7 @@ extension NSFileManager {
         let permission_ = (try! attributesOfItem(atPath: srcPath)[NSFilePosixPermissions] as! NSNumber)
 
         #if os(OSX) || os(iOS)
-        let permission = permission_.unsignedShortValue
+        let permission = permission_.uint16Value
         #elseif os(Linux)
         let permission = permission_.unsignedIntValue
         #endif
@@ -65,15 +65,15 @@ extension NSFileManager {
             throw CopyError.CantOpenDestFile(errno)
         }
         defer { precondition(close(fd_to) >= 0) }
-        
+
         var buf = [UInt8](repeating: 0, count: 4096)
-        
+
         while true {
             let nread = read(fd_from, &buf, buf.count)
             if nread < 0 { throw CopyError.CantReadSourceFile(errno) }
             if nread == 0 { break }
             var writeSlice = buf[0..<nread]
-            
+
             while true {
                 var nwritten: Int! = nil
                 writeSlice.withUnsafeBufferPointer({ (ptr) -> () in

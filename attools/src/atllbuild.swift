@@ -35,7 +35,7 @@ import atpkg
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
 final class ATllbuild : Tool {
-    
+
     /**We inject this sourcefile in xctestify=true on OSX
     On Linux, the API requires you to explicitly list tests
     which is not required on OSX.  Injecting this file into test targets
@@ -53,7 +53,7 @@ final class ATllbuild : Tool {
         s += "\n"
         return s
     }()
-    
+
     enum OutputType {
         case Executable
         case StaticLibrary
@@ -64,7 +64,7 @@ final class ATllbuild : Tool {
         case None
         case Synthesized
     }
-    
+
     /**
      * Calculates the llbuild.yaml contents for the given configuration options
      *   - parameter sources: A resolved list of swift sources
@@ -76,23 +76,23 @@ final class ATllbuild : Tool {
         let productPath = workdir + "products/"
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
-        
+
         yaml += "tools: {}\n\n"
 
-        
+
         yaml += "targets:\n"
         yaml += "  \"\": [<atllbuild>]\n"
         yaml += "  atllbuild: [<atllbuild>]\n"
-        
+
         //this is the "compile" command
-        
+
         yaml += "commands:\n"
         yaml += "  <atllbuild-swiftc>:\n"
         yaml += "     tool: swift-compiler\n"
         yaml += "     executable: \"\(swiftCPath)\"\n"
         yaml += "     inputs: \(sources)\n"
         yaml += "     sources: \(sources)\n"
-        
+
         //swiftPM wants "objects" which is just a list of %.swift.o files.  We have to put them in a temp directory though.
         let objects = sources.map { (source) -> String in
             workdir + "objects/" + source.toNSString.lastPathComponent + ".o"
@@ -102,31 +102,31 @@ final class ATllbuild : Tool {
         var llbuild_outputs = ["<atllbuild-swiftc>"]
         llbuild_outputs.append(contentsOf: objects)
         yaml += "     outputs: \(llbuild_outputs)\n"
-        
+
         switch(outputType) {
         case .Executable:
             break
         case .StaticLibrary, .DynamicLibrary:
             yaml += "     is-library: true\n" //I have no idea what the effect of this is, but swiftPM does it, so I'm including it.
         }
-        
+
         yaml += "     module-name: \(modulename)\n"
         let swiftModulePath = "\(productPath + modulename).swiftmodule"
         yaml += "     module-output-path: \(swiftModulePath)\n"
         yaml += "     temps-path: \(workdir)/llbuildtmp\n"
-        
+
         var args : [String] = []
         args.append(contentsOf: ["-j8", "-D","ATBUILD","-I",workdir+"products/"])
-        
+
         if linkSDK {
             #if os(OSX) //we don't have SDKPath on linux
             args.append(contentsOf: ["-sdk", SDKPath])
             #endif
         }
         args.append(contentsOf: compileOptions)
-        
+
         yaml += "     other-args: \(args)\n"
-        
+
         //and this is the "link" command
         yaml += "  <atllbuild>:\n"
         switch(outputType) {
@@ -149,7 +149,7 @@ final class ATllbuild : Tool {
             yaml += "    description: Linking executable \(executablePath)\n"
             return yaml
 
-        
+
         case .StaticLibrary:
             yaml += "    tool: shell\n"
             var llbuild_inputs = ["<atllbuild-swiftc>"]
@@ -157,7 +157,7 @@ final class ATllbuild : Tool {
             yaml += "    inputs: \(llbuild_inputs)\n"
             let libPath = productPath + modulename + ".a"
             yaml += "    outputs: [\"<atllbuild>\", \"\(libPath)\"]\n"
-            
+
             //build the crazy args, mostly consisting of an `ar` shell command
             var shellCmd = "rm -rf \(libPath); ar cr '\(libPath)'"
             for obj in objects {
@@ -186,7 +186,7 @@ final class ATllbuild : Tool {
             return yaml
         }
      }
-    
+
     private enum Options: String {
         case Tool = "tool"
         case Name = "name"
@@ -209,7 +209,7 @@ final class ATllbuild : Tool {
         case WholeModuleOptimization = "whole-module-optimization"
         case Framework = "framework"
 
-        
+
         static var allOptions : [Options] {
             return [
                 Name,
@@ -235,11 +235,11 @@ final class ATllbuild : Tool {
     }
 
     func run(task: Task, toolchain: String) {
-        run(task, toolchain: toolchain, wmoHack: false)
+        run(task: task, toolchain: toolchain, wmoHack: false)
     }
-    
+
     func run(task: Task, toolchain: String, wmoHack : Bool = false) {
-        
+
         //warn if we don't understand an option
         var knownOptions = Options.allOptions.map({$0.rawValue})
         for option in Task.Option.allOptions.map({$0.rawValue}) {
@@ -250,11 +250,11 @@ final class ATllbuild : Tool {
                 print("Warning: unknown option \(key) for task \(task.qualifiedName)")
             }
         }
-        
+
         //create the working directory
         let workDirectory = ".atllbuild/"
         let manager = NSFileManager.defaultManager()
-        
+
         //NSFileManager is pretty anal about throwing errors if we try to remove something that doesn't exist, etc.
         //We just want to create a state where .atllbuild/objects and .atllbuild/llbuildtmp and .atllbuild/products exists.
         //and in particular, without erasing the product directory, since that accumulates build products across
@@ -300,7 +300,7 @@ final class ATllbuild : Tool {
         else {
             fatalError("Unknown \(Options.OutputType.rawValue) \(task["outputType"])")
         }
-        
+
         var compileOptions: [String] = []
         if let opts = task[Options.CompileOptions.rawValue]?.vector {
             for o in opts {
@@ -312,7 +312,7 @@ final class ATllbuild : Tool {
         if wmoHack {
             compileOptions.append("-whole-module-optimization")
         }
-        
+
         if let includePaths = task[Options.IncludeWithUser.rawValue]?.vector {
             for path_s in includePaths {
                 guard let path = path_s.string else { fatalError("Non-string path \(path_s)") }
@@ -330,7 +330,7 @@ final class ATllbuild : Tool {
 
         //check for modulemaps
         for product in linkWithProduct {
-            let productName = product.componentsSeparated(by: ".")[0]
+            let productName = product.components(separatedBy: ".")[0]
             let moduleMapPath = workDirectory + "/products/\(productName).modulemap"
             if manager.fileExists(atPath: moduleMapPath) {
                 /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much
@@ -339,14 +339,14 @@ final class ATllbuild : Tool {
                 by the product name. */
                 let pathName = workDirectory + "/include/\(productName)"
                 try! manager.createDirectory(atPath: pathName, withIntermediateDirectories:false, attributes: nil)
-                try! manager.copyItemAtPath_SWIFTBUG(moduleMapPath, toPath: pathName + "/module.modulemap")
+                try! manager.copyItemAtPath_SWIFTBUG(srcPath: moduleMapPath, toPath: pathName + "/module.modulemap")
                 compileOptions.append(contentsOf: ["-I",pathName])
             }
         }
 
         guard let sourceDescriptions = task[Options.Source.rawValue]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
-        var sources = collectSources(sourceDescriptions, taskForCalculatingPath: task)
-        
+        var sources = collectSources(sourceDescriptions: sourceDescriptions, taskForCalculatingPath: task)
+
         //xctestify
         if task[Options.XCTestify.rawValue]?.bool == true {
             precondition(outputType == .Executable, "You must use :\(Options.OutputType.rawValue) executable with xctestify.")
@@ -360,7 +360,7 @@ final class ATllbuild : Tool {
             #if os(OSX)
             //inject XCTestCaseProvider.swift
             var xcTestCaseProviderPath = "/tmp/XXXXXXX"
-            var template = xcTestCaseProviderPath.cString(usingEncoding: NSUTF8StringEncoding)!
+            var template = xcTestCaseProviderPath.cString(using: NSUTF8StringEncoding)!
             xcTestCaseProviderPath = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
 
             xcTestCaseProviderPath += "/XCTestCaseProvider.swift"
@@ -388,17 +388,17 @@ final class ATllbuild : Tool {
             linkOptions.append("-Xlinker")
             linkOptions.append("@rpath/\(name).framework/Versions/A/\(name)")
         }
-        
+
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
             precondition(moduleMap == .Synthesized, ":\(Options.UmbrellaHeader.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
-            let s = synthesizeModuleMap(name, umbrellaHeader: "Umbrella.h")
+            let s = synthesizeModuleMap(name: name, umbrellaHeader: "Umbrella.h")
             try! s.write(toFile: workDirectory+"/include/module.modulemap", atomically: false, encoding: NSUTF8StringEncoding)
-            try! manager.copyItemAtPath_SWIFTBUG(task.importedPath + umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
+            try! manager.copyItemAtPath_SWIFTBUG(srcPath: task.importedPath + umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")
             compileOptions.append("-I")
             compileOptions.append(workDirectory + "/include/")
             compileOptions.append("-import-underlying-module")
         }
-        
+
         let bootstrapOnly: Bool
 
         if task[Options.BootstrapOnly.rawValue]?.bool == true {
@@ -407,13 +407,13 @@ final class ATllbuild : Tool {
         else {
             bootstrapOnly = false
         }
-        
+
         let sdk: Bool
         if task[Options.LinkSDK.rawValue]?.bool == false {
             sdk = false
         }
         else { sdk = true }
-        
+
         let llbuildyamlpath : String
 
         if let value = task[Options.llBuildYaml.rawValue]?.string {
@@ -428,10 +428,10 @@ final class ATllbuild : Tool {
             swiftCPath = c
         }
         else {
-            swiftCPath = findToolPath("swiftc",toolchain: toolchain)
+            swiftCPath = findToolPath(toolName: "swiftc",toolchain: toolchain)
         }
-        
-        let yaml = llbuildyaml(sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath)
+
+        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath)
         let _ = try? yaml.write(toFile: llbuildyamlpath, atomically: false, encoding: NSUTF8StringEncoding)
         if bootstrapOnly { return }
 
@@ -439,12 +439,12 @@ final class ATllbuild : Tool {
                 case .None:
                 break
                 case .Synthesized:
-                let s = synthesizeModuleMap(name, umbrellaHeader: nil)
+                let s = synthesizeModuleMap(name: name, umbrellaHeader: nil)
                 try! s.write(toFile: workDirectory + "/products/\(name).modulemap", atomically: false, encoding: NSUTF8StringEncoding)
         }
-        
+
         //SR-566
-        let cmd = "\(findToolPath("swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
+        let cmd = "\(findToolPath(toolName: "swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
         if system(cmd) != 0 {
             fatalError(cmd)
         }
@@ -452,27 +452,27 @@ final class ATllbuild : Tool {
             if !manager.fileExists(atPath: "bin") {
                 try! manager.createDirectory(atPath: "bin", withIntermediateDirectories: false, attributes: nil)
             }
-            try! copyByOverwriting("\(workDirectory)/products/\(name).swiftmodule", toPath: "bin/\(name).swiftmodule")
-            try! copyByOverwriting("\(workDirectory)/products/\(name).swiftdoc", toPath: "bin/\(name).swiftdoc")
+            try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name).swiftmodule", toPath: "bin/\(name).swiftmodule")
+            try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name).swiftdoc", toPath: "bin/\(name).swiftdoc")
             switch outputType {
             case .Executable:
-                try! copyByOverwriting("\(workDirectory)/products/\(name)", toPath: "bin/\(name)")
+                try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name)", toPath: "bin/\(name)")
             case .StaticLibrary:
-                try! copyByOverwriting("\(workDirectory)/products/\(name).a", toPath: "bin/\(name).a")
+                try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name).a", toPath: "bin/\(name).a")
             case .DynamicLibrary:
-                try! copyByOverwriting("\(workDirectory)/products/\(name)\(DynamicLibraryExtension)", toPath: "bin/\(name)\(DynamicLibraryExtension)")
+                try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name)\(DynamicLibraryExtension)", toPath: "bin/\(name)\(DynamicLibraryExtension)")
             }
             switch moduleMap {
                 case .None:
                 break
                 case .Synthesized:
-                try! copyByOverwriting("\(workDirectory)/products/\(name).modulemap", toPath: "bin/\(name).modulemap")
+                try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name).modulemap", toPath: "bin/\(name).modulemap")
             }
         }
 
         if task[Options.WholeModuleOptimization.rawValue]?.bool == true && !wmoHack {
             print("Work around SR-881")
-            run(task, toolchain: toolchain, wmoHack: true)
+            run(task: task, toolchain: toolchain, wmoHack: true)
         }
 
     }
@@ -483,5 +483,5 @@ private func copyByOverwriting(fromPath: String, toPath: String) throws {
     if manager.fileExists(atPath: toPath) {
         try manager.removeItem(atPath: toPath)
     }
-    try! manager.copyItemAtPath_SWIFTBUG(fromPath, toPath: toPath)
+    try! manager.copyItemAtPath_SWIFTBUG(srcPath: fromPath, toPath: toPath)
 }

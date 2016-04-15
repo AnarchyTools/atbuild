@@ -22,10 +22,10 @@ import atpkg
 final public class TaskRunner {
     private init() {}
 
-    static public func runTask(task: Task, package: Package, toolchain: String) {     
+    static public func runTask(task: Task, package: Package, toolchain: String) {
         print("Running task \(task.qualifiedName) with overlays \(task.appliedOverlays)")
-        let tool = toolByName(task.tool)
-        tool.run(task, toolchain: toolchain)
+        let tool = toolByName(name: task.tool)
+        tool.run(task: task, toolchain: toolchain)
         print("Completed task \(task.qualifiedName).")
     }
 }

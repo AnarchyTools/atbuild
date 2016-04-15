@@ -25,13 +25,13 @@ final class Shell : Tool {
     func run(task: Task, toolchain: String) {
         setenv("ATBUILD_USER_PATH", userPath(), 1)
         guard var script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
-        script = evaluateSubstitutions(script, package: task.package)
+        script = evaluateSubstitutions(input: script, package: task.package)
         do {
             let oldPath = NSFileManager.defaultManager().currentDirectoryPath
             defer { NSFileManager.defaultManager().changeCurrentDirectoryPath(oldPath) }
-            
+
             NSFileManager.defaultManager().changeCurrentDirectoryPath(task.importedPath)
-            
+
             if system("/bin/sh -c \"\(script)\"") != 0 {
                 fatalError("/bin/sh -c \(script)")
             }

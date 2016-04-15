@@ -25,9 +25,9 @@ class XCTestRun : Tool {
         }
         #if os(OSX)
             var workingDirectory = "/tmp/XXXXXXXXXXX"
-            var template = workingDirectory.cString(usingEncoding: NSUTF8StringEncoding)!
+            var template = workingDirectory.cString(using: NSUTF8StringEncoding)!
             workingDirectory = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
-            
+
             let manager = NSFileManager.defaultManager()
             let executablePath = workingDirectory + "/XCTestRun.xctest/Contents/MacOS"
             try! manager.createDirectory(atPath: executablePath, withIntermediateDirectories: true, attributes: nil)

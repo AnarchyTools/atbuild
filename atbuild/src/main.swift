@@ -27,7 +27,7 @@ enum Options: String {
     case Help = "--help"
     case Clean = "--clean"
     case Toolchain = "--toolchain"
-    
+
     static var allOptions : [Options] { return [Overlay, CustomFile, Help, Clean, Toolchain] }
 }
 
@@ -66,19 +66,19 @@ if Process.arguments.contains("--help") {
     print("")
     print("Usage:")
     print("atbuild [--toolchain (/toolchain/path | xcode)] [-f packagefile] [task] [--clean]")
-    
+
     print("tasks:")
     for (key, task) in package.tasks {
         print("    \(key)")
-    } 
+    }
     exit(1)
 }
 
 
 func runTask(taskName: String, package: Package) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
-    for task in package.prunedDependencyGraph(task) {
-        TaskRunner.runTask(task, package: package, toolchain: toolchain)
+    for task in package.prunedDependencyGraph(task: task) {
+        TaskRunner.runTask(task: task, package: package, toolchain: toolchain)
     }
 }
 
@@ -103,7 +103,7 @@ if focusOnTask == nil {
 
 print("Building package \(package.name)...")
 
-runTask(focusOnTask!, package: package)
+runTask(taskName: focusOnTask!, package: package)
 
 //success message
 print("Built package \(package.name).")

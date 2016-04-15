@@ -70,21 +70,21 @@ class PackageFramework: Tool {
         //copy payload
         let payloadPath = task.importedPath + "bin/" + name + DynamicLibraryExtension
         print(payloadPath)
-        try! manager.copyItemAtPath_SWIFTBUG(payloadPath, toPath: "\(AVersionPath)/\(name)")
+        try! manager.copyItemAtPath_SWIFTBUG(srcPath: payloadPath, toPath: "\(AVersionPath)/\(name)")
         try! manager.createSymbolicLink(atPath: "\(frameworkPath)/\(name)", withDestinationPath: "\(relativeAVersionPath)/\(name)")
 
         //copy modules
         let modulePath = "\(AVersionPath)/Modules/\(name).swiftmodule"
         try! manager.createDirectory(atPath: modulePath, withIntermediateDirectories: true, attributes: nil)
-        try! manager.copyItemAtPath_SWIFTBUG("bin/\(name).swiftmodule", toPath: "\(modulePath)/\(Architecture).swiftmodule")
-        try! manager.copyItemAtPath_SWIFTBUG("bin/\(name).swiftdoc", toPath: "\(modulePath)/\(Architecture).swiftdoc")
+        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftmodule", toPath: "\(modulePath)/\(Architecture).swiftmodule")
+        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftdoc", toPath: "\(modulePath)/\(Architecture).swiftdoc")
         try! manager.createSymbolicLink(atPath: "\(frameworkPath)/Modules", withDestinationPath: "\(relativeAVersionPath)/Modules")
 
         //copy resources
         let resourcesPath = AVersionPath + "/Resources"
         try! manager.createDirectory(atPath: resourcesPath, withIntermediateDirectories: true, attributes: nil)
         for resource in resources {
-            try! manager.copyItemAtPath_SWIFTBUG(task.importedPath + resource, toPath: "\(resourcesPath)/\(resource)")
+            try! manager.copyItemAtPath_SWIFTBUG(srcPath: task.importedPath + resource, toPath: "\(resourcesPath)/\(resource)")
         }
         try! manager.createSymbolicLink(atPath: "\(frameworkPath)/Resources", withDestinationPath: "\(relativeAVersionPath)/Resources")
 

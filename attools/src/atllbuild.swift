@@ -43,11 +43,11 @@ final class ATllbuild : Tool {
     private static let xcTestCaseProvider: String = { () -> String in
         var s = ""
         s += "import XCTest\n"
-        s += "public func testCase<T: XCTestCase>(allTests: [(String, T -> () throws -> Void)]) -> XCTestCase {\n"
+        s += "public func testCase<T: XCTestCase>(_ allTests: [(String, T -> () throws -> Void)]) -> XCTestCase {\n"
         s += "    fatalError(\"Can't get here.\")\n"
         s += "}\n"
         s += "\n"
-        s += "public func XCTMain(testCases: [XCTestCase]) {\n"
+        s += "public func XCTMain(_ testCases: [XCTestCase]) {\n"
         s += "    fatalError(\"Can't get here.\")\n"
         s += "}\n"
         s += "\n"

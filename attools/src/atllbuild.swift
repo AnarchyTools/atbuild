@@ -330,7 +330,7 @@ final class ATllbuild : Tool {
 
         //check for modulemaps
         for product in linkWithProduct {
-            let productName = product.components(separatedBy: ".")[0]
+            let productName = product.componentsSeparated(by: ".")[0]
             let moduleMapPath = workDirectory + "/products/\(productName).modulemap"
             if manager.fileExists(atPath: moduleMapPath) {
                 /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much

@@ -31,7 +31,7 @@ class XCTestRun : Tool {
             let manager = NSFileManager.defaultManager()
             let executablePath = workingDirectory + "/XCTestRun.xctest/Contents/MacOS"
             try! manager.createDirectory(atPath: executablePath, withIntermediateDirectories: true, attributes: nil)
-            try! manager.copyItem(atPath: testExecutable, toPath: executablePath + "/XCTestRun")
+            try! manager.copyItemAtPath_SWIFTBUG(srcPath: testExecutable, toPath: executablePath + "/XCTestRun")
             var s = ""
             s += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             s += "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"

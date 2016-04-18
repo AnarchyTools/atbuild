@@ -14,9 +14,26 @@
 
 import atfoundation
 
+public enum Architecture {
+    case x86_64
+    case i386
+    case armv7
+    case arm64
+}
+
+func ==(a: Platform, b: Platform) -> Bool {
+    switch(a, b) {
+        case (.OSX, .OSX): return true
+        case (.Linux, .Linux): return true
+        case (.iOS(let a), .iOS(let b)) where a == b: return true
+        default: return false
+    }
+}
+
 public enum Platform {
     case OSX
     case Linux
+    case iOS(Architecture)
 
     public init(string: String) {
         switch(string) {
@@ -24,6 +41,15 @@ public enum Platform {
                 self = Platform.OSX
             case "linux":
                 self = Platform.Linux
+            case "ios-x86_64":
+                self = Platform.iOS(Architecture.x86_64)
+            case "ios-i386":
+                self = Platform.iOS(Architecture.i386)
+            case "ios-armv7":
+                self = Platform.iOS(Architecture.armv7)
+            case "ios-arm64":
+                self = Platform.iOS(Architecture.arm64)
+
             default:
                 fatalError("Unknown platform \(string)")
         }
@@ -36,13 +62,15 @@ public enum Platform {
                 return ["atbuild.platform.osx", "atbuild.platform.mac"]
             case .Linux:
                 return ["atbuild.platform.linux"]
+            case .iOS:
+                return ["atbuild.platform.ios"]
         }
     }
 
     ///The typical path to a toolchain binary of the platform
     var defaultToolchainBinaryPath: String {
         switch(self) {
-            case .OSX:
+            case .OSX, .iOS:
             return "\(defaultToolchainPath)/usr/bin/"
             case .Linux:
             return "\(defaultToolchainPath)/usr/local/bin/"
@@ -51,7 +79,7 @@ public enum Platform {
 
     public var defaultToolchainPath: String {
         switch(self) {
-            case .OSX:
+            case .OSX, .iOS:
                 return "/Library/Developer/Toolchains/swift-latest.xctoolchain"
             case .Linux:
                 return "/"
@@ -64,19 +92,25 @@ public enum Platform {
                 return "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
             case .Linux:
                 return nil
+            case .iOS(.x86_64), .iOS(.i386):
+                return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.3.sdk"
+            case .iOS(.armv7), .iOS(.arm64):
+                return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk"
         }
     }
 
-    var architecture: String {
+    var architecture: Architecture {
         switch(self) {
             case .OSX, .Linux:
-                return "x86_64"
+                return Architecture.x86_64
+            case .iOS(let arch):
+                return arch
         }
     }
 
     var dynamicLibraryExtension: String {
         switch(self) {
-            case .OSX:
+            case .OSX, .iOS:
                 return ".dylib"
             case .Linux:
                 return ".so"

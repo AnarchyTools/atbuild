@@ -362,6 +362,9 @@ final class ATllbuild : Tool {
 
                 case .Linux:
                 break
+
+                case .iOS:
+                fatalError("\(Options.XCTestify.rawValue) is not supported for iOS")
             }
         }
         if task[Options.XCTestStrict.rawValue]?.bool == true {
@@ -384,6 +387,9 @@ final class ATllbuild : Tool {
 
             case .Linux:
                 break
+
+                case .iOS:
+                fatalError("\(Options.XCTestStrict.rawValue) is not supported for iOS")
             }
         }
         let moduleMap: ModuleMapType
@@ -418,6 +424,32 @@ final class ATllbuild : Tool {
             compileOptions.append("-I")
             compileOptions.append(workDirectory.appending("include").description + "/")
             compileOptions.append("-import-underlying-module")
+        }
+
+        //inject target
+        switch(Platform.targetPlatform) {
+            case .iOS(let arch):
+            switch(arch) {
+                case .x86_64:
+                compileOptions.append(contentsOf: ["-target","x86_64-apple-ios9.3"])
+                linkOptions.append(contentsOf: ["-target","x86_64-apple-ios9.3"])
+
+                case .i386:
+                compileOptions.append(contentsOf: ["-target","i386-apple-ios9.3"])
+                linkOptions.append(contentsOf: ["-target","i386-apple-ios9.3"])
+
+                case .arm64:
+                compileOptions.append(contentsOf: ["-target","arm64-apple-ios9.3"])
+                linkOptions.append(contentsOf: ["-target","arm64-apple-ios9.3"])
+
+                case .armv7:
+                compileOptions.append(contentsOf: ["-target","armv7-apple-ios9.3"])
+                linkOptions.append(contentsOf: ["-target","armv7-apple-ios9.3"])
+
+            }
+            linkOptions.append(contentsOf: ["-Xlinker", "-syslibroot","-Xlinker",Platform.targetPlatform.sdkPath!])
+            case .OSX, .Linux:
+                break //not required
         }
 
         let bootstrapOnly: Bool

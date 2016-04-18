@@ -68,7 +68,7 @@ class PackageFramework: Tool {
         try! manager.createSymbolicLink(atPath: "\(frameworkPath)/Versions/Current", withDestinationPath: "A")
 
         //copy payload
-        let payloadPath = task.importedPath + "bin/" + name + DynamicLibraryExtension
+        let payloadPath = task.importedPath + "bin/" + name + Platform.targetPlatform.dynamicLibraryExtension
         print(payloadPath)
         try! manager.copyItemAtPath_SWIFTBUG(srcPath: payloadPath, toPath: "\(AVersionPath)/\(name)")
         try! manager.createSymbolicLink(atPath: "\(frameworkPath)/\(name)", withDestinationPath: "\(relativeAVersionPath)/\(name)")
@@ -76,8 +76,8 @@ class PackageFramework: Tool {
         //copy modules
         let modulePath = "\(AVersionPath)/Modules/\(name).swiftmodule"
         try! manager.createDirectory(atPath: modulePath, withIntermediateDirectories: true, attributes: nil)
-        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftmodule", toPath: "\(modulePath)/\(Architecture).swiftmodule")
-        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftdoc", toPath: "\(modulePath)/\(Architecture).swiftdoc")
+        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftmodule", toPath: "\(modulePath)/\(Platform.targetPlatform.architecture).swiftmodule")
+        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftdoc", toPath: "\(modulePath)/\(Platform.targetPlatform.architecture).swiftdoc")
         try! manager.createSymbolicLink(atPath: "\(frameworkPath)/Modules", withDestinationPath: "\(relativeAVersionPath)/Modules")
 
         //copy resources

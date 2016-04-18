@@ -23,7 +23,8 @@ class XCTestRun : Tool {
         guard let testExecutable = task[Option.TestExecutable.rawValue]?.string else {
             fatalError("No \(Option.TestExecutable.rawValue) for XCTestRun task \(task.qualifiedName)")
         }
-        #if os(OSX)
+        switch (Platform.targetPlatform) {
+            case .OSX:
             var workingDirectory = "/tmp/XXXXXXXXXXX"
             var template = workingDirectory.cString(using: NSUTF8StringEncoding)!
             workingDirectory = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
@@ -31,7 +32,7 @@ class XCTestRun : Tool {
             let manager = NSFileManager.defaultManager()
             let executablePath = workingDirectory + "/XCTestRun.xctest/Contents/MacOS"
             try! manager.createDirectory(atPath: executablePath, withIntermediateDirectories: true, attributes: nil)
-            try! manager.copyItem(atPath: testExecutable, toPath: executablePath + "/XCTestRun")
+            try! manager.copyItemAtPath_SWIFTBUG(srcPath: testExecutable, toPath: executablePath + "/XCTestRun")
             var s = ""
             s += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             s += "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
@@ -64,10 +65,8 @@ class XCTestRun : Tool {
             try! s.write(toFile: workingDirectory + "/XCTestRun.xctest/Contents/Info.plist", atomically: false, encoding: NSUTF8StringEncoding)
             anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest")
 
-        #elseif os(Linux)
+            case .Linux:
             anarchySystem("\(testExecutable)")
-        #else
-            fatalError("Not implemented")
-        #endif
+        }
     }
 }

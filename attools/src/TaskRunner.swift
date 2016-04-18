@@ -24,6 +24,7 @@ final public class TaskRunner {
 
     static public func runTask(task: Task, package: Package, toolchain: String) {
         print("Running task \(task.qualifiedName) with overlays \(task.appliedOverlays)")
+		try! task.checkRequiredOverlays()
         let tool = toolByName(name: task.tool)
         tool.run(task: task, toolchain: toolchain)
         print("Completed task \(task.qualifiedName).")

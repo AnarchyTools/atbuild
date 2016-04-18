@@ -92,6 +92,28 @@ extension NSFileManager {
 //These parts of Swift 3 Renaming are not yet implemented on Linux
 
 #if os(Linux)
+
+extension NSFileManager {
+    func enumerator(atPath path: String) -> NSDirectoryEnumerator? {
+        return self.enumeratorAtPath(path)
+    }
+    func createSymbolicLink(atPath path: String, withDestinationPath destPath: String) throws {
+        return try self.createSymbolicLinkAtPath(path, withDestinationPath: destPath)
+    }
+    func createDirectory(atPath path: String, withIntermediateDirectories createIntermediates: Bool,  attributes: [String : AnyObject]? = [:]) throws {
+        return try self.createDirectoryAtPath(path, withIntermediateDirectories: createIntermediates, attributes: attributes)
+    }
+    func attributesOfItem(atPath path: String) throws -> [String : Any] {
+        return try self.attributesOfItemAtPath(path)
+    }
+    func removeItem(atPath path: String) throws {
+        return try self.removeItemAtPath(path)
+    }
+    func fileExists(atPath path: String) -> Bool {
+        return self.fileExistsAtPath(path)
+    }
+}
+
 extension String {
     func componentsSeparated(by separator: String) -> [String] {
         return self.componentsSeparatedByString(separator)
@@ -102,7 +124,19 @@ extension String {
     func replacingOccurrences(of str: String, with: String) -> String {
         return self.stringByReplacingOccurrencesOfString(str, withString: with)
     }
+    func cString(usingEncoding encoding: NSStringEncoding) -> [CChar]? {
+        return self.cStringUsingEncoding(encoding)
+    }
+    init?(cString: UnsafePointer<CChar>, encoding: NSStringEncoding) {
+        precondition(encoding == NSUTF8StringEncoding)
+        self.init(validatingUTF8: cString)
+    }
+
+    func cString(using: NSStringEncoding) -> [CChar]? {
+        return self.cString(usingEncoding: using)
+    }
 }
+
 #endif
 
 //These parts are possibly? not yet implemented on OSX

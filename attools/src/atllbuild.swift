@@ -119,9 +119,9 @@ final class ATllbuild : Tool {
         args.append(contentsOf: ["-j8", "-D","ATBUILD","-I",workdir+"products/"])
 
         if linkSDK {
-            #if os(OSX) //we don't have SDKPath on linux
-            args.append(contentsOf: ["-sdk", SDKPath])
-            #endif
+            if let sdkPath = Platform.targetPlatform.sdkPath {
+                args.append(contentsOf: ["-sdk",sdkPath])
+            }
         }
         args.append(contentsOf: compileOptions)
 
@@ -175,7 +175,7 @@ final class ATllbuild : Tool {
             let builtProducts = linkWithProduct.map {workdir+"products/"+$0}
             llbuild_inputs.append(contentsOf: builtProducts)
             yaml += "    inputs: \(llbuild_inputs)\n"
-            let libPath = productPath + modulename + DynamicLibraryExtension
+            let libPath = productPath + modulename + Platform.targetPlatform.dynamicLibraryExtension
             yaml += "    outputs: [\"<atllbuild>\", \"\(libPath)\"]\n"
             var args = [swiftCPath, "-o", libPath, "-emit-library"]
             args.append(contentsOf: objects)
@@ -281,7 +281,7 @@ final class ATllbuild : Tool {
             for product in arr {
                 guard var p = product.string else { fatalError("non-string product \(product)") }
                 if p.hasSuffix(".dynamic") {
-                    p = p.replacingOccurrences(of: ".dynamic", with: DynamicLibraryExtension)
+                    p = p.replacingOccurrences(of: ".dynamic", with: Platform.targetPlatform.dynamicLibraryExtension)
                 }
                 linkWithProduct.append(p)
             }
@@ -351,23 +351,31 @@ final class ATllbuild : Tool {
         if task[Options.XCTestify.rawValue]?.bool == true {
             precondition(outputType == .Executable, "You must use :\(Options.OutputType.rawValue) executable with xctestify.")
             //inject platform-specific flags
-            #if os(OSX)
+            switch(Platform.targetPlatform) {
+                case .OSX:
                 compileOptions.append(contentsOf: ["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/"])
                 linkOptions.append(contentsOf: ["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
-            #endif
+                
+                case .Linux:
+                break
+            }
         }
         if task[Options.XCTestStrict.rawValue]?.bool == true {
-            #if os(OSX)
-            //inject XCTestCaseProvider.swift
-            var xcTestCaseProviderPath = "/tmp/XXXXXXX"
-            var template = xcTestCaseProviderPath.cString(using: NSUTF8StringEncoding)!
-            xcTestCaseProviderPath = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
+            switch Platform.targetPlatform {
+                case .OSX:
+                //inject XCTestCaseProvider.swift
+                var xcTestCaseProviderPath = "/tmp/XXXXXXX"
+                var template = xcTestCaseProviderPath.cString(using: NSUTF8StringEncoding)!
+                xcTestCaseProviderPath = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
 
-            xcTestCaseProviderPath += "/XCTestCaseProvider.swift"
+                xcTestCaseProviderPath += "/XCTestCaseProvider.swift"
 
-            try! ATllbuild.xcTestCaseProvider.write(toFile: xcTestCaseProviderPath, atomically: false, encoding: NSUTF8StringEncoding)
-            sources.append(xcTestCaseProviderPath)
-            #endif
+                try! ATllbuild.xcTestCaseProvider.write(toFile: xcTestCaseProviderPath, atomically: false, encoding: NSUTF8StringEncoding)
+                sources.append(xcTestCaseProviderPath)
+                
+                case .Linux:
+                break
+            }
         }
         let moduleMap: ModuleMapType
         if task[Options.ModuleMap.rawValue]?.string == "synthesized" {
@@ -403,11 +411,16 @@ final class ATllbuild : Tool {
 
         if task[Options.BootstrapOnly.rawValue]?.bool == true {
             bootstrapOnly = true
+            //update the build platform to be the one passed on the CLI
+            Platform.buildPlatform = Platform.targetPlatform
         }
         else {
             bootstrapOnly = false
         }
 
+        ///The next task will not be bootstrapped.
+        defer { Platform.buildPlatform = Platform.hostPlatform }
+        
         let sdk: Bool
         if task[Options.LinkSDK.rawValue]?.bool == false {
             sdk = false
@@ -422,9 +435,9 @@ final class ATllbuild : Tool {
         else {
             llbuildyamlpath = workDirectory + "llbuild.yaml"
         }
-
         let swiftCPath: String
         if let c = task[Options.SwiftCPath.rawValue]?.string {
+            print("Warning: \(Options.SwiftCPath.rawValue) is deprecated and will be removed in a future release of atbuild.  Use --toolchain to specify a different toolchain, or --platform when bootstrapping to a different platform.")
             swiftCPath = c
         }
         else {
@@ -460,7 +473,7 @@ final class ATllbuild : Tool {
             case .StaticLibrary:
                 try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name).a", toPath: "bin/\(name).a")
             case .DynamicLibrary:
-                try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name)\(DynamicLibraryExtension)", toPath: "bin/\(name)\(DynamicLibraryExtension)")
+                try! copyByOverwriting(fromPath: "\(workDirectory)/products/\(name)\(Platform.targetPlatform.dynamicLibraryExtension)", toPath: "bin/\(name)\(Platform.targetPlatform.dynamicLibraryExtension)")
             }
             switch moduleMap {
                 case .None:

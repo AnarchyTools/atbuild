@@ -10,6 +10,36 @@ pwd
 echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
+echo "****************PLATFORMS TEST**************"
+cd $DIR/tests/fixtures/platforms
+UNAME=`uname`
+$ATBUILD check 2&> /tmp/platforms.txt
+if [ "$UNAME" == "Darwin" ]; then
+    STR="Hello from OSX!"
+else
+    STR="Hello from LINUX!"
+fi
+if ! grep "$STR" /tmp/platforms.txt; then
+    cat /tmp/platforms.txt
+    echo "Did not find platform print in platform test"
+    exit 1
+fi
+
+#check bootstrapping case
+$ATBUILD build --use-overlay bootstrap-only --platform linux
+if ! cmp --silent bin/bootstrap-platform.yaml known-linux-bootstrap.yaml; then
+    echo "Linux bootstrap was unexpected"
+    exit 1
+fi
+
+$ATBUILD build --use-overlay bootstrap-only --platform osx
+if ! cmp --silent bin/bootstrap-platform.yaml known-osx-bootstrap.yaml; then
+    echo "OSX bootstrap was unexpected"
+    exit 1
+fi
+
+
+
 echo "****************XCODE TOOLCHAIN TEST**************"
 
 if [ -e "/Applications/Xcode.app" ]; then

@@ -31,10 +31,8 @@ final class Shell : Tool {
             defer { NSFileManager.defaultManager().changeCurrentDirectoryPath(oldPath) }
 
             NSFileManager.defaultManager().changeCurrentDirectoryPath(task.importedPath)
-
-            if system("/bin/sh -c \"\(script)\"") != 0 {
-                fatalError("/bin/sh -c \(script)")
-            }
+            
+            anarchySystem("/bin/sh -c \"\(script)\"")
         }
     }
 }

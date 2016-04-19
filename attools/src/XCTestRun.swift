@@ -63,14 +63,10 @@ class XCTestRun : Tool {
             s += "</dict>\n"
             s += "</plist>\n"
             try! s.write(toFile: workingDirectory + "/XCTestRun.xctest/Contents/Info.plist", atomically: false, encoding: NSUTF8StringEncoding)
-            if system("xcrun xctest \(workingDirectory)/XCTestRun.xctest") != 0 {
-                fatalError("Test execution failed.")
-            }
+            anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest")
 
             case .Linux:
-            if system("\(testExecutable)") != 0 {
-                fatalError("Test execution failed.")
-            }
+            anarchySystem("\(testExecutable)")
         }
     }
 }

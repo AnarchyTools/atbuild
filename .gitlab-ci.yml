@@ -1,34 +1,35 @@
 stages:
 - build
 
-before_script: 
-    - git submodule update --init --recursive
 linux:
     stage: build
     script:
         - apt-get update
-        - apt-get install --no-install-recommends xz-utils curl ca-certificates -y
+        - apt-get install --no-install-recommends xz-utils curl git ca-certificates -y
         - curl -L https://github.com/AnarchyTools/atbuild/releases/download/0.9.0/atbuild-0.9.0-linux.tar.xz | tar xJ -C /usr/local
+        - git submodule update --init --recursive
         - bootstrap/build.sh linux
         - tests/test.sh
         - mkdir atbuild-${CI_BUILD_REF_NAME}
         - cp bin/atbuild atbuild-${CI_BUILD_REF_NAME}
-        - tar cJf tar cJf atbuild-${CI_BUILD_REF_NAME}-linux.tar.xz atbuild-${CI_BUILD_REF_NAME}
+        - tar cJf atbuild-${CI_BUILD_REF_NAME}-linux.tar.xz atbuild-${CI_BUILD_REF_NAME}
     tags:
         - autoscale-linux
     artifacts:
         paths:
             - atbuild-${CI_BUILD_REF_NAME}-linux.tar.xz
+    image: drewcrawford/swift:latest
 
 osx:
     stage: build
     script: 
+        - git submodule update --init --recursive
         - export PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:"${PATH}"
         - ./bootstrap/build.sh
         - bin/atbuild check
         - mkdir atbuild-${CI_BUILD_REF_NAME}
         - cp bin/atbuild atbuild-${CI_BUILD_REF_NAME}
-        - tar cJf tar cJf atbuild-${CI_BUILD_REF_NAME}-osx.tar.xz atbuild-${CI_BUILD_REF_NAME}
+        - tar cJf atbuild-${CI_BUILD_REF_NAME}-osx.tar.xz atbuild-${CI_BUILD_REF_NAME}
     tags:
         - openswift
     artifacts:

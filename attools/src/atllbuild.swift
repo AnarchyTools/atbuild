@@ -398,7 +398,7 @@ final class ATllbuild : Tool {
         }
 
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
-            precondition(moduleMap == .Synthesized, ":\(Options.UmbrellaHeader.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
+            precondition(moduleMap == .Synthesized, ":\(Options.ModuleMap.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
             let s = synthesizeModuleMap(name: name, umbrellaHeader: "Umbrella.h")
             try! s.write(toFile: workDirectory+"/include/module.modulemap", atomically: false, encoding: NSUTF8StringEncoding)
             try! manager.copyItemAtPath_SWIFTBUG(srcPath: task.importedPath + umbrellaHeader, toPath: workDirectory + "/include/Umbrella.h")

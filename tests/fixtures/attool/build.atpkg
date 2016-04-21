@@ -18,7 +18,7 @@
   :tasks {
     :a {:tool "nop" }
     :default {
-      :tool "echo.plugin"
+      :tool "echo.attool"
       :key "value"
       :test "${test_substitution}"
       :userpath "\${ATBUILD_USER_PATH}"

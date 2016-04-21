@@ -11,9 +11,9 @@ echo "****************SELF-HOSTING TEST**************"
 $ATBUILD atbuild
 
 echo "****************PLUGIN TEST**************"
-cd $DIR/tests/fixtures/plugin
+cd $DIR/tests/fixtures/attool
 $ATBUILD > /tmp/plugin.txt
-if ! grep "\--key value --test test_substitution --userpath .*atbuild/tests/fixtures/plugin/user" /tmp/plugin.txt; then
+if ! grep "\-key value --test test_substitution --userpath .*tests/fixtures/attool/user" /tmp/plugin.txt; then
     cat /tmp/plugin.txt
     echo "Did not find key print in plugin test"
     exit 1

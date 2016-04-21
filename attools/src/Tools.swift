@@ -37,8 +37,8 @@ public protocol Tool {
  * Look up a tool by name.
  */
 func toolByName(name: String) -> Tool {
-    if PluginTool.isPlugin(name: name) {
-        return PluginTool(pluginName: name)
+    if CustomTool.isCustomTool(name: name) {
+        return CustomTool(name: name)
     }
     guard let tool = tools[name] else { fatalError("Unknown build tool \(name)") }
     return tool

@@ -10,14 +10,14 @@ linux:
         - git submodule update --init --recursive
         - bootstrap/build.sh linux
         - tests/test.sh
-        - mkdir atbuild-${CI_BUILD_REF_NAME}
-        - cp bin/atbuild atbuild-${CI_BUILD_REF_NAME}
-        - tar cJf atbuild-${CI_BUILD_REF_NAME}-linux.tar.xz atbuild-${CI_BUILD_REF_NAME}
+        - mkdir atbuild-${CI_BUILD_REF}
+        - cp bin/atbuild atbuild-${CI_BUILD_REF}
+        - tar cJf atbuild-${CI_BUILD_REF}-linux.tar.xz atbuild-${CI_BUILD_REF}
     tags:
         - autoscale-linux
     artifacts:
         paths:
-            - atbuild-${CI_BUILD_REF_NAME}-linux.tar.xz
+            - atbuild-${CI_BUILD_REF}-linux.tar.xz
     image: drewcrawford/swift:latest
 
 osx:
@@ -27,11 +27,11 @@ osx:
         - export PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:"${PATH}"
         - ./bootstrap/build.sh
         - bin/atbuild check
-        - mkdir atbuild-${CI_BUILD_REF_NAME}
-        - cp bin/atbuild atbuild-${CI_BUILD_REF_NAME}
-        - tar cJf atbuild-${CI_BUILD_REF_NAME}-osx.tar.xz atbuild-${CI_BUILD_REF_NAME}
+        - mkdir atbuild-${CI_BUILD_REF}
+        - cp bin/atbuild atbuild-${CI_BUILD_REF}
+        - tar cJf atbuild-${CI_BUILD_REF}-osx.tar.xz atbuild-${CI_BUILD_REF}
     tags:
         - openswift
     artifacts:
         paths:
-            - atbuild-${CI_BUILD_REF_NAME}-osx.tar.xz
+            - atbuild-${CI_BUILD_REF}-osx.tar.xz

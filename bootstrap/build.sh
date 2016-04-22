@@ -16,6 +16,7 @@ fi
 mkdir -p .atllbuild/products
 mkdir -p .atllbuild/objects
 
+$SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-atfoundation.swift-build --no-db
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-atpkg.swift-build --no-db
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-attools.swift-build --no-db
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM.swift-build --no-db

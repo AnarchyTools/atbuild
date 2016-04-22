@@ -113,3 +113,4 @@ To declare your project to be compatible with Anarchy Tools, simply
 
 
 *Maintainer note: if you edit this file, edit the one in [this repo](https://github.com/AnarchyTools/anarchytools.github.io) as well.*
+

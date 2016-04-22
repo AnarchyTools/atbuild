@@ -90,8 +90,9 @@ final class ATllbuild : Tool {
         yaml += "  <atllbuild-swiftc>:\n"
         yaml += "     tool: swift-compiler\n"
         yaml += "     executable: \"\(swiftCPath)\"\n"
-        yaml += "     inputs: \(sources)\n"
-        yaml += "     sources: \(sources)\n"
+        let inputs = String.join(parts: sources.map { path in path.description }, delimiter: "\", \"")
+        yaml += "     inputs: [\"\(inputs)\"]\n"
+        yaml += "     sources: [\"\(inputs)\"]\n"
 
         //swiftPM wants "objects" which is just a list of %.swift.o files.  We have to put them in a temp directory though.
         let objects = sources.map { (source) -> String in
@@ -259,10 +260,10 @@ final class ATllbuild : Tool {
         //and in particular, without erasing the product directory, since that accumulates build products across
         //multiple invocations of atllbuild.
         if Process.arguments.contains("--clean") {
-            let _ = try? FS.removeItem(path: workDirectory.appending("objects"))
-            let _ = try? FS.removeItem(path: workDirectory.appending("llbuildtmp"))
+            let _ = try? FS.removeItem(path: workDirectory.appending("objects"), recursive: true)
+            let _ = try? FS.removeItem(path: workDirectory.appending("llbuildtmp"), recursive: true)
         }
-        let _ = try? FS.removeItem(path: workDirectory.appending("include"))
+        let _ = try? FS.removeItem(path: workDirectory.appending("include"), recursive: true)
 
 
 
@@ -337,8 +338,12 @@ final class ATllbuild : Tool {
                 potentially conflicts with other modulemaps, so we give it its own directory, namespaced
                 by the product name. */
                 let pathName = workDirectory + "include/\(productName)"
-                try! FS.createDirectory(path: pathName)
-                try! FS.copyItem(from: moduleMapPath, to: pathName.appending("module.modulemap"))
+                let _ = try? FS.createDirectory(path: pathName, intermediate: true)
+                do {
+                    try FS.copyItem(from: moduleMapPath, to: pathName.appending("module.modulemap"))
+                } catch {
+                    fatalError("Could not copy modulemap to \(pathName): \(error)")
+                }
                 compileOptions.append(contentsOf: ["-I", pathName.description])
             }
         }
@@ -354,21 +359,30 @@ final class ATllbuild : Tool {
                 case .OSX:
                 compileOptions.append(contentsOf: ["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/"])
                 linkOptions.append(contentsOf: ["-F", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-target", "x86_64-apple-macosx10.11", "-Xlinker", "-rpath", "-Xlinker", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks/", "-Xlinker", "-bundle"])
-                
+
                 case .Linux:
                 break
             }
         }
         if task[Options.XCTestStrict.rawValue]?.bool == true {
             switch Platform.targetPlatform {
-                case .OSX:
+            case .OSX:
                 //inject XCTestCaseProvider.swift
-                let xcTestCaseProviderPath = try! FS.temporaryDirectory(prefix: "XCTestCase")
-
-                try! ATllbuild.xcTestCaseProvider.write(to: xcTestCaseProviderPath.appending("XCTestCaseProvider.swift"))
-                sources.append(xcTestCaseProviderPath)
+                do {
+                    let xcTestCaseProviderPath = try FS.temporaryDirectory(prefix: "XCTestCase")
+                    do {
+                        try ATllbuild.xcTestCaseProvider.write(to: xcTestCaseProviderPath.appending("XCTestCaseProvider.swift"))
+                        sources.append(xcTestCaseProviderPath.appending("XCTestCaseProvider.swift"))
+                    } catch {
+                        print(xcTestCaseProviderPath)
+                        fatalError("Could not inject XCTestCaseProvider: \(error)")
+                    }
+                } catch {
+                    fatalError("Could not create temp dir for XCTestCaseProvider: \(error)")
+                }
                 
-                case .Linux:
+
+            case .Linux:
                 break
             }
         }
@@ -395,8 +409,12 @@ final class ATllbuild : Tool {
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
             precondition(moduleMap == .Synthesized, ":\(Options.ModuleMap.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
             let s = synthesizeModuleMap(name: name, umbrellaHeader: "Umbrella.h")
-            try! s.write(to: workDirectory + "include/module.modulemap")
-            try! FS.copyItem(from: task.importedPath + umbrellaHeader, to: workDirectory + "include/Umbrella.h")
+            do {
+                try s.write(to: workDirectory + "include/module.modulemap")
+                try FS.copyItem(from: task.importedPath + umbrellaHeader, to: workDirectory + "include/Umbrella.h")
+            } catch {
+                fatalError("Could not synthesize module map from umbrella header: \(error)")
+            }
             compileOptions.append("-I")
             compileOptions.append(workDirectory.appending("include").description + "/")
             compileOptions.append("-import-underlying-module")
@@ -415,7 +433,7 @@ final class ATllbuild : Tool {
 
         ///The next task will not be bootstrapped.
         defer { Platform.buildPlatform = Platform.hostPlatform }
-        
+
         let sdk: Bool
         if task[Options.LinkSDK.rawValue]?.bool == false {
             sdk = false
@@ -444,35 +462,43 @@ final class ATllbuild : Tool {
         if bootstrapOnly { return }
 
         switch moduleMap {
-                case .None:
-                break
-                case .Synthesized:
-                let s = synthesizeModuleMap(name: name, umbrellaHeader: nil)
-                try! s.write(to: workDirectory + "products/\(name).modulemap")
+        case .None:
+            break
+        case .Synthesized:
+            let s = synthesizeModuleMap(name: name, umbrellaHeader: nil)
+            do {
+                try s.write(to: workDirectory + "products/\(name).modulemap")
+            } catch {
+                fatalError("Could not write synthesized module map: \(error)")
+            }
         }
 
         //SR-566
         let cmd = "\(findToolPath(toolName: "swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
         anarchySystem(cmd)
         if task[Options.PublishProduct.rawValue]?.bool == true {
-            if !FS.isDirectory(path: Path("bin")) {
-                try! FS.createDirectory(path: Path("bin"))
-            }
-            try! FS.copyItem(from: workDirectory + "products/\(name).swiftmodule", to: Path("bin/\(name).swiftmodule"))
-            try! FS.copyItem(from: workDirectory + "products/\(name).swiftdoc", to: Path("bin/\(name).swiftdoc"))
-            switch outputType {
-            case .Executable:
-                try! FS.copyItem(from: workDirectory + "products/\(name)", to: Path("bin/\(name)"))
-            case .StaticLibrary:
-                try! FS.copyItem(from: workDirectory + "products/\(name).a", to: Path("bin/\(name).a"))
-            case .DynamicLibrary:
-                try! FS.copyItem(from: workDirectory + ("products/\(name)." + Platform.targetPlatform.dynamicLibraryExtension) , to: Path("bin/\(name)." + Platform.targetPlatform.dynamicLibraryExtension))
-            }
-            switch moduleMap {
+            do {
+                if !FS.isDirectory(path: Path("bin")) {
+                    try FS.createDirectory(path: Path("bin"))
+                }
+                try FS.copyItem(from: workDirectory + "products/\(name).swiftmodule", to: Path("bin/\(name).swiftmodule"))
+                try FS.copyItem(from: workDirectory + "products/\(name).swiftdoc", to: Path("bin/\(name).swiftdoc"))
+                switch outputType {
+                case .Executable:
+                    try FS.copyItem(from: workDirectory + "products/\(name)", to: Path("bin/\(name)"))
+                case .StaticLibrary:
+                    try FS.copyItem(from: workDirectory + "products/\(name).a", to: Path("bin/\(name).a"))
+                case .DynamicLibrary:
+                    try FS.copyItem(from: workDirectory + ("products/\(name)" + Platform.targetPlatform.dynamicLibraryExtension) , to: Path("bin/\(name)" + Platform.targetPlatform.dynamicLibraryExtension))
+                }
+                switch moduleMap {
                 case .None:
-                break
+                    break
                 case .Synthesized:
-                try! FS.copyItem(from: workDirectory + "products/\(name).modulemap", to: Path("bin/\(name).modulemap"))
+                    try FS.copyItem(from: workDirectory + "products/\(name).modulemap", to: Path("bin/\(name).modulemap"))
+                }
+            } catch {
+                print("Could not publish product: \(error)")
             }
         }
 

@@ -80,7 +80,12 @@ overlays.append(contentsOf: Platform.targetPlatform.overlays)
 
 print("enabling overlays \(overlays)")
 
-let package = try! Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+var package: Package! = nil
+do {
+    package = try Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+} catch {
+    fatalError("Could not load package file: \(error)")
+}
 
 //usage message
 if Process.arguments.contains("--help") {

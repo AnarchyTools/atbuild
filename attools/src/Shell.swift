@@ -43,7 +43,7 @@ final class Shell : Tool {
             }
 
             try FS.changeWorkingDirectory(path: task.importedPath)
-            
+
             anarchySystem("/bin/sh -c \"\(script)\"")
         } catch {
             print("Can not change working directory to '\(task.importedPath)': \(error)")

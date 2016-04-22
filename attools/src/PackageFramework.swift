@@ -63,28 +63,28 @@ class PackageFramework: Tool {
 
         //rm framework if it exists
         let frameworkPath = Path("bin/\(name).framework")
-        let _ = try? FS.removeItem(path: frameworkPath)
-        try! FS.createDirectory(path: frameworkPath)
+        let _ = try? FS.removeItem(path: frameworkPath, recursive: true)
+        let _ = try? FS.createDirectory(path: frameworkPath)
 
         //'a' version
         let relativeAVersionPath = Path("Versions/A")
         let AVersionPath = frameworkPath + relativeAVersionPath
         try! FS.createDirectory(path: AVersionPath, intermediate: true)
         //'current' (produces code signing failures if absent)
-        try! FS.symlinkItem(from: frameworkPath + "Versions/Current", to: Path("A"))
-
+        try! FS.symlinkItem(from: Path("A"), to: frameworkPath + "Versions/Current")
         //copy payload
         let payloadPath = task.importedPath.appending("bin").appending(name + Platform.targetPlatform.dynamicLibraryExtension)
         print(payloadPath)
         try! FS.copyItem(from: payloadPath, to: AVersionPath.appending(name))
-        try! FS.symlinkItem(from: frameworkPath.appending(name), to: relativeAVersionPath.appending(name))
+        try! FS.symlinkItem(from: relativeAVersionPath.appending(name), to: frameworkPath.appending(name))
+
 
         //copy modules
         let modulePath = AVersionPath.appending("Modules").appending(name + ".swiftmodule")
         try! FS.createDirectory(path: modulePath, intermediate: true)
         try! FS.copyItem(from: Path("bin/\(name).swiftmodule"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftmodule"))
         try! FS.copyItem(from: Path("bin/\(name).swiftdoc"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftdoc"))
-        try! FS.symlinkItem(from: frameworkPath.appending("Modules"), to: relativeAVersionPath.appending("Modules"))
+        try! FS.symlinkItem(from: relativeAVersionPath.appending("Modules"), to: frameworkPath.appending("Modules"))
 
         //copy resources
         let resourcesPath = AVersionPath.appending("Resources")
@@ -92,7 +92,7 @@ class PackageFramework: Tool {
         for resource in resources {
             try! FS.copyItem(from: task.importedPath + resource, to: resourcesPath + resource)
         }
-        try! FS.symlinkItem(from: frameworkPath + "Resources", to: relativeAVersionPath + "Resources")
+        try! FS.symlinkItem(from: relativeAVersionPath + "Resources", to: frameworkPath + "Resources")
 
         //codesign
         let cmd = "codesign --force --deep --sign - --timestamp=none '\(AVersionPath)'"

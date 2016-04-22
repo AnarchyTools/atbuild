@@ -55,13 +55,17 @@ private var userPathCreated = false
 - postcondition: The path exists at this absolute locaton on disk.
 - warning: This path is cleared between atbuild invocations. */
 func userPath() -> Path {
-    let userPath = try! FS.getWorkingDirectory().appending("user")
-    if !userPathCreated {
-        let _ = try? FS.removeItem(path: userPath, recursive: true)
-        try! FS.createDirectory(path: userPath)
-        userPathCreated = true
+    do {
+        let userPath = try FS.getWorkingDirectory().appending("user")
+        if !userPathCreated {
+            let _ = try FS.removeItem(path: userPath, recursive: true)
+            try FS.createDirectory(path: userPath)
+            userPathCreated = true
+        }
+        return userPath
+    } catch {
+        fatalError("Could not create user dir: \(error)")
     }
-    return userPath
 }
 
 ///A wrapper for POSIX "system" call.

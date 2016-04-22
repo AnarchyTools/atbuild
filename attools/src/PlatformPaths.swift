@@ -108,23 +108,23 @@ func findToolPath(toolName: String, toolchain: String) -> Path {
     if Platform.buildPlatform == Platform.hostPlatform {
         //poke around on the filesystem
         //look in /usr/bin
-        let usrBin = Path(string: "\(toolchain)/usr/bin/\(toolName)")
+        let usrBin = Path("\(toolchain)/usr/bin/\(toolName)")
         if FS.fileExists(path: usrBin) { return usrBin }
         //look in /usr/local/bin
-        let usrLocalBin = Path(string: "\(toolchain)/usr/local/bin/\(toolName)")
+        let usrLocalBin = Path("\(toolchain)/usr/local/bin/\(toolName)")
         if FS.fileExists(path: usrLocalBin) { return usrLocalBin }
 
         //swift-build-tool isn't available in 2.2.
         //If we're looking for SBT, try in the default location
         if toolName == "swift-build-tool" {
-            let sbtPath = Path(string: "\(Platform.hostPlatform.defaultToolchainPath)/usr/bin/\(toolName)")
+            let sbtPath = Path("\(Platform.hostPlatform.defaultToolchainPath)/usr/bin/\(toolName)")
             if FS.fileExists(path: sbtPath) { return sbtPath }
 
         }
     }
     else {
         //file system isn't live; hope the path is in a typical place
-        return Path(string: "\(Platform.buildPlatform.defaultToolchainBinaryPath)\(toolName)")
+        return Path("\(Platform.buildPlatform.defaultToolchainBinaryPath)\(toolName)")
     }
     
     fatalError("Can't find a path for \(toolName)")

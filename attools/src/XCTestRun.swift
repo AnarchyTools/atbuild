@@ -28,9 +28,9 @@ class XCTestRun : Tool {
             case .OSX:
             let workingDirectory = try! FS.temporaryDirectory(prefix: "XCTest-\(task)")
 
-            let executablePath = workingDirectory.join(path: Path(string: "XCTestRun.xctest/Contents/MacOS"))
+            let executablePath = workingDirectory + "XCTestRun.xctest/Contents/MacOS"
             try! FS.createDirectory(path: executablePath, intermediate: true)
-            try! FS.copyItem(from: Path(string: testExecutable), to: executablePath.appending("XCTestRun"))
+            try! FS.copyItem(from: Path(testExecutable), to: executablePath.appending("XCTestRun"))
             var s = ""
             s += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             s += "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
@@ -60,7 +60,7 @@ class XCTestRun : Tool {
             s += "<string>1</string>\n"
             s += "</dict>\n"
             s += "</plist>\n"
-            try! s.write(to: workingDirectory.join(path: Path(string: "XCTestRun.xctest/Contents/Info.plist")))
+            try! s.write(to: workingDirectory + "XCTestRun.xctest/Contents/Info.plist")
             anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest")
 
             case .Linux:

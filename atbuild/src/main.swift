@@ -46,7 +46,7 @@ enum Options: String {
     }
 }
 
-let defaultPackageFile = Path(string: "build.atpkg")
+let defaultPackageFile = Path("build.atpkg")
 
 var focusOnTask : String? = nil
 
@@ -54,7 +54,7 @@ var packageFile = defaultPackageFile
 var toolchain = Platform.buildPlatform.defaultToolchainPath
 for (i, x) in Process.arguments.enumerated() {
     if x == Options.CustomFile.rawValue {
-        packageFile = Path(string: Process.arguments[i+1])
+        packageFile = Path(Process.arguments[i+1])
     }
     if x == Options.Toolchain.rawValue {
         toolchain = Process.arguments[i+1]

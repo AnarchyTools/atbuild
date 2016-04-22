@@ -62,16 +62,16 @@ class PackageFramework: Tool {
         }
 
         //rm framework if it exists
-        let frameworkPath = Path(string: "bin/\(name).framework")
+        let frameworkPath = Path("bin/\(name).framework")
         let _ = try? FS.removeItem(path: frameworkPath)
         try! FS.createDirectory(path: frameworkPath)
 
         //'a' version
-        let relativeAVersionPath = Path(string: "Versions/A")
-        let AVersionPath = frameworkPath.join(path: relativeAVersionPath)
+        let relativeAVersionPath = Path("Versions/A")
+        let AVersionPath = frameworkPath + relativeAVersionPath
         try! FS.createDirectory(path: AVersionPath, intermediate: true)
         //'current' (produces code signing failures if absent)
-        try! FS.symlinkItem(from: frameworkPath.join(path: Path(string: "Versions/Current")), to: Path(string: "A"))
+        try! FS.symlinkItem(from: frameworkPath + "Versions/Current", to: Path("A"))
 
         //copy payload
         let payloadPath = task.importedPath.appending("bin").appending(name + Platform.targetPlatform.dynamicLibraryExtension)
@@ -82,17 +82,17 @@ class PackageFramework: Tool {
         //copy modules
         let modulePath = AVersionPath.appending("Modules").appending(name + ".swiftmodule")
         try! FS.createDirectory(path: modulePath, intermediate: true)
-        try! FS.copyItem(from: Path(string: "bin/\(name).swiftmodule"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftmodule"))
-        try! FS.copyItem(from: Path(string: "bin/\(name).swiftdoc"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftdoc"))
+        try! FS.copyItem(from: Path("bin/\(name).swiftmodule"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftmodule"))
+        try! FS.copyItem(from: Path("bin/\(name).swiftdoc"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftdoc"))
         try! FS.symlinkItem(from: frameworkPath.appending("Modules"), to: relativeAVersionPath.appending("Modules"))
 
         //copy resources
         let resourcesPath = AVersionPath.appending("Resources")
         try! FS.createDirectory(path: resourcesPath, intermediate: true)
         for resource in resources {
-            try! FS.copyItem(from: task.importedPath.join(path: Path(string: resource)), to: resourcesPath.join(path: Path(string: resource)))
+            try! FS.copyItem(from: task.importedPath + resource, to: resourcesPath + resource)
         }
-        try! FS.symlinkItem(from: frameworkPath.appending("Resources"), to: relativeAVersionPath.appending("Resources"))
+        try! FS.symlinkItem(from: frameworkPath + "Resources", to: relativeAVersionPath + "Resources")
 
         //codesign
         let cmd = "codesign --force --deep --sign - --timestamp=none '\(AVersionPath)'"

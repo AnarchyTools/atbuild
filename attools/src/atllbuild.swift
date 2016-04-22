@@ -135,7 +135,7 @@ final class ATllbuild : Tool {
             //this crazy syntax is how sbt declares a dependency
             var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs += objects
-            let builtProducts = linkWithProduct.map { workdir.join(path: Path(string: "products/"+$0)).description }
+            let builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
             llbuild_inputs += builtProducts
             let executablePath = productPath.appending(modulename)
             yaml += "    inputs: \(llbuild_inputs)\n"
@@ -172,7 +172,7 @@ final class ATllbuild : Tool {
             yaml += "    tool: shell\n"
             var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs += objects
-            let builtProducts = linkWithProduct.map { workdir.join(path: Path(string: "products/"+$0)).description }
+            let builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
             llbuild_inputs += builtProducts
             yaml += "    inputs: \(llbuild_inputs)\n"
             let libPath = productPath.appending(modulename + Platform.targetPlatform.dynamicLibraryExtension)
@@ -252,7 +252,7 @@ final class ATllbuild : Tool {
         }
 
         //create the working directory
-        let workDirectory = Path(string: ".atllbuild")
+        let workDirectory = Path(".atllbuild")
 
         //NSFileManager is pretty anal about throwing errors if we try to remove something that doesn't exist, etc.
         //We just want to create a state where .atllbuild/objects and .atllbuild/llbuildtmp and .atllbuild/products exists.
@@ -316,7 +316,7 @@ final class ATllbuild : Tool {
             for path_s in includePaths {
                 guard let path = path_s.string else { fatalError("Non-string path \(path_s)") }
                 compileOptions.append("-I")
-                compileOptions.append(userPath().join(path: Path(string: path)).description)
+                compileOptions.append((userPath() + path).description)
             }
         }
         var linkOptions: [String] = []
@@ -330,13 +330,13 @@ final class ATllbuild : Tool {
         //check for modulemaps
         for product in linkWithProduct {
             let productName = product.split(character: ".")[0]
-            let moduleMapPath = workDirectory.join(path: Path(string: "products/\(productName).modulemap"))
+            let moduleMapPath = workDirectory + "products/\(productName).modulemap"
             if FS.fileExists(path: moduleMapPath) {
                 /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much
                 the only way to do this is to create a file called `module.modulemap`.  That
                 potentially conflicts with other modulemaps, so we give it its own directory, namespaced
                 by the product name. */
-                let pathName = workDirectory.join(path: Path(string: "include/\(productName)"))
+                let pathName = workDirectory + "include/\(productName)"
                 try! FS.createDirectory(path: pathName)
                 try! FS.copyItem(from: moduleMapPath, to: pathName.appending("module.modulemap"))
                 compileOptions.append(contentsOf: ["-I", pathName.description])
@@ -395,8 +395,8 @@ final class ATllbuild : Tool {
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
             precondition(moduleMap == .Synthesized, ":\(Options.ModuleMap.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
             let s = synthesizeModuleMap(name: name, umbrellaHeader: "Umbrella.h")
-            try! s.write(to: workDirectory.join(path: Path(string: "include/module.modulemap")))
-            try! FS.copyItem(from: task.importedPath.join(path: Path(string: umbrellaHeader)), to: workDirectory.join(path: Path(string: "include/Umbrella.h")))
+            try! s.write(to: workDirectory + "include/module.modulemap")
+            try! FS.copyItem(from: task.importedPath + umbrellaHeader, to: workDirectory + "include/Umbrella.h")
             compileOptions.append("-I")
             compileOptions.append(workDirectory.appending("include").description + "/")
             compileOptions.append("-import-underlying-module")
@@ -425,7 +425,7 @@ final class ATllbuild : Tool {
         let llbuildyamlpath : Path
 
         if let value = task[Options.llBuildYaml.rawValue]?.string {
-            llbuildyamlpath = Path(string: value)
+            llbuildyamlpath = Path(value)
         }
         else {
             llbuildyamlpath = workDirectory.appending("llbuild.yaml")
@@ -433,7 +433,7 @@ final class ATllbuild : Tool {
         let swiftCPath: Path
         if let c = task[Options.SwiftCPath.rawValue]?.string {
             print("Warning: \(Options.SwiftCPath.rawValue) is deprecated and will be removed in a future release of atbuild.  Use --toolchain to specify a different toolchain, or --platform when bootstrapping to a different platform.")
-            swiftCPath = Path(string: c)
+            swiftCPath = Path(c)
         }
         else {
             swiftCPath = findToolPath(toolName: "swiftc", toolchain: toolchain)
@@ -448,31 +448,31 @@ final class ATllbuild : Tool {
                 break
                 case .Synthesized:
                 let s = synthesizeModuleMap(name: name, umbrellaHeader: nil)
-                try! s.write(to: workDirectory.join(path: Path(string: "products/\(name).modulemap")))
+                try! s.write(to: workDirectory + "products/\(name).modulemap")
         }
 
         //SR-566
         let cmd = "\(findToolPath(toolName: "swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
         anarchySystem(cmd)
         if task[Options.PublishProduct.rawValue]?.bool == true {
-            if !FS.isDirectory(path: Path(string: "bin")) {
-                try! FS.createDirectory(path: Path(string: "bin"))
+            if !FS.isDirectory(path: Path("bin")) {
+                try! FS.createDirectory(path: Path("bin"))
             }
-            try! FS.copyItem(from: workDirectory.join(path: Path(string: "products/\(name).swiftmodule")), to: Path(string: "bin/\(name).swiftmodule"))
-            try! FS.copyItem(from: workDirectory.join(path: Path(string: "products/\(name).swiftdoc")), to: Path(string: "bin/\(name).swiftdoc"))
+            try! FS.copyItem(from: workDirectory + "products/\(name).swiftmodule", to: Path("bin/\(name).swiftmodule"))
+            try! FS.copyItem(from: workDirectory + "products/\(name).swiftdoc", to: Path("bin/\(name).swiftdoc"))
             switch outputType {
             case .Executable:
-                try! FS.copyItem(from: workDirectory.join(path: Path(string: "products/\(name)")), to: Path(string: "bin/\(name)"))
+                try! FS.copyItem(from: workDirectory + "products/\(name)", to: Path("bin/\(name)"))
             case .StaticLibrary:
-                try! FS.copyItem(from: workDirectory.join(path: Path(string: "products/\(name).a")), to: Path(string: "bin/\(name).a"))
+                try! FS.copyItem(from: workDirectory + "products/\(name).a", to: Path("bin/\(name).a"))
             case .DynamicLibrary:
-                try! FS.copyItem(from: workDirectory.join(path: Path(string: "products/\(name)." + Platform.targetPlatform.dynamicLibraryExtension)) , to: Path(string: "bin/\(name)." + Platform.targetPlatform.dynamicLibraryExtension))
+                try! FS.copyItem(from: workDirectory + ("products/\(name)." + Platform.targetPlatform.dynamicLibraryExtension) , to: Path("bin/\(name)." + Platform.targetPlatform.dynamicLibraryExtension))
             }
             switch moduleMap {
                 case .None:
                 break
                 case .Synthesized:
-                try! FS.copyItem(from: workDirectory.join(path: Path(string: "products/\(name).modulemap")), to: Path(string: "bin/\(name).modulemap"))
+                try! FS.copyItem(from: workDirectory + "products/\(name).modulemap", to: Path("bin/\(name).modulemap"))
             }
         }
 

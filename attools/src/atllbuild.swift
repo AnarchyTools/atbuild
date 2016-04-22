@@ -280,7 +280,7 @@ final class ATllbuild : Tool {
             for product in arr {
                 guard var p = product.string else { fatalError("non-string product \(product)") }
                 if p.hasSuffix(".dynamic") {
-                    p = p.replacingOccurrences(of: ".dynamic", with: Platform.targetPlatform.dynamicLibraryExtension)
+                    p.replace(searchTerm: ".dynamic", replacement: Platform.targetPlatform.dynamicLibraryExtension)
                 }
                 linkWithProduct.append(p)
             }

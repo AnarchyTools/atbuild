@@ -24,7 +24,7 @@ final class CustomTool: Tool {
             }
             cmd += "--\(key) \"\(evaluateSubstitutions(input: value, package: task.package))\" "
         }
-        setenv("ATBUILD_USER_PATH", userPath(), 1)
+        setenv("ATBUILD_USER_PATH", userPath().description, 1)
         anarchySystem(cmd)
     }
 }

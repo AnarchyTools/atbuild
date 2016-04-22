@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import atfoundation
 
 public enum Platform {
     case OSX
@@ -103,29 +103,28 @@ public enum Platform {
     public static var buildPlatform: Platform = Platform.hostPlatform
 }
 
-func findToolPath(toolName: String, toolchain: String) -> String {
+func findToolPath(toolName: String, toolchain: String) -> Path {
 
     if Platform.buildPlatform == Platform.hostPlatform {
         //poke around on the filesystem
         //look in /usr/bin
-        let manager = NSFileManager.defaultManager()
-        let usrBin = "\(toolchain)/usr/bin/\(toolName)"
-        if manager.fileExists(atPath: usrBin) { return usrBin }
+        let usrBin = Path(string: "\(toolchain)/usr/bin/\(toolName)")
+        if FS.fileExists(path: usrBin) { return usrBin }
         //look in /usr/local/bin
-        let usrLocalBin = "\(toolchain)/usr/local/bin/\(toolName)"
-        if manager.fileExists(atPath: usrLocalBin) { return usrLocalBin }
+        let usrLocalBin = Path(string: "\(toolchain)/usr/local/bin/\(toolName)")
+        if FS.fileExists(path: usrLocalBin) { return usrLocalBin }
 
         //swift-build-tool isn't available in 2.2.
         //If we're looking for SBT, try in the default location
         if toolName == "swift-build-tool" {
-            let sbtPath = "\(Platform.hostPlatform.defaultToolchainPath)/usr/bin/\(toolName)"
-            if manager.fileExists(atPath: sbtPath) { return sbtPath }
+            let sbtPath = Path(string: "\(Platform.hostPlatform.defaultToolchainPath)/usr/bin/\(toolName)")
+            if FS.fileExists(path: sbtPath) { return sbtPath }
 
         }
     }
     else {
         //file system isn't live; hope the path is in a typical place
-        return "\(Platform.buildPlatform.defaultToolchainBinaryPath)\(toolName)"
+        return Path(string: "\(Platform.buildPlatform.defaultToolchainBinaryPath)\(toolName)")
     }
     
     fatalError("Can't find a path for \(toolName)")

@@ -24,8 +24,8 @@
       :sources ["atbuild/src/**.swift"]
       :name "atbuild"
       :output-type "executable"
-      :link-with ["attools.a" "atpkg.a"]
-      :dependencies ["attools" "atpkg.atpkg"]
+      :link-with ["attools.a" "atpkg.a" "atfoundation.a"]
+      :dependencies ["attools" "atpkg.atpkg" "atfoundation.atfoundation"]
       :publish-product true
       
       :overlays {

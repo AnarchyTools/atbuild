@@ -11,8 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+import atfoundation
 import atpkg
-import Foundation
 
 class XCTestRun : Tool {
     enum Option: String {
@@ -25,14 +26,11 @@ class XCTestRun : Tool {
         }
         switch (Platform.targetPlatform) {
             case .OSX:
-            var workingDirectory = "/tmp/XXXXXXXXXXX"
-            var template = workingDirectory.cString(using: NSUTF8StringEncoding)!
-            workingDirectory = String(cString: mkdtemp(&template), encoding: NSUTF8StringEncoding)!
+            let workingDirectory = try! FS.temporaryDirectory(prefix: "XCTest-\(task)")
 
-            let manager = NSFileManager.defaultManager()
-            let executablePath = workingDirectory + "/XCTestRun.xctest/Contents/MacOS"
-            try! manager.createDirectory(atPath: executablePath, withIntermediateDirectories: true, attributes: nil)
-            try! manager.copyItemAtPath_SWIFTBUG(srcPath: testExecutable, toPath: executablePath + "/XCTestRun")
+            let executablePath = workingDirectory.join(path: Path(string: "XCTestRun.xctest/Contents/MacOS"))
+            try! FS.createDirectory(path: executablePath, intermediate: true)
+            try! FS.copyItem(from: Path(string: testExecutable), to: executablePath.appending("XCTestRun"))
             var s = ""
             s += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             s += "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
@@ -62,7 +60,7 @@ class XCTestRun : Tool {
             s += "<string>1</string>\n"
             s += "</dict>\n"
             s += "</plist>\n"
-            try! s.write(toFile: workingDirectory + "/XCTestRun.xctest/Contents/Info.plist", atomically: false, encoding: NSUTF8StringEncoding)
+            try! s.write(to: workingDirectory.join(path: Path(string: "XCTestRun.xctest/Contents/Info.plist")))
             anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest")
 
             case .Linux:

@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if os(Linux)
+import Glibc
+#else
+import Darwin
+#endif
 
-import Foundation
+import atfoundation
 import atpkg
 
 /**
@@ -23,16 +28,26 @@ import atpkg
  */
 final class Shell : Tool {
     func run(task: Task, toolchain: String) {
-        setenv("ATBUILD_USER_PATH", userPath(), 1)
+        setenv("ATBUILD_USER_PATH", userPath().description, 1)
         guard var script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
         script = evaluateSubstitutions(input: script, package: task.package)
         do {
-            let oldPath = NSFileManager.defaultManager().currentDirectoryPath
-            defer { NSFileManager.defaultManager().changeCurrentDirectoryPath(oldPath) }
+            let oldPath = try FS.getWorkingDirectory()
+            defer {
+                do {
+                    try FS.changeWorkingDirectory(path: oldPath)
+                } catch {
+                    print("Can not revert to previous working directory '\(oldPath)': \(error)")
+                    exit(42)
+                }
+            }
 
-            NSFileManager.defaultManager().changeCurrentDirectoryPath(task.importedPath)
+            try FS.changeWorkingDirectory(path: task.importedPath)
             
             anarchySystem("/bin/sh -c \"\(script)\"")
+        } catch {
+            print("Can not change working directory to '\(task.importedPath)': \(error)")
+            exit(42)
         }
     }
 }

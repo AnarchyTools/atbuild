@@ -58,7 +58,9 @@ func userPath() -> Path {
     do {
         let userPath = try FS.getWorkingDirectory().appending("user")
         if !userPathCreated {
-            let _ = try FS.removeItem(path: userPath, recursive: true)
+            if FS.isDirectory(path: userPath) {
+                try FS.removeItem(path: userPath, recursive: true)
+            }
             try FS.createDirectory(path: userPath)
             userPathCreated = true
         }

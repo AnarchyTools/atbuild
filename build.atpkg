@@ -39,6 +39,9 @@
           :link-sdk false
           :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
         }
+        :static {
+          :link-options ["-static-stdlib"]
+        }
       }
     }
             

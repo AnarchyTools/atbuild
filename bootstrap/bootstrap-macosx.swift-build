@@ -16,11 +16,11 @@ commands:
      outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
      module-name: atbuild
      module-output-path: .atllbuild/products/atbuild.swiftmodule
-     temps-path: .atllbuild/llbuildtmp
+     temps-path: .atllbuild//llbuildtmp
      other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
     outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
+    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a", "-static-stdlib"]
     description: Linking executable .atllbuild/products/atbuild

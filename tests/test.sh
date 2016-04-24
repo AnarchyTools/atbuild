@@ -8,7 +8,11 @@ ATBUILD="`pwd`/.atllbuild/products/atbuild"
 pwd
 
 echo "****************SELF-HOSTING TEST**************"
-$ATBUILD atbuild
+if ! $ATBUILD atbuild --use-overlay static; then
+    echo "Self-host failed; maybe you're not running CaffeinatedSwift?"
+    echo "Retrying with non-static build"
+    $ATBUILD atbuild
+fi
 
 echo "****************PLUGIN TEST**************"
 cd $DIR/tests/fixtures/attool

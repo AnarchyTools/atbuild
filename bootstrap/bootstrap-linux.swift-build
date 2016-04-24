@@ -16,11 +16,11 @@ commands:
      outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
      module-name: atbuild
      module-output-path: .atllbuild/products/atbuild.swiftmodule
-     temps-path: .atllbuild/llbuildtmp
+     temps-path: .atllbuild//llbuildtmp
      other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
     outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["/usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
+    args: ["/usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a", "-static-stdlib"]
     description: Linking executable .atllbuild/products/atbuild

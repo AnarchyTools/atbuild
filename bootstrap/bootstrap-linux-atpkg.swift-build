@@ -17,7 +17,7 @@ commands:
      is-library: true
      module-name: atpkg
      module-output-path: .atllbuild/products/atpkg.swiftmodule
-     temps-path: .atllbuild/llbuildtmp
+     temps-path: .atllbuild//llbuildtmp
      other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/"]
   <atllbuild>:
     tool: shell

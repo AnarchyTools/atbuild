@@ -17,8 +17,8 @@ commands:
      is-library: true
      module-name: atpkg
      module-output-path: .atllbuild/products/atpkg.swiftmodule
-     temps-path: .atllbuild//llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-I", ".atllbuild//include/atfoundation"]
+     temps-path: .atllbuild/llbuildtmp
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]

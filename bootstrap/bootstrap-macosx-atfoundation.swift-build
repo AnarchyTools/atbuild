@@ -1,0 +1,27 @@
+client:
+  name: swift-build
+
+tools: {}
+
+targets:
+  "": [<atllbuild>]
+  atllbuild: [<atllbuild>]
+commands:
+  <atllbuild-swiftc>:
+     tool: swift-compiler
+     executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
+     inputs: ["atpkg/atfoundation/src/charset.swift", "atpkg/atfoundation/src/date/date.swift", "atpkg/atfoundation/src/date/timeinterval.swift", "atpkg/atfoundation/src/filesystem/file.swift", "atpkg/atfoundation/src/filesystem/fileinfo.swift", "atpkg/atfoundation/src/filesystem/fs.swift", "atpkg/atfoundation/src/filesystem/path.swift", "atpkg/atfoundation/src/logger.swift", "atpkg/atfoundation/src/string/replace.swift", "atpkg/atfoundation/src/string/search.swift", "atpkg/atfoundation/src/string/split.swift", "atpkg/atfoundation/src/string/substring.swift", "atpkg/atfoundation/src/string/whitespace.swift", "atpkg/atfoundation/src/string.swift", "atpkg/atfoundation/src/syserror.swift", "atpkg/atfoundation/src/tools.swift", "atpkg/atfoundation/src/url.swift"]
+     sources: ["atpkg/atfoundation/src/charset.swift", "atpkg/atfoundation/src/date/date.swift", "atpkg/atfoundation/src/date/timeinterval.swift", "atpkg/atfoundation/src/filesystem/file.swift", "atpkg/atfoundation/src/filesystem/fileinfo.swift", "atpkg/atfoundation/src/filesystem/fs.swift", "atpkg/atfoundation/src/filesystem/path.swift", "atpkg/atfoundation/src/logger.swift", "atpkg/atfoundation/src/string/replace.swift", "atpkg/atfoundation/src/string/search.swift", "atpkg/atfoundation/src/string/split.swift", "atpkg/atfoundation/src/string/substring.swift", "atpkg/atfoundation/src/string/whitespace.swift", "atpkg/atfoundation/src/string.swift", "atpkg/atfoundation/src/syserror.swift", "atpkg/atfoundation/src/tools.swift", "atpkg/atfoundation/src/url.swift"]
+     objects: [".atllbuild/objects/charset.swift.o", ".atllbuild/objects/date.swift.o", ".atllbuild/objects/timeinterval.swift.o", ".atllbuild/objects/file.swift.o", ".atllbuild/objects/fileinfo.swift.o", ".atllbuild/objects/fs.swift.o", ".atllbuild/objects/path.swift.o", ".atllbuild/objects/logger.swift.o", ".atllbuild/objects/replace.swift.o", ".atllbuild/objects/search.swift.o", ".atllbuild/objects/split.swift.o", ".atllbuild/objects/substring.swift.o", ".atllbuild/objects/whitespace.swift.o", ".atllbuild/objects/string.swift.o", ".atllbuild/objects/syserror.swift.o", ".atllbuild/objects/tools.swift.o", ".atllbuild/objects/url.swift.o"]
+     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/charset.swift.o", ".atllbuild/objects/date.swift.o", ".atllbuild/objects/timeinterval.swift.o", ".atllbuild/objects/file.swift.o", ".atllbuild/objects/fileinfo.swift.o", ".atllbuild/objects/fs.swift.o", ".atllbuild/objects/path.swift.o", ".atllbuild/objects/logger.swift.o", ".atllbuild/objects/replace.swift.o", ".atllbuild/objects/search.swift.o", ".atllbuild/objects/split.swift.o", ".atllbuild/objects/substring.swift.o", ".atllbuild/objects/whitespace.swift.o", ".atllbuild/objects/string.swift.o", ".atllbuild/objects/syserror.swift.o", ".atllbuild/objects/tools.swift.o", ".atllbuild/objects/url.swift.o"]
+     is-library: true
+     module-name: atfoundation
+     module-output-path: .atllbuild/products/atfoundation.swiftmodule
+     temps-path: .atllbuild/llbuildtmp
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-enable-testing", "-g", "-Xcc", "-D_GNU_SOURCE"]
+  <atllbuild>:
+    tool: shell
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/charset.swift.o", ".atllbuild/objects/date.swift.o", ".atllbuild/objects/timeinterval.swift.o", ".atllbuild/objects/file.swift.o", ".atllbuild/objects/fileinfo.swift.o", ".atllbuild/objects/fs.swift.o", ".atllbuild/objects/path.swift.o", ".atllbuild/objects/logger.swift.o", ".atllbuild/objects/replace.swift.o", ".atllbuild/objects/search.swift.o", ".atllbuild/objects/split.swift.o", ".atllbuild/objects/substring.swift.o", ".atllbuild/objects/whitespace.swift.o", ".atllbuild/objects/string.swift.o", ".atllbuild/objects/syserror.swift.o", ".atllbuild/objects/tools.swift.o", ".atllbuild/objects/url.swift.o"]
+    outputs: ["<atllbuild>", ".atllbuild/products/atfoundation.a"]
+    args: ["/bin/sh","-c",rm -rf .atllbuild/products/atfoundation.a; ar cr '.atllbuild/products/atfoundation.a' '.atllbuild/objects/charset.swift.o' '.atllbuild/objects/date.swift.o' '.atllbuild/objects/timeinterval.swift.o' '.atllbuild/objects/file.swift.o' '.atllbuild/objects/fileinfo.swift.o' '.atllbuild/objects/fs.swift.o' '.atllbuild/objects/path.swift.o' '.atllbuild/objects/logger.swift.o' '.atllbuild/objects/replace.swift.o' '.atllbuild/objects/search.swift.o' '.atllbuild/objects/split.swift.o' '.atllbuild/objects/substring.swift.o' '.atllbuild/objects/whitespace.swift.o' '.atllbuild/objects/string.swift.o' '.atllbuild/objects/syserror.swift.o' '.atllbuild/objects/tools.swift.o' '.atllbuild/objects/url.swift.o']
+    description: "Linking Library:  .atllbuild/products/atfoundation.a"

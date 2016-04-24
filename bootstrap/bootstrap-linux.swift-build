@@ -10,17 +10,17 @@ commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
      executable: "/usr/local/bin/swiftc"
-     inputs: ["atbuild/src/ICantBelieveItsNotFoundation.swift", "atbuild/src/main.swift"]
-     sources: ["atbuild/src/ICantBelieveItsNotFoundation.swift", "atbuild/src/main.swift"]
-     objects: [".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o"]
-     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o"]
+     inputs: ["atbuild/src/main.swift"]
+     sources: ["atbuild/src/main.swift"]
+     objects: [".atllbuild/objects/main.swift.o"]
+     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
      module-name: atbuild
      module-output-path: .atllbuild/products/atbuild.swiftmodule
-     temps-path: .atllbuild//llbuildtmp
+     temps-path: .atllbuild/llbuildtmp
      other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/"]
   <atllbuild>:
     tool: shell
-    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
     outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["/usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/ICantBelieveItsNotFoundation.swift.o", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a"]
+    args: ["/usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
     description: Linking executable .atllbuild/products/atbuild

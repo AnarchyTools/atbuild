@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if os(Linux)
+import Glibc
+#else
+import Darwin
+#endif
+
 let version = "0.9.0"
 
-import Foundation
+import atfoundation
 import atpkg
 import attools
 
@@ -40,7 +46,7 @@ enum Options: String {
     }
 }
 
-let defaultPackageFile = "build.atpkg"
+let defaultPackageFile = Path("build.atpkg")
 
 var focusOnTask : String? = nil
 
@@ -48,7 +54,7 @@ var packageFile = defaultPackageFile
 var toolchain = Platform.buildPlatform.defaultToolchainPath
 for (i, x) in Process.arguments.enumerated() {
     if x == Options.CustomFile.rawValue {
-        packageFile = Process.arguments[i+1]
+        packageFile = Path(Process.arguments[i+1])
     }
     if x == Options.Toolchain.rawValue {
         toolchain = Process.arguments[i+1]
@@ -74,7 +80,12 @@ overlays.append(contentsOf: Platform.targetPlatform.overlays)
 
 print("enabling overlays \(overlays)")
 
-let package = try! Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+var package: Package! = nil
+do {
+    package = try Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+} catch {
+    fatalError("Could not load package file: \(error)")
+}
 
 //usage message
 if Process.arguments.contains("--help") {

@@ -12,8 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if os(Linux)
+import Glibc
+#else
+import Darwin
+#endif
+
+import atfoundation
 import atpkg
-import Foundation
+
 private enum ModuleMapType: String {
     case Synthesized = "synthesized"
 }
@@ -55,41 +62,40 @@ class PackageFramework: Tool {
         }
 
         //rm framework if it exists
-        let frameworkPath = "bin/\(name).framework"
-        let manager = NSFileManager.defaultManager()
-        let _ = try? manager.removeItem(atPath: frameworkPath)
-        try! manager.createDirectory(atPath: frameworkPath, withIntermediateDirectories: false, attributes: nil)
+        let frameworkPath = Path("bin/\(name).framework")
+        let _ = try? FS.removeItem(path: frameworkPath, recursive: true)
+        let _ = try? FS.createDirectory(path: frameworkPath)
 
         //'a' version
-        let AVersionPath = "\(frameworkPath)/Versions/A"
-        let relativeAVersionPath = "Versions/A"
-        try! manager.createDirectory(atPath: AVersionPath, withIntermediateDirectories: true, attributes: nil)
+        let relativeAVersionPath = Path("Versions/A")
+        let AVersionPath = frameworkPath + relativeAVersionPath
+        try! FS.createDirectory(path: AVersionPath, intermediate: true)
         //'current' (produces code signing failures if absent)
-        try! manager.createSymbolicLink(atPath: "\(frameworkPath)/Versions/Current", withDestinationPath: "A")
-
+        try! FS.symlinkItem(from: Path("A"), to: frameworkPath + "Versions/Current")
         //copy payload
-        let payloadPath = task.importedPath + "bin/" + name + Platform.targetPlatform.dynamicLibraryExtension
+        let payloadPath = task.importedPath.appending("bin").appending(name + Platform.targetPlatform.dynamicLibraryExtension)
         print(payloadPath)
-        try! manager.copyItemAtPath_SWIFTBUG(srcPath: payloadPath, toPath: "\(AVersionPath)/\(name)")
-        try! manager.createSymbolicLink(atPath: "\(frameworkPath)/\(name)", withDestinationPath: "\(relativeAVersionPath)/\(name)")
+        try! FS.copyItem(from: payloadPath, to: AVersionPath.appending(name))
+        try! FS.symlinkItem(from: relativeAVersionPath.appending(name), to: frameworkPath.appending(name))
+
 
         //copy modules
-        let modulePath = "\(AVersionPath)/Modules/\(name).swiftmodule"
-        try! manager.createDirectory(atPath: modulePath, withIntermediateDirectories: true, attributes: nil)
-        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftmodule", toPath: "\(modulePath)/\(Platform.targetPlatform.architecture).swiftmodule")
-        try! manager.copyItemAtPath_SWIFTBUG(srcPath: "bin/\(name).swiftdoc", toPath: "\(modulePath)/\(Platform.targetPlatform.architecture).swiftdoc")
-        try! manager.createSymbolicLink(atPath: "\(frameworkPath)/Modules", withDestinationPath: "\(relativeAVersionPath)/Modules")
+        let modulePath = AVersionPath.appending("Modules").appending(name + ".swiftmodule")
+        try! FS.createDirectory(path: modulePath, intermediate: true)
+        try! FS.copyItem(from: Path("bin/\(name).swiftmodule"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftmodule"))
+        try! FS.copyItem(from: Path("bin/\(name).swiftdoc"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftdoc"))
+        try! FS.symlinkItem(from: relativeAVersionPath.appending("Modules"), to: frameworkPath.appending("Modules"))
 
         //copy resources
-        let resourcesPath = AVersionPath + "/Resources"
-        try! manager.createDirectory(atPath: resourcesPath, withIntermediateDirectories: true, attributes: nil)
+        let resourcesPath = AVersionPath.appending("Resources")
+        try! FS.createDirectory(path: resourcesPath, intermediate: true)
         for resource in resources {
-            try! manager.copyItemAtPath_SWIFTBUG(srcPath: task.importedPath + resource, toPath: "\(resourcesPath)/\(resource)")
+            try! FS.copyItem(from: task.importedPath + resource, to: resourcesPath + resource)
         }
-        try! manager.createSymbolicLink(atPath: "\(frameworkPath)/Resources", withDestinationPath: "\(relativeAVersionPath)/Resources")
+        try! FS.symlinkItem(from: relativeAVersionPath + "Resources", to: frameworkPath + "Resources")
 
         //codesign
-        let cmd = "codesign --force --deep --sign - --timestamp=none \(AVersionPath)"
+        let cmd = "codesign --force --deep --sign - --timestamp=none '\(AVersionPath)'"
         print(cmd)
         if system(cmd) != 0 {
             fatalError("Codesign failed.")

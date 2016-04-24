@@ -1,0 +1,10 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": [ ".atllbuild", "bin", "user" ],
+			"file_exclude_patterns": [ ".gitignore", ".gitlab-ci.yml", "Dockerfile", "LICENSE" ]
+		},
+	]
+}

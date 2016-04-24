@@ -53,7 +53,7 @@ echo "****************XCODE TOOLCHAIN TEST**************"
 
 if [ -e "/Applications/Xcode.app" ]; then
     cd $DIR/tests/fixtures/xcode_toolchain
-    $ATBUILD --toolchain xcode 
+    $ATBUILD --toolchain xcode
 else
     echo "Xcode is not installed; skipping test"
 fi

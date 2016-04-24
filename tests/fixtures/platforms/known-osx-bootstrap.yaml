@@ -16,7 +16,7 @@ commands:
      outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
      module-name: platforms
      module-output-path: .atllbuild/products/platforms.swiftmodule
-     temps-path: .atllbuild//llbuildtmp
+     temps-path: .atllbuild/llbuildtmp
      other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-D", "OSX"]
   <atllbuild>:
     tool: shell

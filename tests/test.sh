@@ -14,6 +14,15 @@ if ! $ATBUILD atbuild --use-overlay static; then
     $ATBUILD atbuild
 fi
 
+echo "****************USAGE TEST**************"
+cd $DIR/tests/fixtures/nonstandard_package_file
+$ATBUILD --help > /tmp/usage.txt || true
+if ! grep "Usage:" /tmp/usage.txt; then
+    echo "Didn't print usage"
+    exit 1
+fi
+
+
 echo "****************PLUGIN TEST**************"
 cd $DIR/tests/fixtures/attool
 $ATBUILD > /tmp/plugin.txt

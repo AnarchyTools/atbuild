@@ -81,14 +81,8 @@ overlays.append(contentsOf: Platform.targetPlatform.overlays)
 print("enabling overlays \(overlays)")
 
 var package: Package! = nil
-do {
-    package = try Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
-} catch {
-    fatalError("Could not load package file: \(error)")
-}
 
-//usage message
-if Process.arguments.contains("--help") {
+func usage() {
     print("atbuild - Anarchy Tools Build Tool \(version)")
     print("https://github.com/AnarchyTools")
     print("© 2016 Anarchy Tools Contributors.")
@@ -96,11 +90,29 @@ if Process.arguments.contains("--help") {
     print("Usage:")
     print("atbuild [--toolchain (/toolchain/path | xcode)] [-f packagefile] [task] [--clean]")
 
-    print("tasks:")
-    for (key, task) in package.tasks {
-        print("    \(key)")
+    if let p = package {
+        print("tasks:")
+        for (key, _) in p.tasks {
+            print("    \(key)")
+        }
     }
+    else {
+        print("No tasks are available; run --help in a directory with a build.atpkg for project-specific help")
+    }
+
     exit(1)
+}
+
+do {
+    package = try Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+} catch {
+    print("Could not load package file: \(error)")
+    usage()
+}
+
+//usage message
+if Process.arguments.contains("--help") {
+    usage()
 }
 
 
@@ -110,6 +122,7 @@ func runTask(taskName: String, package: Package) {
         TaskRunner.runTask(task: task, package: package, toolchain: toolchain)
     }
 }
+
 
 //choose which task to run
 if Process.arguments.count > 1 {

@@ -21,6 +21,24 @@ public enum Architecture {
     case arm64
 }
 
+extension Architecture: CustomStringConvertible {
+    public var description: String {
+        switch(self) {
+            case .x86_64:
+            return "x86_64"
+
+            case .i386:
+            return "i386"
+
+            case .armv7:
+            return "armv7"
+
+            case .arm64:
+            return "arm64"
+        }
+    }
+}
+
 func ==(a: Platform, b: Platform) -> Bool {
     switch(a, b) {
         case (.OSX, .OSX): return true

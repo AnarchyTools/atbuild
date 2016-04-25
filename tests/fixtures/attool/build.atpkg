@@ -22,8 +22,9 @@
       :key "value"
       :test "${test_substitution}"
       :userpath "\${ATBUILD_USER_PATH}"
+      :platform "\${ATBUILD_PLATFORM}"
       :dependencies ["a"]
+    }
   }
-}
 
 )

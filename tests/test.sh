@@ -23,6 +23,87 @@ if ! grep "\-key value --test test_substitution --userpath .*tests/fixtures/atto
     exit 1
 fi
 
+echo "****************IOS TEST**************"
+cd $DIR/tests/fixtures/ios
+UNAME=`uname`
+if [ "$UNAME" == "Darwin" ]; then
+    $ATBUILD --platform ios-x86_64 ##FIXME
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: x86_64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: x86_64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: x86_64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+
+    $ATBUILD --platform ios-i386
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: i386"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: i386"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: i386"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    $ATBUILD --platform ios-arm64
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: arm64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: arm64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: arm64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    $ATBUILD --platform ios-armv7
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: armv7"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: armv7"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: armv7"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+else
+    echo "Skipping iOS tests on non-Darwin platform"
+fi
+
 echo "****************PLATFORMS TEST**************"
 cd $DIR/tests/fixtures/platforms
 UNAME=`uname`

@@ -82,8 +82,8 @@ class PackageFramework: Tool {
         //copy modules
         let modulePath = AVersionPath.appending("Modules").appending(name + ".swiftmodule")
         try! FS.createDirectory(path: modulePath, intermediate: true)
-        try! FS.copyItem(from: Path("bin/\(name).swiftmodule"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftmodule"))
-        try! FS.copyItem(from: Path("bin/\(name).swiftdoc"), to: modulePath.appending(Platform.targetPlatform.architecture + ".swiftdoc"))
+        try! FS.copyItem(from: Path("bin/\(name).swiftmodule"), to: modulePath.appending(Platform.targetPlatform.architecture.description + ".swiftmodule"))
+        try! FS.copyItem(from: Path("bin/\(name).swiftdoc"), to: modulePath.appending(Platform.targetPlatform.architecture.description + ".swiftdoc"))
         try! FS.symlinkItem(from: relativeAVersionPath.appending("Modules"), to: frameworkPath.appending("Modules"))
 
         //copy resources

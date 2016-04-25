@@ -68,6 +68,9 @@ class XCTestRun : Tool {
             }
             case .Linux:
             anarchySystem("\(testExecutable)")
+
+			case .iOS:
+            fatalError("XCTestRun is not supported for iOS")
         }
     }
 }

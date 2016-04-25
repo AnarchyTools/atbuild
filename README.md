@@ -80,7 +80,7 @@ That's all you need to get started!  `atbuild` supports many more usecases than 
 * `--help`, which displays a usage message
 * `--clean`, which forces a clean build
 * `--toolchain` which specifies a nonstandard toolchain (swift installation).  By default we try to guess, but you can override our guess here.  The special string `xcode` uses "xcode swift" for building.  (Swift 2.2 does not contain all the tools we use, so you need to have a 3.x snapshot installed as well.  However, this is a "mostly" xcode-flavored buildchain.)
-* `--platform` which specifies the target platform.  By default, this is the current platform.  Pass a different value (`osx` or `linux`) to cross-compile, only if your compiler supports it.
+* `--platform` which specifies the target platform.  By default, this is the current platform.  Pass a different value (`osx`, `linux`, `ios-x86_64`, `ios-i386`, `ios-arm64`, or `ios-armv7`) to cross-compile, only if your compiler supports it.
 
 # Building
 

@@ -19,5 +19,5 @@ import atpkg
  * dependencies together.
  */
 final class Nop: Tool {
-    func run(task: Task) {}
+    func run(task: Task, toolchain: String) {}
 }

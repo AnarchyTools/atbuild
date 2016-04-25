@@ -1,0 +1,26 @@
+client:
+  name: swift-build
+
+tools: {}
+
+targets:
+  "": [<atllbuild>]
+  atllbuild: [<atllbuild>]
+commands:
+  <atllbuild-swiftc>:
+     tool: swift-compiler
+     executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
+     inputs: ["main.swift"]
+     sources: ["main.swift"]
+     objects: [".atllbuild/objects/main.swift.o"]
+     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
+     module-name: platforms
+     module-output-path: .atllbuild/products/platforms.swiftmodule
+     temps-path: .atllbuild/llbuildtmp
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-D", "OSX"]
+  <atllbuild>:
+    tool: shell
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
+    outputs: ["<atllbuild>", ".atllbuild/products/platforms"]
+    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/platforms", ".atllbuild/objects/main.swift.o"]
+    description: Linking executable .atllbuild/products/platforms

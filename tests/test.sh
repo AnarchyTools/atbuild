@@ -8,7 +8,171 @@ ATBUILD="`pwd`/.atllbuild/products/atbuild"
 pwd
 
 echo "****************SELF-HOSTING TEST**************"
-$ATBUILD atbuild
+if ! $ATBUILD atbuild --use-overlay static; then
+    echo "Self-host failed; maybe you're not running CaffeinatedSwift?"
+    echo "Retrying with non-static build"
+    $ATBUILD atbuild
+fi
+
+echo "****************USAGE TEST**************"
+cd $DIR/tests/fixtures/nonstandard_package_file
+$ATBUILD --help > /tmp/usage.txt || true
+if ! grep "Usage:" /tmp/usage.txt; then
+    echo "Didn't print usage"
+    exit 1
+fi
+
+
+echo "****************PLUGIN TEST**************"
+cd $DIR/tests/fixtures/attool
+$ATBUILD > /tmp/plugin.txt
+if ! grep "\-key value --test test_substitution --userpath .*tests/fixtures/attool/user" /tmp/plugin.txt; then
+    cat /tmp/plugin.txt
+    echo "Did not find key print in plugin test"
+    exit 1
+fi
+
+echo "****************IOS TEST**************"
+cd $DIR/tests/fixtures/ios
+UNAME=`uname`
+if [ "$UNAME" == "Darwin" ]; then
+    $ATBUILD --platform ios-x86_64 ##FIXME
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: x86_64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: x86_64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: x86_64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+
+    $ATBUILD --platform ios-i386
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: i386"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: i386"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: i386"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    $ATBUILD --platform ios-arm64
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: arm64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: arm64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: arm64"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    $ATBUILD --platform ios-armv7
+    INFO=`lipo -info .atllbuild/products/static.a`
+    if [[ "$INFO" != *"architecture: armv7"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+    INFO=`lipo -info .atllbuild/products/dynamic.dylib`
+    if [[ "$INFO" != *"architecture: armv7"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+    INFO=`lipo -info .atllbuild/products/executable`
+    if [[ "$INFO" != *"architecture: armv7"* ]]; then
+        echo "bad architecture $INFO"
+        exit 1
+    fi
+
+else
+    echo "Skipping iOS tests on non-Darwin platform"
+fi
+
+echo "****************PLATFORMS TEST**************"
+cd $DIR/tests/fixtures/platforms
+UNAME=`uname`
+$ATBUILD check 2&> /tmp/platforms.txt
+if [ "$UNAME" == "Darwin" ]; then
+    STR="Hello from OSX!"
+else
+    STR="Hello from LINUX!"
+fi
+if ! grep "$STR" /tmp/platforms.txt; then
+    cat /tmp/platforms.txt
+    echo "Did not find platform print in platform test"
+    exit 1
+fi
+
+#check bootstrapping case
+$ATBUILD build --use-overlay bootstrap-only --platform linux
+if ! cmp --silent bin/bootstrap-platform.yaml known-linux-bootstrap.yaml; then
+    echo "Linux bootstrap was unexpected"
+    exit 1
+fi
+
+$ATBUILD build --use-overlay bootstrap-only --platform osx
+if ! cmp --silent bin/bootstrap-platform.yaml known-osx-bootstrap.yaml; then
+    echo "OSX bootstrap was unexpected"
+    exit 1
+fi
+
+
+
+echo "****************XCODE TOOLCHAIN TEST**************"
+
+if [ -e "/Applications/Xcode.app" ]; then
+    cd $DIR/tests/fixtures/xcode_toolchain
+    $ATBUILD --toolchain xcode
+else
+    echo "Xcode is not installed; skipping test"
+fi
+
+echo "****************PACKAGE FRAMEWORK TESTS**************"
+UNAME=`uname`
+if [ "$UNAME" == "Darwin" ]; then
+    cd $DIR/tests/fixtures/package_framework
+    $ATBUILD check
+else
+    echo "Skipping framework tests on this platform"
+fi
+echo "****************COLLECT SOURCES TEST**************"
+cd $DIR/tests/fixtures/collect_sources
+$ATBUILD collect-sources 2&> /tmp/sources.txt
+if ! grep "sources src/a.swift src/b.swift" /tmp/sources.txt; then
+    if ! grep "sources src/b.swift src/a.swift" /tmp/sources.txt; then
+        exit 1
+    fi
+fi
+
+echo "****************DYNAMIC LIBRARY TEST**************"
+cd $DIR/tests/fixtures/dynamic_library
+$ATBUILD
+.atllbuild/products/dynamic_library_tester
 
 echo "****************WMO TEST**************"
 cd $DIR/tests/fixtures/wmo

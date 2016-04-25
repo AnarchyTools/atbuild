@@ -12,24 +12,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let version = "0.8.1"
+#if os(Linux)
+import Glibc
+#else
+import Darwin
+#endif
 
-import Foundation
+let version = "0.10.0"
+
+import atfoundation
 import atpkg
 import attools
+
+// This is a workaround for jumbled up output from print statements
+setbuf(stdout, nil)
 
 enum Options: String {
     case Overlay = "--use-overlay"
     case CustomFile = "-f"
     case Help = "--help"
     case Clean = "--clean"
+    case Toolchain = "--toolchain"
+    case Platform = "--platform"
     
-    static var allOptions : [Options] { return [Overlay, CustomFile] }
+    static var allOptions : [Options] { return [
+        Overlay, 
+        CustomFile, 
+        Help, 
+        Clean, 
+        Toolchain, 
+        Platform
+        ] 
+    }
 }
 
-let defaultPackageFile = "build.atpkg"
+let defaultPackageFile = Path("build.atpkg")
 
 var focusOnTask : String? = nil
+
+var packageFile = defaultPackageFile
+var toolchain = Platform.buildPlatform.defaultToolchainPath
+for (i, x) in Process.arguments.enumerated() {
+    if x == Options.CustomFile.rawValue {
+        packageFile = Path(Process.arguments[i+1])
+    }
+    if x == Options.Toolchain.rawValue {
+        toolchain = Process.arguments[i+1]
+        if toolchain == "xcode" {
+            toolchain = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain"
+        }
+    }
+    if x == Options.Platform.rawValue {
+        let platformString = Process.arguments[i+1]
+        Platform.targetPlatform = Platform(string: platformString)
+    }
+}
 
 //build overlays
 var overlays : [String] = []
@@ -39,36 +76,53 @@ for (i, x) in Process.arguments.enumerated() {
         overlays.append(overlay)
     }
 }
-var packageFile = defaultPackageFile
-for (i, x) in Process.arguments.enumerated() {
-    if x == Options.CustomFile.rawValue {
-        packageFile = Process.arguments[i+1]
-    }
-}
-let package = try! Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+overlays.append(contentsOf: Platform.targetPlatform.overlays)
 
-//usage message
-if Process.arguments.contains("--help") {
+print("enabling overlays \(overlays)")
+
+var package: Package! = nil
+
+func usage() {
     print("atbuild - Anarchy Tools Build Tool \(version)")
     print("https://github.com/AnarchyTools")
     print("© 2016 Anarchy Tools Contributors.")
     print("")
     print("Usage:")
-    print("atbuild [-f packagefile] [task] [--clean]")
-    
-    print("tasks:")
-    for (key, task) in package.tasks {
-        print("    \(key)")
-    } 
+    print("atbuild [--toolchain (/toolchain/path | xcode)] [-f packagefile] [task] [--clean]")
+
+    if let p = package {
+        print("tasks:")
+        for (key, _) in p.tasks {
+            print("    \(key)")
+        }
+    }
+    else {
+        print("No tasks are available; run --help in a directory with a build.atpkg for project-specific help")
+    }
+
     exit(1)
 }
 
+do {
+    package = try Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+} catch {
+    print("Could not load package file: \(error)")
+    usage()
+}
+
+//usage message
+if Process.arguments.contains("--help") {
+    usage()
+}
+
+
 func runTask(taskName: String, package: Package) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
-    for task in package.prunedDependencyGraph(task) {
-        TaskRunner.runTask(task, package: package)
+    for task in package.prunedDependencyGraph(task: task) {
+        TaskRunner.runTask(task: task, package: package, toolchain: toolchain)
     }
 }
+
 
 //choose which task to run
 if Process.arguments.count > 1 {
@@ -91,7 +145,7 @@ if focusOnTask == nil {
 
 print("Building package \(package.name)...")
 
-runTask(focusOnTask!, package: package)
+runTask(taskName: focusOnTask!, package: package)
 
 //success message
 print("Built package \(package.name).")

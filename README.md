@@ -4,7 +4,35 @@
 
 The Anarchy Tools Build Tool.
 
-`atbuild` is a cross-platform build system, primarily for Swift-language projects, following the [Anarchy Tools philosophy](http://anarchytools.org/) of simple, unopinionated, hackable tools.
+atbuild is a small, configurable, mature, and boring Swift buildsystem.
+
+1.  It just builds your code.  That's it.  No bells, whistles, file downloads, or feature creep.
+2.  It is extensible and can be easily customized to work how *you* want.
+3.  It has no magic.  It doesn't guess.  It does what you tell it to do.
+4.  It has no opinions.  It does not look down on you for writing code "wrong".
+5.  It is used to build many large production projects.
+
+It follows the [Anarchy Tools philosophy](https://github.com/AnarchyTools/anarchytools.github.io) of simple, unopinionated, hackable tools.
+
+Key atbuild features:
+
+* Builds Swift 2 & Swift 3 projects
+* Can even build with Xcode's Swift
+* Builds projects for OSX, Linux, and iOS (experimental)
+* Can run custom scripts before, after, and during builds
+* Customize all compile and link flags
+* Powerful imports system for managing dependencies
+* Overlays, custom tools, and external scripts allow maximum customization
+* Uses the next-generation `swift-llbuild` engine
+* Extensive [documentation](http://anarchytools.org)
+* It's 1.0!
+
+atbuild pairs well with:
+
+* [atpm](https://github.com/AnarchyTools/atpm), the Anarchy Tools Package Manager
+* [xcode-emit](https://github.com/AnarchyTools/xcode-emit) which emits Xcode projects from an atbuild configuration
+* [SublimeAnarchy](https://github.com/AnarchyTools/SublimeAnarchy), the Swift IDE for Sublime Text 3
+* Many [other AnarchyTools projects](https://github.com/AnarchyTools)!
 
 # Tasks
 

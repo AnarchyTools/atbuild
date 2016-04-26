@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+UNAME=`uname`
+
 
 echo "**********THE ATBUILD TEST SCRIPT*************"
 
@@ -26,15 +28,21 @@ fi
 echo "****************PLUGIN TEST**************"
 cd $DIR/tests/fixtures/attool
 $ATBUILD > /tmp/plugin.txt
-if ! grep "\-key value --test test_substitution --userpath .*tests/fixtures/attool/user" /tmp/plugin.txt; then
+if [ "$UNAME" == "Darwin" ]; then
+    SEARCHTEXT="\-key value --platform osx --test test_substitution --userpath .*tests/fixtures/attool/user"
+else
+    SEARCHTEXT="\-key value --platform linux --test test_substitution --userpath .*tests/fixtures/attool/user"
+fi
+
+if ! grep "$SEARCHTEXT" /tmp/plugin.txt; then
     cat /tmp/plugin.txt
     echo "Did not find key print in plugin test"
+    echo $SEARCHTEXT
     exit 1
 fi
 
 echo "****************IOS TEST**************"
 cd $DIR/tests/fixtures/ios
-UNAME=`uname`
 if [ "$UNAME" == "Darwin" ]; then
     $ATBUILD --platform ios-x86_64 ##FIXME
     INFO=`lipo -info .atllbuild/products/static.a`

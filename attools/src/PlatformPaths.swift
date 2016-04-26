@@ -155,6 +155,19 @@ public enum Platform {
     public static var buildPlatform: Platform = Platform.hostPlatform
 }
 
+extension Platform: CustomStringConvertible {
+    public var description: String {
+        switch(self) {
+            case .OSX:
+            return "osx"
+            case .Linux:
+            return "linux"
+            case .iOS(let architecture):
+            return "ios-\(architecture)"
+        }
+    }
+}
+
 func findToolPath(toolName: String, toolchain: String) -> Path {
 
     if Platform.buildPlatform == Platform.hostPlatform {

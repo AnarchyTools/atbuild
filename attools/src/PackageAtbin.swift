@@ -140,7 +140,7 @@ class PackageAtbin:Tool {
             }
         }
 
-        //generate built.atpkg
+        //generate compiled.atpkg
         var s = ""
         s += "(package\n"
         s += ":name \"\(name)\"\n"
@@ -152,6 +152,6 @@ class PackageAtbin:Tool {
         s += "]\n"
         s += ":type \"\(outputType.rawValue)\"\n"
         s += ")\n"
-        try! s.write(to: atbinPath.join(Path("built.atpkg")))
+        try! s.write(to: atbinPath.join(Path("compiled.atpkg")))
     }
 }

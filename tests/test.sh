@@ -80,17 +80,17 @@ if [ ! -f "bin/dynamicatbin.atbin/module.modulemap" ]; then
     exit 1
 fi
 
-if [ ! -f "bin/staticatbin.atbin/built.atpkg" ]; then
-    echo "Missing built.atpkg"
+if [ ! -f "bin/staticatbin.atbin/compiled.atpkg" ]; then
+    echo "Missing compiled.atpkg"
     exit 1
 fi
-if [ ! -f "bin/dynamicatbin.atbin/built.atpkg" ]; then
-    echo "Missing built.atpkg"
+if [ ! -f "bin/dynamicatbin.atbin/compiled.atpkg" ]; then
+    echo "Missing compiled.atpkg"
     exit 1
 fi
 
-if [ ! -f "bin/executableatbin.atbin/built.atpkg" ]; then
-    echo "Missing built.atpkg"
+if [ ! -f "bin/executableatbin.atbin/compiled.atpkg" ]; then
+    echo "Missing compiled.atpkg"
     exit 1
 fi
 

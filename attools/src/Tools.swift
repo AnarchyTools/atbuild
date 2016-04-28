@@ -27,7 +27,8 @@ let tools: [String:Tool] = [
     "atllbuild": ATllbuild(),
     "nop": Nop(),
     "xctestrun":XCTestRun(),
-    "packageframework":PackageFramework()
+    "packageframework":PackageFramework(),
+    "packageatbin":PackageAtbin()
 ]
 
 /**

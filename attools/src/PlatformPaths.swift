@@ -49,9 +49,13 @@ func ==(a: Platform, b: Platform) -> Bool {
 }
 
 public enum Platform {
+    //specific platforms
     case OSX
     case Linux
     case iOS(Architecture)
+
+    //generic platforms
+    case iOSGeneric
 
     public init(string: String) {
         switch(string) {
@@ -67,6 +71,8 @@ public enum Platform {
                 self = Platform.iOS(Architecture.armv7)
             case "ios-arm64":
                 self = Platform.iOS(Architecture.arm64)
+            case "ios":
+                self = Platform.iOSGeneric
 
             default:
                 fatalError("Unknown platform \(string)")
@@ -80,7 +86,7 @@ public enum Platform {
                 return ["atbuild.platform.osx", "atbuild.platform.mac"]
             case .Linux:
                 return ["atbuild.platform.linux"]
-            case .iOS:
+            case .iOS, .iOSGeneric:
                 return ["atbuild.platform.ios"]
         }
     }
@@ -88,7 +94,7 @@ public enum Platform {
     ///The typical path to a toolchain binary of the platform
     var defaultToolchainBinaryPath: String {
         switch(self) {
-            case .OSX, .iOS:
+            case .OSX, .iOS, .iOSGeneric:
             return "\(defaultToolchainPath)/usr/bin/"
             case .Linux:
             return "\(defaultToolchainPath)/usr/local/bin/"
@@ -97,7 +103,7 @@ public enum Platform {
 
     public var defaultToolchainPath: String {
         switch(self) {
-            case .OSX, .iOS:
+            case .OSX, .iOS, .iOSGeneric:
                 return "/Library/Developer/Toolchains/swift-latest.xctoolchain"
             case .Linux:
                 return "/"
@@ -114,6 +120,8 @@ public enum Platform {
                 return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.3.sdk"
             case .iOS(.armv7), .iOS(.arm64):
                 return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk"
+            case .iOSGeneric:
+                fatalError("No SDK for generic iOS platform; choose a specific platform or use atbin")
         }
     }
 
@@ -123,12 +131,14 @@ public enum Platform {
                 return Architecture.x86_64
             case .iOS(let arch):
                 return arch
+            case .iOSGeneric:
+                fatalError("No architecture for generic iOS platform; choose a specific platform or use atbin")
         }
     }
 
     var dynamicLibraryExtension: String {
         switch(self) {
-            case .OSX, .iOS:
+            case .OSX, .iOS, .iOSGeneric:
                 return ".dylib"
             case .Linux:
                 return ".so"
@@ -153,6 +163,17 @@ public enum Platform {
     ///we may be only emitting a yaml, which the actual build occuring
     /// on some other platform than either the host or the target.
     public static var buildPlatform: Platform = Platform.hostPlatform
+
+    ///If the platform is "virtual" (such as iOS), this returns all the sub-platforms.
+    ///Otherwise, it returns the receiver
+    public var allPlatforms: [Platform] {
+        switch(self) {
+            case .OSX, .Linux, .iOS:
+            return [self]
+            case .iOSGeneric:
+            return [Platform.iOS(Architecture.x86_64), Platform.iOS(Architecture.i386), Platform.iOS(Architecture.armv7), Platform.iOS(Architecture.arm64)]
+        }
+    }
 }
 
 extension Platform: CustomStringConvertible {
@@ -164,6 +185,8 @@ extension Platform: CustomStringConvertible {
             return "linux"
             case .iOS(let architecture):
             return "ios-\(architecture)"
+            case .iOSGeneric:
+            return "ios"
         }
     }
 }

@@ -54,10 +54,10 @@ final class ATllbuild : Tool {
         return s
     }()
 
-    enum OutputType {
-        case Executable
-        case StaticLibrary
-        case DynamicLibrary
+    enum OutputType: String {
+        case Executable = "executable"
+        case StaticLibrary = "static-library"
+        case DynamicLibrary = "dynamic-library"
     }
 
     enum ModuleMapType {
@@ -188,7 +188,7 @@ final class ATllbuild : Tool {
         }
      }
 
-    private enum Options: String {
+    enum Options: String {
         case Tool = "tool"
         case Name = "name"
         case Dependencies = "dependencies"
@@ -286,19 +286,11 @@ final class ATllbuild : Tool {
                 linkWithProduct.append(p)
             }
         }
-
-        let outputType: OutputType
-        if task[Options.OutputType.rawValue]?.string == "static-library" {
-            outputType = .StaticLibrary
+        guard case .some(.StringLiteral(let outputTypeString)) = task[Options.OutputType.rawValue] else {
+            fatalError("No \(Options.OutputType.rawValue) for task \(task)")
         }
-        else if task[Options.OutputType.rawValue]?.string == "executable" {
-            outputType = .Executable
-        }
-        else if task[Options.OutputType.rawValue]?.string == "dynamic-library" {
-            outputType = .DynamicLibrary
-        }
-        else {
-            fatalError("Unknown \(Options.OutputType.rawValue) \(task["outputType"])")
+        guard let outputType = OutputType(rawValue: outputTypeString) else {
+            fatalError("Unknown \(Options.OutputType.rawValue) \(outputTypeString)")
         }
 
         var compileOptions: [String] = []
@@ -363,7 +355,7 @@ final class ATllbuild : Tool {
                 case .Linux:
                 break
 
-                case .iOS:
+                case .iOS, .iOSGeneric:
                 fatalError("\(Options.XCTestify.rawValue) is not supported for iOS")
             }
         }
@@ -388,7 +380,7 @@ final class ATllbuild : Tool {
             case .Linux:
                 break
 
-                case .iOS:
+                case .iOS, .iOSGeneric:
                 fatalError("\(Options.XCTestStrict.rawValue) is not supported for iOS")
             }
         }
@@ -450,6 +442,8 @@ final class ATllbuild : Tool {
             linkOptions.append(contentsOf: ["-Xlinker", "-syslibroot","-Xlinker",Platform.targetPlatform.sdkPath!])
             case .OSX, .Linux:
                 break //not required
+            case .iOSGeneric:
+                fatalError("Generic platform iOS cannot be used with atllbuild; choose a specific platform or use atbin")
         }
 
         let bootstrapOnly: Bool

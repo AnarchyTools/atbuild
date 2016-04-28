@@ -16,6 +16,126 @@ if ! $ATBUILD atbuild --use-overlay static; then
     $ATBUILD atbuild
 fi
 
+echo "****************ATBIN TEST**************"
+cd $DIR/tests/fixtures/atbin
+
+$ATBUILD
+#did we build all the things we were supposed to?
+
+if [ "$UNAME" == "Darwin" ]; then
+    if [ ! -f "bin/dynamicatbin.atbin/osx.swiftmodule" ]; then
+        echo "Missing swiftmodule"
+        exit 1
+    fi
+    if [ ! -f "bin/dynamicatbin.atbin/osx.swiftdoc" ]; then
+        echo "Missing swiftdoc"
+        exit 1
+    fi
+
+    if [ ! -f "bin/dynamicatbin.atbin/dlib.dylib" ]; then
+        echo "Missing dylib"
+        exit 1
+    fi
+
+    if [ ! -f "bin/staticatbin.atbin/osx.swiftmodule" ]; then
+        echo "Missing swiftmodule"
+        exit 1
+    fi
+    if [ ! -f "bin/staticatbin.atbin/osx.swiftdoc" ]; then
+        echo "Missing swiftdoc"
+        exit 1
+    fi
+else
+    if [ ! -f "bin/dynamicatbin.atbin/linux.swiftmodule" ]; then
+        echo "Missing swiftmodule"
+        exit 1
+    fi
+    if [ ! -f "bin/dynamicatbin.atbin/linux.swiftdoc" ]; then
+        echo "Missing swiftdoc"
+        exit 1
+    fi
+
+    if [ ! -f "bin/dynamicatbin.atbin/dlib.so" ]; then
+        echo "Missing dylib"
+        exit 1
+    fi
+
+    if [ ! -f "bin/staticatbin.atbin/linux.swiftmodule" ]; then
+        echo "Missing swiftmodule"
+        exit 1
+    fi
+    if [ ! -f "bin/staticatbin.atbin/linux.swiftdoc" ]; then
+        echo "Missing swiftdoc"
+        exit 1
+    fi
+fi
+
+# check non-platform-specific-things
+if [ ! -f "bin/staticatbin.atbin/module.modulemap" ]; then
+    echo "Missing modulemap"
+    exit 1
+fi
+if [ ! -f "bin/dynamicatbin.atbin/module.modulemap" ]; then
+    echo "Missing modulemap"
+    exit 1
+fi
+
+if [ ! -f "bin/staticatbin.atbin/built.atpkg" ]; then
+    echo "Missing built.atpkg"
+    exit 1
+fi
+if [ ! -f "bin/dynamicatbin.atbin/built.atpkg" ]; then
+    echo "Missing built.atpkg"
+    exit 1
+fi
+
+if [ ! -f "bin/executableatbin.atbin/built.atpkg" ]; then
+    echo "Missing built.atpkg"
+    exit 1
+fi
+
+if [ ! -f "bin/executableatbin.atbin/exec" ]; then
+    echo "Missing payload"
+    exit 1
+fi
+
+if [ ! -f "bin/staticatbin.atbin/slib.a" ]; then
+    echo "Missing payload"
+    exit 1
+fi
+
+
+if [ "$UNAME" == "Darwin" ]; then
+    $ATBUILD --platform ios
+
+    #check archs
+    FILE=`file bin/staticatbin.atbin/slib.a | wc -l | bc`
+    if [ "$FILE" != "5" ]; then
+        echo "Architecture mismatch (static iOS) $FILE"
+        exit 1
+    fi 
+
+    FILE=`file bin/executableatbin.atbin/exec | wc -l | bc`
+    if [ "$FILE" != "5" ]; then
+        echo "Architecture mismatch (executable iOS) $FILE"
+        exit 1
+    fi 
+
+    FILE=`file bin/dynamicatbin.atbin/dlib.dylib | wc -l | bc`
+    if [ "$FILE" != "5" ]; then
+        echo "Architecture mismatch (dynamic library iOS) $FILE"
+        exit 1
+    fi 
+
+    FILE=`file bin/sim.atbin/slib.a | wc -l | bc`
+    if [ "$FILE" != "3" ]; then
+        echo "Architecture mismatch (sim iOS) $FILE"
+        exit 1
+    fi 
+
+fi
+
+
 echo "****************USAGE TEST**************"
 cd $DIR/tests/fixtures/nonstandard_package_file
 $ATBUILD --help > /tmp/usage.txt || true

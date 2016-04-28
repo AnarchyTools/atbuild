@@ -118,9 +118,7 @@ if Process.arguments.contains("--help") {
 
 func runTask(taskName: String, package: Package) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
-    for task in package.prunedDependencyGraph(task: task) {
-        TaskRunner.runTask(task: task, package: package, toolchain: toolchain)
-    }
+    TaskRunner.runTask(task: task, package: package, toolchain: toolchain)
 }
 
 

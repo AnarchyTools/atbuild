@@ -69,7 +69,7 @@ class XCTestRun : Tool {
             case .Linux:
             anarchySystem("\(testExecutable)")
 
-			case .iOS:
+			case .iOS, .iOSGeneric:
             fatalError("XCTestRun is not supported for iOS")
         }
     }

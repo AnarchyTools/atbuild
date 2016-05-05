@@ -13,7 +13,7 @@ final class CustomTool: Tool {
     }
     let name: String
     init(name: String) {
-        self.name = String(name.characters[name.characters.startIndex..<name.characters.startIndex.advanced(by: name.characters.count - 7)])
+        self.name = String(name.characters[name.characters.startIndex..<name.characters.index(name.characters.startIndex, offsetBy: name.characters.count - 7)])
     }
     func run(task: Task, toolchain: String) {
         var cmd = "\(self.name) "

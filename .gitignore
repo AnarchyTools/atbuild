@@ -4,3 +4,4 @@ bin/
 
 *xcuserdata*
 .DS_Store
+*.sublime-workspace

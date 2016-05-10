@@ -70,9 +70,10 @@ final class ATllbuild : Tool {
      *   - parameter sources: A resolved list of swift sources
      *   - parameter workdir: A temporary working directory for `atllbuild` to use
      *   - parameter modulename: The name of the module to be built.
+     *   - parameter executableName: The name of the executable to be built.  Typically the same as the module name.
      *   - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool
      */
-    func llbuildyaml(sources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], swiftCPath: Path) -> String {
+    func llbuildyaml(sources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], swiftCPath: Path, executableName: String) -> String {
         let productPath = workdir.appending("products")
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
@@ -138,7 +139,7 @@ final class ATllbuild : Tool {
             llbuild_inputs += objects
             let builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
             llbuild_inputs += builtProducts
-            let executablePath = productPath.appending(modulename)
+            let executablePath = productPath.appending(executableName)
             yaml += "    inputs: \(llbuild_inputs)\n"
             yaml += "    outputs: [\"<atllbuild>\", \"\(executablePath)\"]\n"
             //and now we have the crazy 'args'
@@ -209,6 +210,7 @@ final class ATllbuild : Tool {
         case ModuleMap = "module-map"
         case WholeModuleOptimization = "whole-module-optimization"
         case Framework = "framework"
+        case ExecutableName = "executable-name"
 
 
         static var allOptions : [Options] {
@@ -230,7 +232,8 @@ final class ATllbuild : Tool {
                 PublishProduct,
 				UmbrellaHeader,
                 WholeModuleOptimization,
-                Framework
+                Framework,
+                ExecutableName
             ]
         }
     }
@@ -394,6 +397,13 @@ final class ATllbuild : Tool {
 
         guard let name = task[Options.Name.rawValue]?.string else { fatalError("No name for atllbuild task") }
 
+        let executableName: String
+        if let e = task[Options.ExecutableName.rawValue]?.string { 
+            precondition(outputType == .Executable, "Must use \(Options.OutputType.rawValue) 'executable' when using \(Options.ExecutableName.rawValue)")
+            executableName = e 
+        }
+        else { executableName = name }
+
         if task[Options.Framework.rawValue]?.bool == true {
             #if !os(OSX)
             fatalError("\(Options.Framework.rawValue) is not supported on this platform.")
@@ -483,7 +493,7 @@ final class ATllbuild : Tool {
             swiftCPath = findToolPath(toolName: "swiftc", toolchain: toolchain)
         }
 
-        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath)
+        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath, executableName: executableName)
         let _ = try? yaml.write(to: llbuildyamlpath)
         if bootstrapOnly { return }
 
@@ -511,7 +521,7 @@ final class ATllbuild : Tool {
                 try FS.copyItem(from: workDirectory + "products/\(name).swiftdoc", to: Path("bin/\(name).swiftdoc"))
                 switch outputType {
                 case .Executable:
-                    try FS.copyItem(from: workDirectory + "products/\(name)", to: Path("bin/\(name)"))
+                    try FS.copyItem(from: workDirectory + "products/\(executableName)", to: Path("bin/\(executableName)"))
                 case .StaticLibrary:
                     try FS.copyItem(from: workDirectory + "products/\(name).a", to: Path("bin/\(name).a"))
                 case .DynamicLibrary:

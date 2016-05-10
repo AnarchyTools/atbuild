@@ -1,0 +1,20 @@
+(package
+    :name "executable_name"
+
+    :tasks {
+        :default {
+            :tool "atllbuild"
+            :name "executable_name"
+            :executable-name "executable-name"
+            :sources ["src/**.swift"]
+            :publish-product true
+            :output-type "executable"
+        }
+        :check {
+            :tool "shell"
+            :script "bin/executable-name"
+            :dependencies ["default"]
+        }
+    }
+
+)

@@ -16,6 +16,10 @@ if ! $ATBUILD atbuild --use-overlay static; then
     $ATBUILD atbuild
 fi
 
+echo "****************EXECUTABLE-NAME TEST**************"
+cd $DIR/tests/fixtures/executable_name
+$ATBUILD check
+
 echo "****************ATBIN TEST**************"
 cd $DIR/tests/fixtures/atbin
 

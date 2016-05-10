@@ -38,6 +38,12 @@ final public class TaskRunner {
     }
 
     static private func runTaskWithoutDependencies(task: Task, package: Package, toolchain: String) {
+        if task.onlyPlatforms.count > 0 {
+            if !task.onlyPlatforms.contains(Platform.targetPlatform.description) {
+                print("Skipping task \(task) on platform \(Platform.targetPlatform)")
+                return
+            }
+        }
         print("Running task \(task.qualifiedName) with overlays \(task.appliedOverlays) for platform \(Platform.targetPlatform)")
         do {
             try task.checkRequiredOverlays()

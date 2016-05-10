@@ -16,6 +16,28 @@ if ! $ATBUILD atbuild --use-overlay static; then
     $ATBUILD atbuild
 fi
 
+echo "****************ONLY-PLATFORMS TEST**************"
+cd $DIR/tests/fixtures/only_platforms
+$ATBUILD > /tmp/only.txt
+
+if [ "$UNAME" == "Darwin" ]; then
+    EXPECT="hello from osx"
+    DONTEXPECT="hello from linux"
+else
+    EXPECT="hello from linux"
+    DONTEXPECT="hello from osx"
+fi
+if ! grep "$EXPECT" /tmp/only.txt; then
+    echo "Didn't find $EXPECT in /tmp/only.txt"
+    exit 1
+fi
+
+if grep "$DONTEXPECT" /tmp/only.txt; then
+    echo "Found $DONTEXPECT in /tmp/only.txt"
+    exit 1
+fi
+
+
 echo "****************EXECUTABLE-NAME TEST**************"
 cd $DIR/tests/fixtures/executable_name
 $ATBUILD check

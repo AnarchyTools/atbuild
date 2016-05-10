@@ -1,0 +1,24 @@
+(package
+:name "only_platforms"
+:tasks {
+
+    :if-linux {
+        :tool "shell"
+        :script "echo hello from linux"
+        :only-platforms ["linux"]
+    }
+
+    :if-osx {
+        :tool "shell"
+        :script "echo hello from osx"
+        :only-platforms ["osx"]
+    }
+
+    :default {
+        :tool "nop"
+        :dependencies ["if-linux" "if-osx"]
+    }
+
+}
+
+)

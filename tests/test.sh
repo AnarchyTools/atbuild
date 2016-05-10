@@ -130,6 +130,12 @@ if [ ! -f "bin/staticatbin.atbin/slib.a" ]; then
     exit 1
 fi
 
+if [ ! -f "bin/dynamicatbin.atbin.tar.xz" ]; then
+    echo "Missing compressed atbin"
+    exit 1
+fi
+tar xf bin/dynamicatbin.atbin.tar.xz
+
 
 if [ "$UNAME" == "Darwin" ]; then
     $ATBUILD --platform ios

@@ -52,6 +52,7 @@
       :name "dynamicatbin"
       :atllbuild-task "dlib"
       :platforms ["all"]
+      :compress true
     }
 
     :ebin {

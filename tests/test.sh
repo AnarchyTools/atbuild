@@ -153,9 +153,9 @@ echo "****************PLUGIN TEST**************"
 cd $DIR/tests/fixtures/attool
 $ATBUILD > /tmp/plugin.txt
 if [ "$UNAME" == "Darwin" ]; then
-    SEARCHTEXT="\-key value --platform osx --test test_substitution --userpath .*tests/fixtures/attool/user"
+    SEARCHTEXT="\-key value --platform osx --test test_substitution --userpath .*tests/fixtures/attool/user --version 1.0"
 else
-    SEARCHTEXT="\-key value --platform linux --test test_substitution --userpath .*tests/fixtures/attool/user"
+    SEARCHTEXT="\-key value --platform linux --test test_substitution --userpath .*tests/fixtures/attool/user --version 1.0"
 fi
 
 if ! grep "$SEARCHTEXT" /tmp/plugin.txt; then

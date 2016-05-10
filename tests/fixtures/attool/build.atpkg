@@ -14,6 +14,7 @@
 
 (package
   :name "plugin"
+  :version "1.0"
   
   :tasks {
     :a {:tool "nop" }
@@ -23,6 +24,7 @@
       :test "${test_substitution}"
       :userpath "\${ATBUILD_USER_PATH}"
       :platform "\${ATBUILD_PLATFORM}"
+      :version "\${ATBUILD_PACKAGE_VERSION}"
       :dependencies ["a"]
     }
   }

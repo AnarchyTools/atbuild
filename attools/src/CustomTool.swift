@@ -26,6 +26,10 @@ final class CustomTool: Tool {
         }
         setenv("ATBUILD_USER_PATH", userPath().description, 1)
         setenv("ATBUILD_PLATFORM", "\(Platform.targetPlatform)", 1)
+        if let version = task.package.version {
+            setenv("ATBUILD_PACKAGE_VERSION", version, 1)
+        }
+        
         anarchySystem(cmd)
     }
 }

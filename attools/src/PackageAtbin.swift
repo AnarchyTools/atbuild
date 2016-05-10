@@ -19,6 +19,7 @@ class PackageAtbin:Tool {
         case Name = "name"
         case Platforms = "platforms"
         case AtllbuildTask = "atllbuild-task"
+        case Compress = "compress"
     }
 
     func run(task: Task, toolchain: String) {
@@ -153,5 +154,20 @@ class PackageAtbin:Tool {
         s += ":type \"\(outputType.rawValue)\"\n"
         s += ")\n"
         try! s.write(to: atbinPath.join(Path("compiled.atpkg")))
+
+        if task[Options.Compress.rawValue]?.bool == true {
+            let cmd: String
+            switch Platform.hostPlatform {
+                case .OSX:
+                cmd = "tar c --options \"xz:compression-level=9\" -Jf bin/\(name).atbin.tar.xz bin/\(name).atbin -C bin"
+                case .Linux:
+                cmd = "XZ_OPT=-8 tar cJf bin/\(name).atbin.tar.xz bin/\(name).atbin -C bin"
+                default:
+                fatalError("Unsupported host platform \(Platform.hostPlatform)")
+            }
+            if system(cmd) != 0 {
+                fatalError("Failed to compress archive")
+            }
+        }
     }
 }

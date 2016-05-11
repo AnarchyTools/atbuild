@@ -25,6 +25,7 @@
       :userpath "\${ATBUILD_USER_PATH}"
       :platform "\${ATBUILD_PLATFORM}"
       :version "\${ATBUILD_PACKAGE_VERSION}"
+      :bindir "\${ATBUILD_BIN_PATH}"
       :dependencies ["a"]
     }
   }

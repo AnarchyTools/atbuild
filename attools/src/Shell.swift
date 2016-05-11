@@ -27,31 +27,46 @@ import atpkg
  * If the tool returns with an error code of non-zero, the tool will fail.
  */
 final class Shell : Tool {
-    func run(task: Task, toolchain: String) {
+
+    ///Sets the environment for the specified task.
+    static func environvironment(task: Task, block: () -> ()) {
         setenv("ATBUILD_PLATFORM", "\(Platform.targetPlatform)", 1)
         setenv("ATBUILD_USER_PATH", userPath().description, 1)
         if let version = task.package.version {
             setenv("ATBUILD_PACKAGE_VERSION", version, 1)
         }
+
+        //does bin path not exist?
+        //let's create it!
+        let binPath = try! FS.getWorkingDirectory().appending("bin")
+        if !FS.fileExists(path: binPath) {
+            try! FS.createDirectory(path: binPath)
+        }
+        setenv("ATBUILD_BIN_PATH",binPath.description,1)
+
+        //deal with directory nonsense
+        let oldPath = try! FS.getWorkingDirectory()
+        defer {
+            do {
+                try FS.changeWorkingDirectory(path: oldPath)
+            } catch {
+                print("Can not revert to previous working directory '\(oldPath)': \(error)")
+                exit(42)
+            }
+        }
+        do {
+            try FS.changeWorkingDirectory(path: task.importedPath)
+        }
+        catch {
+            print("Cannot change working directory to \(task.importedPath)")
+        }
+        block()
+    }
+    func run(task: Task, toolchain: String) {
         guard var script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
         script = evaluateSubstitutions(input: script, package: task.package)
-        do {
-            let oldPath = try FS.getWorkingDirectory()
-            defer {
-                do {
-                    try FS.changeWorkingDirectory(path: oldPath)
-                } catch {
-                    print("Can not revert to previous working directory '\(oldPath)': \(error)")
-                    exit(42)
-                }
-            }
-
-            try FS.changeWorkingDirectory(path: task.importedPath)
-
-            anarchySystem("/bin/sh -c \"\(script)\"")
-        } catch {
-            print("Can not change working directory to '\(task.importedPath)': \(error)")
-            exit(42)
+        Shell.environvironment(task: task) {
+            anarchySystem(script)
         }
     }
 }

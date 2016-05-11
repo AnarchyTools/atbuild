@@ -10,10 +10,16 @@
             :publish-product true
             :output-type "executable"
         }
+        :atbin {
+            :tool "packageatbin"
+            :name "executable_name"
+            :atllbuild-task "default"
+            :platforms ["all"]
+        }
         :check {
             :tool "shell"
             :script "bin/executable-name"
-            :dependencies ["default"]
+            :dependencies ["atbin"]
         }
     }
 

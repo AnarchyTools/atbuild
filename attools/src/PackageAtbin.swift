@@ -67,14 +67,22 @@ class PackageAtbin:Tool {
             fatalError("No \(ATllbuild.Options.Name.rawValue) for \(atllbuildTask)")
         }
 
+        //for clarity, in the code below, we use moduleName when we refer to modules
+        //and outputName when we refer to the atbin output.
+        //by definition, the atbin output is the module name, but we might change this definition.  Who knows.
+        let moduleName = outputName
+
         let payloadFileName: String
         switch(outputType) {
             case .DynamicLibrary:
-            payloadFileName = "\(outputName)\(Platform.targetPlatform.dynamicLibraryExtension)"
+            payloadFileName = "\(moduleName)\(Platform.targetPlatform.dynamicLibraryExtension)"
             case .StaticLibrary:
-            payloadFileName = "\(outputName).a"
+            payloadFileName = "\(moduleName).a"
             case .Executable:
-            payloadFileName = outputName
+            if case.some(.StringLiteral(let e)) = atllbuildTask[ATllbuild.Options.ExecutableName.rawValue] {
+                payloadFileName = e
+            }
+            else  { payloadFileName = moduleName }
         }
 
         guard case .some(.Vector(let platformArray)) = task[Options.Platforms.rawValue] else {
@@ -109,17 +117,17 @@ class PackageAtbin:Tool {
             //copy payload to lipo location
             try! FS.copyItem(from: Path(".atllbuild/products/\(payloadFileName)"), to: workDir.join(Path("\(payloadFileName).\(Platform.targetPlatform)")))
 
-            let modulePath = Path(".atllbuild/products/\(outputName).swiftmodule")
+            let modulePath = Path(".atllbuild/products/\(moduleName).swiftmodule")
             if FS.fileExists(path: modulePath) {
                 try! FS.copyItem(from: modulePath, to: atbinPath.join(Path("\(platform).swiftmodule")))
             }
 
-            let docPath = Path(".atllbuild/products/\(outputName).swiftdoc")
+            let docPath = Path(".atllbuild/products/\(moduleName).swiftdoc")
             if FS.fileExists(path: docPath) {
                 try! FS.copyItem(from: docPath, to: atbinPath.join(Path("\(platform).swiftdoc")))
             }
 
-            let moduleMapPath = Path(".atllbuild/products/\(outputName).modulemap")
+            let moduleMapPath = Path(".atllbuild/products/\(moduleName).modulemap")
             if FS.fileExists(path: moduleMapPath) {
                 try! FS.copyItem(from: moduleMapPath, to: atbinPath.join(Path("module.modulemap")))
             }

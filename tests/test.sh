@@ -80,6 +80,15 @@ if [ "$UNAME" == "Darwin" ]; then
         echo "Missing swiftdoc"
         exit 1
     fi
+
+    if [ ! -f "bin/dynamicatbin-1.0-osx.atbin.tar.xz" ]; then
+        echo "Missing compressed atbin"
+        exit 1
+    fi
+    tar xf bin/dynamicatbin-1.0-osx.atbin.tar.xz
+
+fi
+
 else
     if [ ! -f "bin/dynamicatbin.atbin/linux.swiftmodule" ]; then
         echo "Missing swiftmodule"
@@ -103,6 +112,12 @@ else
         echo "Missing swiftdoc"
         exit 1
     fi
+
+    if [ ! -f "bin/dynamicatbin-1.0-linux.atbin.tar.xz" ]; then
+        echo "Missing compressed atbin"
+        exit 1
+    fi
+    tar xf bin/dynamicatbin-1.0-linux.atbin.tar.xz
 fi
 
 # check non-platform-specific-things
@@ -138,12 +153,6 @@ if [ ! -f "bin/staticatbin.atbin/slib.a" ]; then
     echo "Missing payload"
     exit 1
 fi
-
-if [ ! -f "bin/dynamicatbin-1.0-osx.atbin.tar.xz" ]; then
-    echo "Missing compressed atbin"
-    exit 1
-fi
-tar xf bin/dynamicatbin-1.0-osx.atbin.tar.xz
 
 
 if [ "$UNAME" == "Darwin" ]; then

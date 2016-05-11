@@ -86,9 +86,6 @@ if [ "$UNAME" == "Darwin" ]; then
         exit 1
     fi
     tar xf bin/dynamicatbin-1.0-osx.atbin.tar.xz
-
-fi
-
 else
     if [ ! -f "bin/dynamicatbin.atbin/linux.swiftmodule" ]; then
         echo "Missing swiftmodule"

@@ -10,10 +10,19 @@ ATBUILD="`pwd`/.atllbuild/products/atbuild"
 pwd
 
 echo "****************SELF-HOSTING TEST**************"
-if ! $ATBUILD atbuild --use-overlay static; then
+export ATBUILD_PACKAGE_VERSION="1.2"
+echo "Remove this line after releasing 1.2"
+
+if [ "$UNAME" == "Darwin" ]; then
+    PLATFORM_SPECIFIC_PACKAGE="package-osx"
+else
+    PLATFORM_SPECIFIC_PACKAGE="package-linux"
+fi
+
+if ! $ATBUILD $PLATFORM_SPECIFIC_PACKAGE --use-overlay static; then
     echo "Self-host failed; maybe you're not running CaffeinatedSwift?"
     echo "Retrying with non-static build"
-    $ATBUILD atbuild
+    $ATBUILD $PLATFORM_SPECIFIC_PACKAGE
 fi
 
 echo "****************ONLY-PLATFORMS TEST**************"

@@ -6,18 +6,16 @@ linux:
     script:
         - apt-get update
         - apt-get install --no-install-recommends xz-utils curl git ca-certificates -y
-        - curl -L https://github.com/AnarchyTools/atbuild/releases/download/0.9.0/atbuild-0.9.0-linux.tar.xz | tar xJ -C /usr/local
+        - apt-get install curl -y && curl -s https://packagecloud.io/install/repositories/anarchytools/AT/script.deb.sh | bash && apt-get install --no-install-recommends -y package-deb xz-utils
         - git submodule update --init --recursive
         - bootstrap/build.sh linux
-        - tests/test.sh
-        - mkdir atbuild-${CI_BUILD_REF}
-        - cp bin/atbuild atbuild-${CI_BUILD_REF}
-        - tar cJf atbuild-${CI_BUILD_REF}-linux.tar.xz atbuild-${CI_BUILD_REF}
+        - bin/atbuild check
     tags:
         - autoscale-linux
     artifacts:
         paths:
-            - atbuild-${CI_BUILD_REF}-linux.tar.xz
+            - bin/atbuild.atbin
+            - bin/*.deb
     image: drewcrawford/swift:latest
 
 osx:
@@ -27,11 +25,9 @@ osx:
         - export PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:"${PATH}"
         - ./bootstrap/build.sh
         - bin/atbuild check
-        - mkdir atbuild-${CI_BUILD_REF}
-        - cp bin/atbuild atbuild-${CI_BUILD_REF}
-        - tar cJf atbuild-${CI_BUILD_REF}-osx.tar.xz atbuild-${CI_BUILD_REF}
     tags:
         - openswift
     artifacts:
         paths:
-            - atbuild-${CI_BUILD_REF}-osx.tar.xz
+            - bin/atbuild-*.tar.xz
+            - bin/atbuild.rb

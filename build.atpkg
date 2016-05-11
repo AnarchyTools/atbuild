@@ -71,6 +71,28 @@
       :script "./tests/test.sh"
       :dependencies ["atbuild"]
     }
+
+    :atbin {
+      :tool "packageatbin"
+      :name "atbuild"
+      :compress "true"
+      :atllbuild-task "atbuild"
+      :platforms ["all"]
+    }
+
+    :package-linux {
+      :tool "package-deb.attool"
+      :name "atbuild"
+      :dependencies ["atbin"]
+      :recommends "xz-utils"
+      :suggests "package-deb"
+    }
+    :package-osx {
+      :tool "package-homebrew.attool"
+      :name "atbuild"
+      :github-project "AnarchyTools/atbuild"
+      :dependencies ["atbin"]
+    }
   }
 
 )

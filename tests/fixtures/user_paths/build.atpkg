@@ -5,11 +5,12 @@
      :tasks {
         :first {
             :tool "shell"
-            :script "echo FIRST >> $ATBUILD_USER_PATH/test"
+            ;; note that binpath is not recreated, therefore we use single > here to force a new file
+            :script "echo FIRST >> $ATBUILD_USER_PATH/test && echo FIRST > $ATBUILD_BIN_PATH/test"
         }
         :third {
             :tool "shell"
-            :script "echo THIRD >> $ATBUILD_USER_PATH/test"
+            :script "echo THIRD >> $ATBUILD_USER_PATH/test && echo THIRD >> $ATBUILD_BIN_PATH/test"
             :dependencies ["first" "b.second"]
         }
         :compiledep {

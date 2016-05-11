@@ -14,7 +14,7 @@
 
 (package
   :name "atbin"
-  
+  :version "1.0"
   :tasks {
     :slib {
       :tool "atllbuild"

@@ -156,12 +156,21 @@ class PackageAtbin:Tool {
         try! s.write(to: atbinPath.join(Path("compiled.atpkg")))
 
         if task[Options.Compress.rawValue]?.bool == true {
+
+            let tarxz: String
+            if let v = task.package.version {
+                tarxz = "bin/\(name)-\(v)-\(Platform.targetPlatform).atbin.tar.xz"
+            }
+            else {
+                tarxz = "bin/\(name)-\(Platform.targetPlatform).atbin.tar.xz"
+            }
+             
             let cmd: String
             switch Platform.hostPlatform {
                 case .OSX:
-                cmd = "tar c --options \"xz:compression-level=9\" -Jf bin/\(name).atbin.tar.xz bin/\(name).atbin -C bin"
+                cmd = "tar c --options \"xz:compression-level=9\" -Jf \(tarxz) bin/\(name).atbin -C bin"
                 case .Linux:
-                cmd = "XZ_OPT=-8 tar cJf bin/\(name).atbin.tar.xz bin/\(name).atbin -C bin"
+                cmd = "XZ_OPT=-8 tar cJf \(tarxz) bin/\(name).atbin -C bin"
                 default:
                 fatalError("Unsupported host platform \(Platform.hostPlatform)")
             }

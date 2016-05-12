@@ -14,7 +14,7 @@ linux:
         - autoscale-linux
     artifacts:
         paths:
-            - bin/atbuild.atbin
+            - bin/atbuild-*.tar.xz
             - bin/*.deb
     image: drewcrawford/swift:latest
 

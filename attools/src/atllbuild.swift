@@ -211,6 +211,7 @@ final class ATllbuild : Tool {
         case WholeModuleOptimization = "whole-module-optimization"
         case Framework = "framework"
         case ExecutableName = "executable-name"
+        case Bitcode = "bitcode"
 
 
         static var allOptions : [Options] {
@@ -233,7 +234,8 @@ final class ATllbuild : Tool {
 				UmbrellaHeader,
                 WholeModuleOptimization,
                 Framework,
-                ExecutableName
+                ExecutableName,
+                Bitcode
             ]
         }
     }
@@ -321,6 +323,20 @@ final class ATllbuild : Tool {
                 guard let os = o.string else { fatalError("Link option \(o) is not a string") }
                 linkOptions.append(os)
             }
+        }
+
+        let bitcode: Bool
+        //do we have an explicit bitcode setting?
+        if let b = task[Options.Bitcode.rawValue] {
+            bitcode = b.bool!
+        }
+        else {
+            bitcode = false
+        }
+        //todo: enable by default for iOS, but we can't due to SR-1493
+        if bitcode {
+            compileOptions.append("-embed-bitcode")
+            linkOptions.append(contentsOf: ["-embed-bitcode"])
         }
 
         //check for modulemaps

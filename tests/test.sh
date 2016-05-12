@@ -17,6 +17,34 @@ if ! $ATBUILD package --use-overlay static; then
     $ATBUILD package
 fi
 
+echo "****************BITCODE TEST**************"
+cd $DIR/tests/fixtures/bitcode
+
+#xcode toolchain is only supported on OSX
+#and we only support bitcode on the xcode toolchain
+if [ "$UNAME" == "Darwin" ]; then
+    $ATBUILD --platform ios --toolchain xcode bitcode 
+
+    # verify bitcode sections exist
+    if ! otool -l bin/s.atbin/s.a | grep __LLVM; then
+        echo "No bitcode for static library"
+        exit 1
+    fi
+    if ! otool -l bin/d.atbin/d.dylib | grep __LLVM; then
+        echo "No bitcode for dynamic library"
+        exit 1
+    fi
+
+    if ! otool -l bin/e.atbin/e | grep __LLVM; then
+        echo "No bitcode for executable"
+        exit 1
+    fi
+fi
+
+
+
+
+
 echo "****************ONLY-PLATFORMS TEST**************"
 cd $DIR/tests/fixtures/only_platforms
 $ATBUILD > /tmp/only.txt

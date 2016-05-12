@@ -8,7 +8,7 @@
       :name "hello"
       :output-type "executable"
       :publish-product true
-    }            
+    }           
   }
 
 )

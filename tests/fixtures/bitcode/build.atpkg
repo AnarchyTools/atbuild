@@ -1,0 +1,58 @@
+(package
+  :name "bitcode"
+  :tasks {
+
+    ;;these tasks check bitcode support
+    ;;static, dynamic, and executable targets
+
+    :bitcodebuilde {
+      :tool "atllbuild"
+      :sources ["src/**.swift"]
+      :name "e"
+      :output-type "executable"
+      :bitcode true
+    }
+
+    :bitcodebuilds {
+      :tool "atllbuild"
+      :sources ["src/**.swift"]
+      :name "s"
+      :output-type "static-library"
+      :bitcode true
+    }
+
+    :bitcodebuildd {
+      :tool "atllbuild"
+      :sources ["src/**.swift"]
+      :name "d"
+      :output-type "dynamic-library"
+      :bitcode true
+    }
+    :bitcodes {
+      :tool "packageatbin"
+      :name "s"
+      :atllbuild-task "bitcodebuilds"
+      :platforms ["all"]
+    } 
+
+    :bitcoded {
+      :tool "packageatbin"
+      :name "d"
+      :atllbuild-task "bitcodebuildd"
+      :platforms ["all"]
+    } 
+    :bitcodee {
+      :tool "packageatbin"
+      :name "e"
+      :atllbuild-task "bitcodebuilde"
+      :platforms ["all"]
+    } 
+
+    :bitcode {
+      :tool "nop"
+      :dependencies ["bitcoded" "bitcodee" "bitcodes"]
+    }
+
+
+  }
+)

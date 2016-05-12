@@ -406,12 +406,20 @@ final class ATllbuild : Tool {
 
         if task[Options.Framework.rawValue]?.bool == true {
             #if !os(OSX)
-            fatalError("\(Options.Framework.rawValue) is not supported on this platform.")
+            fatalError("\(Options.Framework.rawValue) is not supported on this host.")
             #endif
             linkOptions.append("-Xlinker")
             linkOptions.append("-install_name")
             linkOptions.append("-Xlinker")
-            linkOptions.append("@rpath/\(name).framework/Versions/A/\(name)")
+            switch(Platform.targetPlatform) {
+                case .OSX:
+                linkOptions.append("@rpath/\(name).framework/Versions/A/\(name)")
+                case .iOS(let arch):
+                linkOptions.append("@rpath/\(name).framework/\(name)")
+                default:
+                fatalError("\(Options.Framework.rawValue) not supported when targeting \(Platform.targetPlatform)")
+            }
+            
         }
 
         if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {

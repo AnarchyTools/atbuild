@@ -22,5 +22,5 @@ commands:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
     outputs: ["<atllbuild>", ".atllbuild/products/platforms"]
-    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/platforms", ".atllbuild/objects/main.swift.o"]
+    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/platforms", ".atllbuild/objects/main.swift.o", "-Xlinker", "-dead_strip"]
     description: Linking executable .atllbuild/products/platforms

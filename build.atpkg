@@ -75,7 +75,7 @@
     :atbin {
       :tool "packageatbin"
       :name "atbuild"
-      :compress "true"
+      :compress true
       :atllbuild-task "atbuild"
       :platforms ["all"]
     }

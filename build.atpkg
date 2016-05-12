@@ -17,7 +17,7 @@
 (package
   :name "atbuild"
   :import-packages ["atpkg/build.atpkg"]
-  
+  :version "1.3"
   :tasks {
     :atbuild {
       :tool "atllbuild"
@@ -86,12 +86,18 @@
       :dependencies ["atbin"]
       :recommends "xz-utils"
       :suggests "package-deb"
+      :only-platforms ["linux"]
     }
     :package-osx {
       :tool "package-homebrew.attool"
       :name "atbuild"
       :github-project "AnarchyTools/atbuild"
       :dependencies ["atbin"]
+      :only-platforms ["osx"]
+    }
+    :package {
+      :tool "nop"
+      :dependencies ["package-osx" "package-linux"]
     }
   }
 

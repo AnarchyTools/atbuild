@@ -212,6 +212,7 @@ final class ATllbuild : Tool {
         case Framework = "framework"
         case ExecutableName = "executable-name"
         case Bitcode = "bitcode"
+        case Magic = "magic"
 
 
         static var allOptions : [Options] {
@@ -235,7 +236,8 @@ final class ATllbuild : Tool {
                 WholeModuleOptimization,
                 Framework,
                 ExecutableName,
-                Bitcode
+                Bitcode,
+                Magic
             ]
         }
     }
@@ -493,6 +495,16 @@ final class ATllbuild : Tool {
 
         ///The next task will not be bootstrapped.
         defer { Platform.buildPlatform = Platform.hostPlatform }
+
+        if task[Options.Magic.rawValue] == nil || task[Options.Magic.rawValue]?.bool == true {
+            print("build platform is \(Platform.buildPlatform)")
+            switch(Platform.buildPlatform) {
+                case .OSX:
+                linkOptions.append(contentsOf: ["-Xlinker","-dead_strip"])
+                default:
+                break
+            }
+        }
 
         let sdk: Bool
         if task[Options.LinkSDK.rawValue]?.bool == false {

@@ -39,6 +39,8 @@ class PackageFramework: Tool {
         #endif
     }
     func run(task: Task, toolchain: String) {
+        print("Warning: package-framework is deprecated and will be removed.  Use the plugin instead.")
+        sleep(5)
         compiler_crash() //work around a compiler crash
 
         guard let moduleMapType = task[Options.ModuleMapType.rawValue]?.string else {

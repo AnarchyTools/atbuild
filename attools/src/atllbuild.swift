@@ -511,6 +511,7 @@ final class ATllbuild : Tool {
         let swiftCPath: Path
         if let c = task[Options.SwiftCPath.rawValue]?.string {
             print("Warning: \(Options.SwiftCPath.rawValue) is deprecated and will be removed in a future release of atbuild.  Use --toolchain to specify a different toolchain, or --platform when bootstrapping to a different platform.")
+            sleep(5)
             swiftCPath = Path(c)
         }
         else {

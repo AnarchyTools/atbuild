@@ -18,7 +18,7 @@ import Glibc
 import Darwin
 #endif
 
-let version = "1.3"
+let version = "1.3.1"
 
 import atfoundation
 import atpkg

@@ -71,9 +71,10 @@ final class ATllbuild : Tool {
      *   - parameter workdir: A temporary working directory for `atllbuild` to use
      *   - parameter modulename: The name of the module to be built.
      *   - parameter executableName: The name of the executable to be built.  Typically the same as the module name.
+     *   - parameter enableWMO: Whether to use `enable-whole-module-optimization`, see https://github.com/aciidb0mb3r/swift-llbuild/blob/cfd7aa4e6e14797112922ae12ae7f3af997a41c6/docs/buildsystem.rst
      *   - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool
      */
-    func llbuildyaml(sources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], swiftCPath: Path, executableName: String) -> String {
+    func llbuildyaml(sources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], swiftCPath: Path, executableName: String, enableWMO: Bool) -> String {
         let productPath = workdir.appending("products")
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
@@ -104,6 +105,9 @@ final class ATllbuild : Tool {
         var llbuild_outputs = ["<atllbuild-swiftc>"]
         llbuild_outputs.append(contentsOf: objects)
         yaml += "     outputs: \(llbuild_outputs)\n"
+
+        yaml += "     enable-whole-module-optimization: \(enableWMO ? "true" : "false")\n"
+        yaml += "     num-threads: 8\n"
 
         switch(outputType) {
         case .Executable:
@@ -243,10 +247,6 @@ final class ATllbuild : Tool {
     }
 
     func run(task: Task, toolchain: String) {
-        run(task: task, toolchain: toolchain, wmoHack: false)
-    }
-
-    func run(task: Task, toolchain: String, wmoHack : Bool = false) {
 
         //warn if we don't understand an option
         var knownOptions = Options.allOptions.map({$0.rawValue})
@@ -306,10 +306,6 @@ final class ATllbuild : Tool {
                 guard let os = o.string else { fatalError("Compile option \(o) is not a string") }
                 compileOptions.append(os)
             }
-        }
-
-        if wmoHack {
-            compileOptions.append("-whole-module-optimization")
         }
 
         if let includePaths = task[Options.IncludeWithUser.rawValue]?.vector {
@@ -530,7 +526,13 @@ final class ATllbuild : Tool {
             swiftCPath = findToolPath(toolName: "swiftc", toolchain: toolchain)
         }
 
-        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath, executableName: executableName)
+        let enableWMO: Bool
+        if let wmo = task[Options.WholeModuleOptimization.rawValue]?.bool {
+            enableWMO = wmo
+        }
+        else { enableWMO = false }
+
+        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath, executableName: executableName, enableWMO: enableWMO)
         let _ = try? yaml.write(to: llbuildyamlpath)
         if bootstrapOnly { return }
 
@@ -573,11 +575,6 @@ final class ATllbuild : Tool {
             } catch {
                 print("Could not publish product: \(error)")
             }
-        }
-
-        if task[Options.WholeModuleOptimization.rawValue]?.bool == true && !wmoHack {
-            print("Work around SR-881")
-            run(task: task, toolchain: toolchain, wmoHack: true)
         }
 
     }

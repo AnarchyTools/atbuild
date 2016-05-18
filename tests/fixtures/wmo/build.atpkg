@@ -9,6 +9,7 @@
       :output-type "static-library"
       :publish-product true
       :whole-module-optimization true
+      :compile-options ["-O"]
     }
             
   }

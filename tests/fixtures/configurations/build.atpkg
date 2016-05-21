@@ -1,0 +1,21 @@
+(package
+ :name "configurations"
+
+     :tasks {
+        :default {
+            :tool "shell"
+            ;;print some environment variables set by the configuration
+            :script "echo \${ATBUILD_CONFIGURATION} \${ATBUILD_CONFIGURATION_OPTIMIZE}"
+        }
+        :tool {
+            :tool "echo.attool"
+            :always "some flag"
+            :overlays {
+                ;;if we're in this configuration, set the following value
+                :atbuild.configuration.custom {
+                    :bond "james bond"
+                }
+            }
+        }
+     }
+)

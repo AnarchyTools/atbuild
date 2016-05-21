@@ -14,6 +14,8 @@ commands:
      sources: ["atbuild/src/main.swift"]
      objects: [".atllbuild/objects/main.swift.o"]
      outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
+     enable-whole-module-optimization: false
+     num-threads: 8
      module-name: atbuild
      module-output-path: .atllbuild/products/atbuild.swiftmodule
      temps-path: .atllbuild/llbuildtmp

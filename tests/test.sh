@@ -17,6 +17,29 @@ if ! $ATBUILD package --use-overlay static; then
     $ATBUILD package
 fi
 
+echo "****************CONFIGURATION TEST**************"
+
+cd $DIR/tests/fixtures/configurations
+$ATBUILD > /tmp/configurations.txt
+if ! grep "debug 0" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+$ATBUILD --configuration release > /tmp/configurations.txt
+if ! grep "release 1" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+$ATBUILD --configuration custom tool > /tmp/configurations.txt
+if ! grep "\-always some flag --bond james bond" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+
+
 echo "****************BITCODE TEST**************"
 cd $DIR/tests/fixtures/bitcode
 

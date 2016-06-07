@@ -28,12 +28,30 @@ import atpkg
  */
 final class Shell : Tool {
 
+    static private func mysetEnv(_ key: String, _ val: String) {
+        setenv(key,val,1)
+    }
+
     ///Sets the environment for the specified task.
     static func environvironment(task: Task, block: () -> ()) {
         setenv("ATBUILD_PLATFORM", "\(Platform.targetPlatform)", 1)
         setenv("ATBUILD_USER_PATH", userPath().description, 1)
         if let version = task.package.version {
             setenv("ATBUILD_PACKAGE_VERSION", version, 1)
+        }
+
+        setenv("ATBUILD_CONFIGURATION", "\(currentConfiguration)",1)
+        if let o = currentConfiguration.optimize {
+            mysetEnv("ATBUILD_CONFIGURATION_OPTIMIZE", o ? "1":"0")
+        }
+        if let o = currentConfiguration.fastCompile {
+            mysetEnv("ATBUILD_CONFIGURATION_FAST_COMPILE", o ? "1":"0")
+        }
+        if let o = currentConfiguration.testingEnabled {
+            mysetEnv("ATBUILD_CONFIGURATION_TESTING_ENABLED", o ? "1":"0")
+        }
+        if let o = currentConfiguration.noMagic {
+            mysetEnv("ATBUILD_CONFIGURATION_NO_MAGIC", o ? "1":"0")
         }
 
         //does bin path not exist?

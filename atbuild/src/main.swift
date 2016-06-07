@@ -34,6 +34,7 @@ enum Options: String {
     case Clean = "--clean"
     case Toolchain = "--toolchain"
     case Platform = "--platform"
+    case Configuration = "--configuration"
     
     static var allOptions : [Options] { return [
         Overlay, 
@@ -41,7 +42,8 @@ enum Options: String {
         Help, 
         Clean, 
         Toolchain, 
-        Platform
+        Platform,
+        Configuration
         ] 
     }
 }
@@ -66,6 +68,10 @@ for (i, x) in Process.arguments.enumerated() {
         let platformString = Process.arguments[i+1]
         Platform.targetPlatform = Platform(string: platformString)
     }
+    if x == Options.Configuration.rawValue {
+        let configurationString = Process.arguments[i+1]
+        currentConfiguration = Configuration(string: configurationString)
+    }
 }
 
 //build overlays
@@ -77,6 +83,8 @@ for (i, x) in Process.arguments.enumerated() {
     }
 }
 overlays.append(contentsOf: Platform.targetPlatform.overlays)
+
+overlays.append("atbuild.configuration.\(currentConfiguration)")
 
 print("enabling overlays \(overlays)")
 

@@ -14,6 +14,8 @@ commands:
      sources: ["atpkg/src/CollectSources.swift", "atpkg/src/ExternalDependency.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/Substitutions.swift", "atpkg/src/Task.swift"]
      objects: [".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
      outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
+     enable-whole-module-optimization: false
+     num-threads: 8
      is-library: true
      module-name: atpkg
      module-output-path: .atllbuild/products/atpkg.swiftmodule

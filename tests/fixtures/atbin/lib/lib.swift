@@ -1,1 +1,1 @@
-public class Foo { }
+public class Foo {public init() { }}

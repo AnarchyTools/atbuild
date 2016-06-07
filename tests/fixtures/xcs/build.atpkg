@@ -17,7 +17,7 @@
             :dependencies ["build-lib"]
             :xctestify true
             :xctest-strict true
-            :link-with ["Foo.a"]
+            :link-with-product ["Foo.a"]
         }
         :run-tests {
             :tool "xctestrun"

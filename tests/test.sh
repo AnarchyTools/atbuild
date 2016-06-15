@@ -370,6 +370,13 @@ else
     echo "Xcode is not installed; skipping test"
 fi
 
+if [ -e "/Applications/Xcode-beta.app" ]; then
+    cd $DIR/tests/fixtures/xcode_toolchain
+    $ATBUILD swiftthree --toolchain xcode-beta
+else
+    echo "Xcode beta toolchain is not installed; skipping test"
+fi
+
 echo "****************PACKAGE FRAMEWORK TESTS**************"
 UNAME=`uname`
 if [ "$UNAME" == "Darwin" ]; then

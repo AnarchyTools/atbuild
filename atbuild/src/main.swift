@@ -63,6 +63,9 @@ for (i, x) in Process.arguments.enumerated() {
         if toolchain == "xcode" {
             toolchain = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain"
         }
+        else if toolchain == "xcode-beta" {
+            toolchain = "/Applications/Xcode-beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain"
+        }
     }
     if x == Options.Platform.rawValue {
         let platformString = Process.arguments[i+1]
@@ -96,7 +99,7 @@ func usage() {
     print("© 2016 Anarchy Tools Contributors.")
     print("")
     print("Usage:")
-    print("atbuild [--toolchain (/toolchain/path | xcode)] [-f packagefile] [task] [--clean]")
+    print("atbuild [--toolchain (/toolchain/path | xcode | xcode-beta )] [-f packagefile] [task] [--clean]")
 
     if let p = package {
         print("tasks:")

@@ -107,7 +107,7 @@ That's all you need to get started!  `atbuild` supports many more usecases than 
 * `-f [atpkg-file]` which builds a package file other than `build.atpkg`
 * `--help`, which displays a usage message
 * `--clean`, which forces a clean build
-* `--toolchain` which specifies a nonstandard toolchain (swift installation).  By default we try to guess, but you can override our guess here.  The special string `xcode` uses "xcode swift" for building.  (Swift 2.2 does not contain all the tools we use, so you need to have a 3.x snapshot installed as well.  However, this is a "mostly" xcode-flavored buildchain.)
+* `--toolchain` which specifies a nonstandard toolchain (swift installation).  By default we try to guess, but you can override our guess here.  The special string `xcode` or `xcode-beta` uses "xcode (beta) swift" for building.  (Swift 2.2 does not contain all the tools we use, so you need to have a 3.x snapshot installed as well.  However, this is a "mostly" xcode-flavored buildchain.)
 * `--platform` which specifies the target platform.  By default, this is the current platform.  Pass a different value to cross-compile, see [platforms](http://anarchytools.org/docs/platforms.html) for details.
 * `--configuration`, which specifies the active [configuration](http://anarchytools.org/docs/configurations.html)
 

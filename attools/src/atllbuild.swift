@@ -493,7 +493,6 @@ final class ATllbuild : Tool {
         defer { Platform.buildPlatform = Platform.hostPlatform }
 
         if task[Options.Magic.rawValue] == nil || task[Options.Magic.rawValue]?.bool == true {
-            print("build platform is \(Platform.buildPlatform)")
             switch(Platform.buildPlatform) {
                 case .OSX:
                 linkOptions.append(contentsOf: ["-Xlinker","-dead_strip"])

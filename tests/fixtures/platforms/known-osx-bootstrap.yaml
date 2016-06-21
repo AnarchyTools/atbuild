@@ -19,10 +19,10 @@ commands:
      module-name: platforms
      module-output-path: .atllbuild/products/platforms.swiftmodule
      temps-path: .atllbuild/llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-D", "OSX"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-D", "OSX", "-g", "-DATBUILD_DEBUG"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o"]
     outputs: ["<atllbuild>", ".atllbuild/products/platforms"]
-    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/platforms", ".atllbuild/objects/main.swift.o", "-Xlinker", "-dead_strip"]
+    args: ["/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc", "-o", ".atllbuild/products/platforms", ".atllbuild/objects/main.swift.o"]
     description: Linking executable .atllbuild/products/platforms

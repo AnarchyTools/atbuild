@@ -331,7 +331,7 @@ final class ATllbuild : Tool {
         let _ = try? FS.createDirectory(path: workDirectory.appending("objects"))
         let _ = try? FS.createDirectory(path: workDirectory.appending("include"))
 
-        //parse arguments
+        ///MARK: parse arguments
         var linkWithProduct: [String] = []
         if let arr_ = task[Options.LinkWithProduct.rawValue] {
             guard let arr = arr_.vector else {
@@ -593,15 +593,6 @@ final class ATllbuild : Tool {
         ///The next task will not be bootstrapped.
         defer { Platform.buildPlatform = Platform.hostPlatform }
 
-        if task[Options.Magic.rawValue] == nil || task[Options.Magic.rawValue]?.bool == true {
-            switch(Platform.buildPlatform) {
-                case .OSX:
-                linkOptions.append(contentsOf: ["-Xlinker","-dead_strip"])
-                default:
-                break
-            }
-        }
-
         let sdk: Bool
         if task[Options.LinkSDK.rawValue]?.bool == false {
             sdk = false
@@ -626,15 +617,67 @@ final class ATllbuild : Tool {
             swiftCPath = findToolPath(toolName: "swiftc", toolchain: toolchain)
         }
 
-        let enableWMO: Bool
+        var enableWMO: Bool
         if let wmo = task[Options.WholeModuleOptimization.rawValue]?.bool {
             enableWMO = wmo
+            print("wmo is deprecated.  Please use --configuration release instead.")
+            print("If you aren't able to migrate to --configuration, please file a bug with your usecase at https://github.com/AnarchyTools/atbuild/issues")
+            sleep(5)
         }
         else { enableWMO = false }
+
+        // MARK: Configurations
+
+        if currentConfiguration.testingEnabled == true {
+            compileOptions.append("-enable-testing")
+        }
+
+        //"stripped" is implemented as "included" here, that is a bug
+        //see https://github.com/AnarchyTools/atbuild/issues/73
+        if currentConfiguration.debugInstrumentation == .Included || currentConfiguration.debugInstrumentation == .Stripped {
+            compileOptions.append("-g")
+        }
+
+        if currentConfiguration.optimize == true {
+            compileOptions.append("-O")
+            enableWMO = true
+        }
+        if task[Options.Magic.rawValue] != nil {
+            print("Warning: Magic is deprecated.  Please migrate to --configuration none.  If --configuration none won't work for your usecase, file a bug at https://github.com/AnarchyTools/atbuild/issues")
+            sleep(5)
+        }
+
+        if currentConfiguration.fastCompile==false  && task[Options.Magic.rawValue]?.bool != false {
+            switch(Platform.buildPlatform) {
+                case .OSX:
+                linkOptions.append(contentsOf: ["-Xlinker","-dead_strip"])
+                default:
+                break
+            }
+        }
+
+        switch(currentConfiguration) {
+            case .Debug:
+            compileOptions.append("-DATBUILD_DEBUG")
+            case .Release:
+            compileOptions.append("-DATBUILD_RELEASE")
+            case .Benchmark:
+            compileOptions.append("-DATBUILD_BENCH")
+            case .Test:
+            compileOptions.append("-DATBUILD_TEST")
+            case .None:
+            break //too much magic to insert an arg in this case
+            case .User(let str):
+            compileOptions.append("-DATBUILD_\(str)")
+        }
+
+        // MARK: emit llbuildyaml 
 
         let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, linkWithAtbin: linkWithAtbin, swiftCPath: swiftCPath, executableName: executableName, enableWMO: enableWMO)
         let _ = try? yaml.write(to: llbuildyamlpath)
         if bootstrapOnly { return }
+
+        //MARK: execute build
 
         switch moduleMap {
         case .None:
@@ -648,7 +691,6 @@ final class ATllbuild : Tool {
             }
         }
 
-        //SR-566
         let cmd = "\(findToolPath(toolName: "swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
         anarchySystem(cmd)
         if task[Options.PublishProduct.rawValue]?.bool == true {

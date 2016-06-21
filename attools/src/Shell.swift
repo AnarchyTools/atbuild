@@ -54,6 +54,19 @@ final class Shell : Tool {
             mysetEnv("ATBUILD_CONFIGURATION_NO_MAGIC", o ? "1":"0")
         }
 
+        //expose debug configuration info
+        let conf: String
+        switch (currentConfiguration.debugInstrumentation) {
+            case .Included:
+            conf = "included"
+            case .Omitted:
+            conf = "omitted"
+            case .Stripped:
+            conf = "stripped"
+        }
+        mysetEnv("ATBUILD_CONFIGURATION_DEBUG_INSTRUMENTATION", conf)
+
+
         //does bin path not exist?
         //let's create it!
         let binPath = try! FS.getWorkingDirectory().appending("bin")

@@ -13,6 +13,15 @@
 // limitations under the License.
 
 public enum Configuration  {
+
+    public enum DebugInstrumentationType {
+        ///Instrumentation should be included in the target
+        case Included
+        ///No instrumentation for the target
+        case Omitted
+        ///Instumentation should be generated separately, e.g. DWARF
+        case Stripped
+    }
     ///Built-in configurations
 
     ///The default configuration.
@@ -103,6 +112,15 @@ extension Configuration {
             case .Debug, .Release, .Benchmark, .Test: return false
             case .None: return true
             case .User: return nil
+        }
+    }
+
+    ///Whether debug instrumentation 
+    var debugInstrumentation: DebugInstrumentationType {
+        switch(self) {
+            case .Debug, .Test: return .Included
+            case .Release, .Benchmark: return .Stripped
+            case .User, .None: return .Omitted
         }
     }
 }

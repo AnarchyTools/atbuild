@@ -176,9 +176,13 @@ class PackageAtbin:Tool {
             let cmd: String
             switch Platform.hostPlatform {
                 case .OSX:
-                cmd = "tar c --options \"xz:compression-level=9\" -Jf \(tarxz) bin/\(name).atbin -C bin"
+                let fc = currentConfiguration.fastCompile == true
+                let compressionLevel = fc ? "0" :"9"
+                cmd = "tar c --options \"xz:compression-level=\(compressionLevel)\" -Jf \(tarxz) bin/\(name).atbin -C bin"
                 case .Linux:
-                cmd = "XZ_OPT=-8 tar cJf \(tarxz) bin/\(name).atbin -C bin"
+                let fc = currentConfiguration.fastCompile == true
+                let compressionLevel = fc ? "0" :"8"
+                cmd = "XZ_OPT=-\(compressionLevel) tar cJf \(tarxz) bin/\(name).atbin -C bin"
                 default:
                 fatalError("Unsupported host platform \(Platform.hostPlatform)")
             }

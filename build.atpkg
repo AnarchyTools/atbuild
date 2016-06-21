@@ -35,7 +35,6 @@
         }
         :bootstrap-linux {
           :bootstrap-only true
-          :swiftc-path "/usr/local/bin/swiftc"
           :link-sdk false
           :llbuildyaml "bootstrap/bootstrap-linux.swift-build"
         }
@@ -59,7 +58,6 @@
         }
         :bootstrap-linux {
           :bootstrap-only true
-          :swiftc-path "/usr/local/bin/swiftc"
           :link-sdk false
           :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
         }

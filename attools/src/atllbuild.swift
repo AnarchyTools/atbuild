@@ -31,6 +31,54 @@ import atpkg
      return s
  }
 
+ private struct Atbin {
+    let manifest: Package
+    let path: Path
+
+    var name: String { return manifest.name }
+
+    init(path: Path) {
+        self.path = path
+        self.manifest = try! Package(filepath: path.appending("compiled.atpkg"), overlay: [], focusOnTask: nil)
+    }
+
+    var linkDirective: String {
+        return path.appending(self.manifest.payload!).description
+    }
+
+    var moduleName: String {
+        let n = self.manifest.payload!
+        if n.hasSuffix(".a") {
+            return n.subString(toIndex: n.characters.index(n.characters.endIndex, offsetBy: -2))
+        }
+        if n.hasSuffix(".dylib") {
+            return n.subString(toIndex: n.characters.index(n.characters.endIndex, offsetBy: -6))
+        }
+        if n.hasSuffix(".so") {
+            return n.subString(toIndex: n.characters.index(n.characters.endIndex, offsetBy: -3))
+        }
+        fatalError("Unknown payload \(n)")
+    }
+
+    var swiftModule: Path? {
+        let modulePath = self.path + (Platform.targetPlatform.description + ".swiftmodule")
+        if FS.fileExists(path: modulePath) { return modulePath }
+        return nil
+    }
+
+    var clangModule: Path? {
+        let modulePath = self.path + "module.modulemap"
+        if FS.fileExists(path: modulePath) { return modulePath }
+        return nil
+    }
+
+    var swiftDoc: Path? {
+        let docPath = Path(Platform.targetPlatform.description + ".swiftDoc")
+        if FS.fileExists(path: docPath) { return docPath }
+        return nil
+    }
+ }
+
 
 /**The ATllbuild tool builds a swift module via llbuild.
 For more information on this tool, see `docs/attllbuild.md` */
@@ -74,7 +122,7 @@ final class ATllbuild : Tool {
      *   - parameter enableWMO: Whether to use `enable-whole-module-optimization`, see https://github.com/aciidb0mb3r/swift-llbuild/blob/cfd7aa4e6e14797112922ae12ae7f3af997a41c6/docs/buildsystem.rst
      *   - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool
      */
-    func llbuildyaml(sources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], swiftCPath: Path, executableName: String, enableWMO: Bool) -> String {
+    private func llbuildyaml(sources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], linkWithAtbin:[Atbin], swiftCPath: Path, executableName: String, enableWMO: Bool) -> String {
         let productPath = workdir.appending("products")
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
@@ -141,7 +189,8 @@ final class ATllbuild : Tool {
             //this crazy syntax is how sbt declares a dependency
             var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs += objects
-            let builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
+            var builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
+            builtProducts += linkWithAtbin.map {$0.linkDirective}
             llbuild_inputs += builtProducts
             let executablePath = productPath.appending(executableName)
             yaml += "    inputs: \(llbuild_inputs)\n"
@@ -178,7 +227,8 @@ final class ATllbuild : Tool {
             yaml += "    tool: shell\n"
             var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs += objects
-            let builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
+            var builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
+            builtProducts += linkWithAtbin.map {$0.linkDirective}
             llbuild_inputs += builtProducts
             yaml += "    inputs: \(llbuild_inputs)\n"
             let libPath = productPath.appending(modulename + Platform.targetPlatform.dynamicLibraryExtension)
@@ -204,7 +254,8 @@ final class ATllbuild : Tool {
         case CompileOptions = "compile-options"
         case LinkOptions = "link-options"
         case LinkSDK = "link-sdk"
-        case LinkWithProduct = "link-with"
+        case LinkWithProduct = "link-with-product"
+        case LinkWithAtbin = "link-with-atbin"
         case SwiftCPath = "swiftc-path"
         case XCTestify = "xctestify"
         case XCTestStrict = "xctest-strict"
@@ -231,6 +282,7 @@ final class ATllbuild : Tool {
                 LinkOptions,
                 LinkSDK,
                 LinkWithProduct,
+                LinkWithAtbin,
                 SwiftCPath,
                 XCTestify,
                 XCTestStrict,
@@ -293,6 +345,34 @@ final class ATllbuild : Tool {
                 linkWithProduct.append(p)
             }
         }
+
+        ///DEPRECATED PRODUCT CHECK
+        if let arr_ = task["link-with"] {
+            print("Warning: link-with is deprecated; please use link-with-product or link-with-atbin")
+            sleep(5)
+            guard let arr = arr_.vector else {
+                fatalError("Non-vector link directive \(arr_)")
+            }
+            for product in arr {
+                guard var p = product.string else { fatalError("non-string product \(product)") }
+                if p.hasSuffix(".dynamic") {
+                    p.replace(searchTerm: ".dynamic", replacement: Platform.targetPlatform.dynamicLibraryExtension)
+                }
+                linkWithProduct.append(p)
+            }
+        }
+
+        var linkWithAtbin: [Atbin] = []
+        if let arr_ = task[Options.LinkWithAtbin.rawValue] {
+            guard let arr = arr_.vector else {
+                fatalError("Non-vector link directive \(arr_)")
+            }
+            for product in arr {
+                guard var p = product.string else { fatalError("non-string product \(product)") }
+                linkWithAtbin.append(Atbin(path: task.importedPath.appending(p)))
+            }
+        }
+
         guard case .some(.StringLiteral(let outputTypeString)) = task[Options.OutputType.rawValue] else {
             fatalError("No \(Options.OutputType.rawValue) for task \(task)")
         }
@@ -307,6 +387,16 @@ final class ATllbuild : Tool {
                 compileOptions.append(os)
             }
         }
+
+        //copy the atbin module / swiftdoc into our include directory
+        let includeAtbinPath = workDirectory + "include/atbin"
+        let _ = try? FS.createDirectory(path: includeAtbinPath, intermediate: true)
+        for atbin in linkWithAtbin {
+            if let path = atbin.swiftModule {
+                try! FS.copyItem(from: path, to: Path("\(includeAtbinPath)/\(atbin.moduleName).swiftmodule"))
+            }
+        }
+        if linkWithAtbin.count > 0 { compileOptions.append(contentsOf: ["-I",includeAtbinPath.description])}
 
         if let includePaths = task[Options.IncludeWithUser.rawValue]?.vector {
             for path_s in includePaths {
@@ -337,23 +427,34 @@ final class ATllbuild : Tool {
             linkOptions.append(contentsOf: ["-embed-bitcode"])
         }
 
+
+
         //check for modulemaps
+        /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much
+        the only way to do this is to create a file called `module.modulemap`.  That
+        potentially conflicts with other modulemaps, so we give it its own directory, namespaced
+        by the product name. */
+        func installModuleMap(moduleMapPath: Path, productName: String) {
+           let includePathName = workDirectory + "include/\(productName)"
+            let _ = try? FS.createDirectory(path: includePathName, intermediate: true)
+            do {
+                try FS.copyItem(from: moduleMapPath, to: includePathName.appending("module.modulemap"))
+            } catch {
+                fatalError("Could not copy modulemap to \(includePathName): \(error)")
+            }
+            compileOptions.append(contentsOf: ["-I", includePathName.description])
+        }
         for product in linkWithProduct {
             let productName = product.split(character: ".")[0]
             let moduleMapPath = workDirectory + "products/\(productName).modulemap"
             if FS.fileExists(path: moduleMapPath) {
-                /*per http://clang.llvm.org/docs/Modules.html#command-line-parameters, pretty much
-                the only way to do this is to create a file called `module.modulemap`.  That
-                potentially conflicts with other modulemaps, so we give it its own directory, namespaced
-                by the product name. */
-                let pathName = workDirectory + "include/\(productName)"
-                let _ = try? FS.createDirectory(path: pathName, intermediate: true)
-                do {
-                    try FS.copyItem(from: moduleMapPath, to: pathName.appending("module.modulemap"))
-                } catch {
-                    fatalError("Could not copy modulemap to \(pathName): \(error)")
-                }
-                compileOptions.append(contentsOf: ["-I", pathName.description])
+                installModuleMap(moduleMapPath: moduleMapPath, productName: productName)
+            }
+        }
+
+        for product in linkWithAtbin {
+            if let moduleMapPath = product.clangModule {
+                installModuleMap(moduleMapPath: moduleMapPath, productName: product.name)
             }
         }
 
@@ -531,7 +632,7 @@ final class ATllbuild : Tool {
         }
         else { enableWMO = false }
 
-        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, swiftCPath: swiftCPath, executableName: executableName, enableWMO: enableWMO)
+        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, linkWithAtbin: linkWithAtbin, swiftCPath: swiftCPath, executableName: executableName, enableWMO: enableWMO)
         let _ = try? yaml.write(to: llbuildyamlpath)
         if bootstrapOnly { return }
 

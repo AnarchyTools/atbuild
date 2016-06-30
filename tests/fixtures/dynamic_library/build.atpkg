@@ -13,7 +13,7 @@
             :output-type "dynamic-library"
             :name "dynamicBar"
             :sources ["src/bar.swift"]
-            :link-with ["dynamicFoo.dynamic"]
+            :link-with-product ["dynamicFoo.dynamic"]
         }
         :default {
             :dependencies ["foo" "bar"]
@@ -21,7 +21,7 @@
             :output-type "executable"
             :name "dynamic_library_tester"
             :sources ["src/main.swift"]
-            :link-with ["dynamicBar.dynamic" "dynamicFoo.dynamic"]
+            :link-with-product ["dynamicBar.dynamic" "dynamicFoo.dynamic"]
         }
      }
 )

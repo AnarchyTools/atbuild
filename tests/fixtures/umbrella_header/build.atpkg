@@ -21,7 +21,7 @@
         :xctest-strict true
         :dependencies ["default"]
         :publish-product true
-        :link-with ["UmbrellaHeader.a"]
+        :link-with-product ["UmbrellaHeader.a"]
       }
 
       :check {

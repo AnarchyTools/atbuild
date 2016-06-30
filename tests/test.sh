@@ -97,6 +97,8 @@ $ATBUILD check
 echo "****************ATBIN TEST**************"
 cd $DIR/tests/fixtures/atbin
 
+$ATBUILD use
+
 $ATBUILD
 #did we build all the things we were supposed to?
 

@@ -25,6 +25,24 @@
       :module-map "synthesized"
     }
 
+    :use-satbin {
+      :tool "atllbuild"
+      :name "usesatbin"
+      :output-type "executable"
+      :sources ["use/**.swift"]
+      :dependencies ["satbin"]
+      :link-with-atbin ["bin/staticatbin.atbin"]
+    }
+
+    :use-datbin {
+      :tool "atllbuild"
+      :name "usesatbin"
+      :output-type "executable"
+      :sources ["used/**.swift"]
+      :dependencies ["datbin"]
+      :link-with-atbin ["bin/dynamicatbin.atbin"]
+    }
+
     :dlib {
       :tool "atllbuild"
       :name "dlib"
@@ -37,7 +55,7 @@
       ;; a corner case of the platform logic; we want to match
       ;; the dependencies platforms
       :dependencies ["slib"]
-      :link-with ["slib.a"]
+      :link-with-product ["slib.a"]
     }
 
     :exec {
@@ -74,6 +92,11 @@
       :name "sim"
       :atllbuild-task "slib"
       :platforms ["ios-x86_64" "ios-i386"]
+    }
+
+    :use {
+      :tool "nop"
+      :dependencies ["use-satbin" "use-datbin"]
     }
 
     :default {

@@ -620,9 +620,7 @@ final class ATllbuild : Tool {
         var enableWMO: Bool
         if let wmo = task[Options.WholeModuleOptimization.rawValue]?.bool {
             enableWMO = wmo
-            print("wmo is deprecated.  Please use --configuration release instead.")
-            print("If you aren't able to migrate to --configuration, please file a bug with your usecase at https://github.com/AnarchyTools/atbuild/issues")
-            sleep(5)
+            //we can't deprecate WMO due to a bug in swift-preview-1 that prevents it from being useable in some cases on Linux
         }
         else { enableWMO = false }
 
@@ -640,7 +638,14 @@ final class ATllbuild : Tool {
 
         if currentConfiguration.optimize == true {
             compileOptions.append("-O")
-            enableWMO = true
+            switch(Platform.buildPlatform) {
+                case .Linux:
+                //don't enable WMO on Linux
+                //due to bug in swift-preview-1
+                break
+                default:
+                enableWMO = true
+            }
         }
         if task[Options.Magic.rawValue] != nil {
             print("Warning: Magic is deprecated.  Please migrate to --configuration none.  If --configuration none won't work for your usecase, file a bug at https://github.com/AnarchyTools/atbuild/issues")

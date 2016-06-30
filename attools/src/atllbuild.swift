@@ -256,7 +256,6 @@ final class ATllbuild : Tool {
         case LinkSDK = "link-sdk"
         case LinkWithProduct = "link-with-product"
         case LinkWithAtbin = "link-with-atbin"
-        case SwiftCPath = "swiftc-path"
         case XCTestify = "xctestify"
         case XCTestStrict = "xctest-strict"
 		case IncludeWithUser = "include-with-user"
@@ -282,8 +281,7 @@ final class ATllbuild : Tool {
                 LinkOptions,
                 LinkSDK,
                 LinkWithProduct,
-                LinkWithAtbin,
-                SwiftCPath,
+				LinkWithAtbin,
                 XCTestify,
                 XCTestStrict,
 				IncludeWithUser,
@@ -616,15 +614,7 @@ final class ATllbuild : Tool {
         else {
             llbuildyamlpath = workDirectory.appending("llbuild.yaml")
         }
-        let swiftCPath: Path
-        if let c = task[Options.SwiftCPath.rawValue]?.string {
-            print("Warning: \(Options.SwiftCPath.rawValue) is deprecated and will be removed in a future release of atbuild.  Use --toolchain to specify a different toolchain, or --platform when bootstrapping to a different platform.")
-            sleep(5)
-            swiftCPath = Path(c)
-        }
-        else {
-            swiftCPath = findToolPath(toolName: "swiftc", toolchain: toolchain)
-        }
+        let swiftCPath = findToolPath(toolName: "swiftc", toolchain: toolchain)
 
         let enableWMO: Bool
         if let wmo = task[Options.WholeModuleOptimization.rawValue]?.bool {

@@ -11,11 +11,7 @@ pwd
 
 echo "****************SELF-HOSTING TEST**************"
 
-if ! $ATBUILD package --use-overlay static; then
-    echo "Self-host failed; maybe you're not running CaffeinatedSwift?"
-    echo "Retrying with non-static build"
-    $ATBUILD package
-fi
+$ATBUILD atbuild
 
 echo "****************CONFIGURATION TEST**************"
 
@@ -34,6 +30,42 @@ fi
 
 $ATBUILD --configuration custom tool > /tmp/configurations.txt
 if ! grep "\-always some flag --bond james bond" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+## try atllbuild-level config
+$ATBUILD --configuration debug build
+bin/conftest > /tmp/configurations.txt
+if ! grep "Debug build" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+$ATBUILD --configuration release build
+bin/conftest > /tmp/configurations.txt
+if ! grep "Release build" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+$ATBUILD --configuration test build
+bin/conftest > /tmp/configurations.txt
+if ! grep "Test build" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+$ATBUILD --configuration bench build
+bin/conftest > /tmp/configurations.txt
+if ! grep "Bench build" /tmp/configurations.txt; then
+    echo "Invalid configuration behavior"
+    exit 1
+fi
+
+$ATBUILD --configuration JAMES_BOND build
+bin/conftest > /tmp/configurations.txt
+if ! grep "James bond build" /tmp/configurations.txt; then
     echo "Invalid configuration behavior"
     exit 1
 fi
@@ -403,7 +435,7 @@ $ATBUILD
 
 echo "****************WMO TEST**************"
 cd $DIR/tests/fixtures/wmo
-$ATBUILD
+$ATBUILD --configuration release
 
 echo "****************UMBRELLA TEST**************"
 cd $DIR/tests/fixtures/umbrella_header
@@ -542,4 +574,15 @@ if $ATBUILD --use-overlay foo; then
     exit 1
 fi
 
-printf "\e[1m\e[32m***ATBUILD TEST SCRIPT PASSED SUCCESSFULLY*****\e[0m"
+printf "\e[1m\e[32m***ATBUILD TESTS PASSED SUCCESSFULLY*****\e[0m\n"
+
+echo "*****************PACKAGING**********************"
+cd $DIR
+if ! $ATBUILD package --use-overlay static --configuration release;  then
+    echo "Self-host failed; maybe you're not running CaffeinatedSwift?"
+    echo "Retrying with non-static build"
+    $ATBUILD package --configuration release
+fi
+
+
+printf "\e[1m\e[32m***ATBUILD BUILT SUCCESSFULLY*****\e[0m\n"

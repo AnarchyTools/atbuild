@@ -17,5 +17,13 @@
                 }
             }
         }
+
+        :build {
+            :tool "atllbuild"
+            :sources ["src/**.swift"]
+            :name "conftest"
+            :output-type "executable"
+            :publish-product true
+        }
      }
 )

@@ -5,8 +5,7 @@ linux:
     stage: build
     script:
         - apt-get update
-        - apt-get install --no-install-recommends xz-utils curl git ca-certificates -y
-        - apt-get install curl -y && curl -s https://packagecloud.io/install/repositories/anarchytools/AT/script.deb.sh | bash && apt-get install --no-install-recommends -y package-deb xz-utils
+        - apt-get install -y xz-utils package-deb
         - git submodule update --init --recursive
         - bootstrap/build.sh linux
         - bin/atbuild check
@@ -16,7 +15,7 @@ linux:
         paths:
             - bin/atbuild-*.tar.xz
             - bin/*.deb
-    image: drewcrawford/swift:latest
+    image: drewcrawford/buildbase:latest
 
 osx:
     stage: build

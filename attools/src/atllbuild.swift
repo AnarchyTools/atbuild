@@ -292,6 +292,7 @@ final class ATllbuild : Tool {
 				IncludeWithUser,
                 PublishProduct,
 				UmbrellaHeader,
+                ModuleMap,
                 WholeModuleOptimization,
                 Framework,
                 ExecutableName,

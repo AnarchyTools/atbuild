@@ -174,7 +174,12 @@ final class ATllbuild : Tool {
 
         if linkSDK {
             if let sdkPath = Platform.targetPlatform.sdkPath {
-                args += ["-sdk", sdkPath]
+                if swiftCPath.description.contains(string: "Xcode-beta") {
+                    //evil evil hack
+                    args += ["-sdk","/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/"]
+                }
+                else { args += ["-sdk", sdkPath] }
+                
             }
         }
         args += compileOptions

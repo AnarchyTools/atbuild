@@ -9,7 +9,7 @@ targets:
 commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
-     executable: "/usr/local/bin/swiftc"
+     executable: "//usr/local/bin/swiftc"
      inputs: ["attools/src/atllbuild.swift", "attools/src/Configuration.swift", "attools/src/CustomTool.swift", "attools/src/Nop.swift", "attools/src/PackageAtbin.swift", "attools/src/PackageFramework.swift", "attools/src/PlatformPaths.swift", "attools/src/Shell.swift", "attools/src/TaskRunner.swift", "attools/src/Tools.swift", "attools/src/XCTestRun.swift"]
      sources: ["attools/src/atllbuild.swift", "attools/src/Configuration.swift", "attools/src/CustomTool.swift", "attools/src/Nop.swift", "attools/src/PackageAtbin.swift", "attools/src/PackageFramework.swift", "attools/src/PlatformPaths.swift", "attools/src/Shell.swift", "attools/src/TaskRunner.swift", "attools/src/Tools.swift", "attools/src/XCTestRun.swift"]
      objects: [".atllbuild/objects/atllbuild.swift.o", ".atllbuild/objects/Configuration.swift.o", ".atllbuild/objects/CustomTool.swift.o", ".atllbuild/objects/Nop.swift.o", ".atllbuild/objects/PackageAtbin.swift.o", ".atllbuild/objects/PackageFramework.swift.o", ".atllbuild/objects/PlatformPaths.swift.o", ".atllbuild/objects/Shell.swift.o", ".atllbuild/objects/TaskRunner.swift.o", ".atllbuild/objects/Tools.swift.o", ".atllbuild/objects/XCTestRun.swift.o"]
@@ -20,7 +20,7 @@ commands:
      module-name: attools
      module-output-path: .atllbuild/products/attools.swiftmodule
      temps-path: .atllbuild/llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-g", "-DATBUILD_DEBUG"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/atllbuild.swift.o", ".atllbuild/objects/Configuration.swift.o", ".atllbuild/objects/CustomTool.swift.o", ".atllbuild/objects/Nop.swift.o", ".atllbuild/objects/PackageAtbin.swift.o", ".atllbuild/objects/PackageFramework.swift.o", ".atllbuild/objects/PlatformPaths.swift.o", ".atllbuild/objects/Shell.swift.o", ".atllbuild/objects/TaskRunner.swift.o", ".atllbuild/objects/Tools.swift.o", ".atllbuild/objects/XCTestRun.swift.o"]

@@ -10,20 +10,20 @@ commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
      executable: "/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin/swiftc"
-     inputs: ["atpkg/src/CollectSources.swift", "atpkg/src/ExternalDependency.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/Substitutions.swift", "atpkg/src/Task.swift"]
-     sources: ["atpkg/src/CollectSources.swift", "atpkg/src/ExternalDependency.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/Substitutions.swift", "atpkg/src/Task.swift"]
-     objects: [".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
-     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
+     inputs: ["atpkg/src/Binary.swift", "atpkg/src/CollectSources.swift", "atpkg/src/ExternalDependency.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/Substitutions.swift", "atpkg/src/Task.swift"]
+     sources: ["atpkg/src/Binary.swift", "atpkg/src/CollectSources.swift", "atpkg/src/ExternalDependency.swift", "atpkg/src/Package.swift", "atpkg/src/parsing/Parser.swift", "atpkg/src/parsing/Scanner.swift", "atpkg/src/parsing/Tokenization.swift", "atpkg/src/Substitutions.swift", "atpkg/src/Task.swift"]
+     objects: [".atllbuild/objects/Binary.swift.o", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
+     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/Binary.swift.o", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
      enable-whole-module-optimization: false
      num-threads: 8
      is-library: true
      module-name: atpkg
      module-output-path: .atllbuild/products/atpkg.swiftmodule
      temps-path: .atllbuild/llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-g", "-DATBUILD_DEBUG"]
   <atllbuild>:
     tool: shell
-    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/Binary.swift.o", ".atllbuild/objects/CollectSources.swift.o", ".atllbuild/objects/ExternalDependency.swift.o", ".atllbuild/objects/Package.swift.o", ".atllbuild/objects/Parser.swift.o", ".atllbuild/objects/Scanner.swift.o", ".atllbuild/objects/Tokenization.swift.o", ".atllbuild/objects/Substitutions.swift.o", ".atllbuild/objects/Task.swift.o"]
     outputs: ["<atllbuild>", ".atllbuild/products/atpkg.a"]
-    args: ["/bin/sh","-c",rm -rf .atllbuild/products/atpkg.a; ar cr '.atllbuild/products/atpkg.a' '.atllbuild/objects/CollectSources.swift.o' '.atllbuild/objects/ExternalDependency.swift.o' '.atllbuild/objects/Package.swift.o' '.atllbuild/objects/Parser.swift.o' '.atllbuild/objects/Scanner.swift.o' '.atllbuild/objects/Tokenization.swift.o' '.atllbuild/objects/Substitutions.swift.o' '.atllbuild/objects/Task.swift.o']
+    args: ["/bin/sh","-c",rm -rf .atllbuild/products/atpkg.a; ar cr '.atllbuild/products/atpkg.a' '.atllbuild/objects/Binary.swift.o' '.atllbuild/objects/CollectSources.swift.o' '.atllbuild/objects/ExternalDependency.swift.o' '.atllbuild/objects/Package.swift.o' '.atllbuild/objects/Parser.swift.o' '.atllbuild/objects/Scanner.swift.o' '.atllbuild/objects/Tokenization.swift.o' '.atllbuild/objects/Substitutions.swift.o' '.atllbuild/objects/Task.swift.o']
     description: "Linking Library:  .atllbuild/products/atpkg.a"

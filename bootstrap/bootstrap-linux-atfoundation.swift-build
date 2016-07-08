@@ -9,7 +9,7 @@ targets:
 commands:
   <atllbuild-swiftc>:
      tool: swift-compiler
-     executable: "/usr/local/bin/swiftc"
+     executable: "//usr/local/bin/swiftc"
      inputs: ["atpkg/atfoundation/src/charset.swift", "atpkg/atfoundation/src/date/date.swift", "atpkg/atfoundation/src/date/timeinterval.swift", "atpkg/atfoundation/src/filesystem/file.swift", "atpkg/atfoundation/src/filesystem/fileinfo.swift", "atpkg/atfoundation/src/filesystem/fs.swift", "atpkg/atfoundation/src/filesystem/path.swift", "atpkg/atfoundation/src/logger.swift", "atpkg/atfoundation/src/string/replace.swift", "atpkg/atfoundation/src/string/search.swift", "atpkg/atfoundation/src/string/split.swift", "atpkg/atfoundation/src/string/substring.swift", "atpkg/atfoundation/src/string/whitespace.swift", "atpkg/atfoundation/src/string.swift", "atpkg/atfoundation/src/syserror.swift", "atpkg/atfoundation/src/tools.swift", "atpkg/atfoundation/src/url.swift"]
      sources: ["atpkg/atfoundation/src/charset.swift", "atpkg/atfoundation/src/date/date.swift", "atpkg/atfoundation/src/date/timeinterval.swift", "atpkg/atfoundation/src/filesystem/file.swift", "atpkg/atfoundation/src/filesystem/fileinfo.swift", "atpkg/atfoundation/src/filesystem/fs.swift", "atpkg/atfoundation/src/filesystem/path.swift", "atpkg/atfoundation/src/logger.swift", "atpkg/atfoundation/src/string/replace.swift", "atpkg/atfoundation/src/string/search.swift", "atpkg/atfoundation/src/string/split.swift", "atpkg/atfoundation/src/string/substring.swift", "atpkg/atfoundation/src/string/whitespace.swift", "atpkg/atfoundation/src/string.swift", "atpkg/atfoundation/src/syserror.swift", "atpkg/atfoundation/src/tools.swift", "atpkg/atfoundation/src/url.swift"]
      objects: [".atllbuild/objects/charset.swift.o", ".atllbuild/objects/date.swift.o", ".atllbuild/objects/timeinterval.swift.o", ".atllbuild/objects/file.swift.o", ".atllbuild/objects/fileinfo.swift.o", ".atllbuild/objects/fs.swift.o", ".atllbuild/objects/path.swift.o", ".atllbuild/objects/logger.swift.o", ".atllbuild/objects/replace.swift.o", ".atllbuild/objects/search.swift.o", ".atllbuild/objects/split.swift.o", ".atllbuild/objects/substring.swift.o", ".atllbuild/objects/whitespace.swift.o", ".atllbuild/objects/string.swift.o", ".atllbuild/objects/syserror.swift.o", ".atllbuild/objects/tools.swift.o", ".atllbuild/objects/url.swift.o"]
@@ -20,7 +20,7 @@ commands:
      module-name: atfoundation
      module-output-path: .atllbuild/products/atfoundation.swiftmodule
      temps-path: .atllbuild/llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-enable-testing", "-g", "-Xcc", "-D_GNU_SOURCE"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-enable-testing", "-g", "-Xcc", "-D_GNU_SOURCE", "-g", "-DATBUILD_DEBUG"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/charset.swift.o", ".atllbuild/objects/date.swift.o", ".atllbuild/objects/timeinterval.swift.o", ".atllbuild/objects/file.swift.o", ".atllbuild/objects/fileinfo.swift.o", ".atllbuild/objects/fs.swift.o", ".atllbuild/objects/path.swift.o", ".atllbuild/objects/logger.swift.o", ".atllbuild/objects/replace.swift.o", ".atllbuild/objects/search.swift.o", ".atllbuild/objects/split.swift.o", ".atllbuild/objects/substring.swift.o", ".atllbuild/objects/whitespace.swift.o", ".atllbuild/objects/string.swift.o", ".atllbuild/objects/syserror.swift.o", ".atllbuild/objects/tools.swift.o", ".atllbuild/objects/url.swift.o"]

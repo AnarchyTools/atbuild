@@ -13,6 +13,15 @@ echo "****************SELF-HOSTING TEST**************"
 
 $ATBUILD atbuild
 
+echo "****************C TEST**************"
+cd $DIR/tests/fixtures/c
+$ATBUILD
+$ATBUILD --configuration release
+
+if [ "$UNAME" == "Darwin" ]; then
+    $ATBUILD --platform ios-arm64
+fi
+
 echo "****************CONFIGURATION TEST**************"
 
 cd $DIR/tests/fixtures/configurations

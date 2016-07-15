@@ -18,13 +18,20 @@ import atpkg
  /**Synthesize a module map.
  - parameter name: The name of the module to synthesize
  - parameter umbrellaHeader: A path to the umbrella header.  The path must be relative to the exported module map file.
+ - parameter headers: A list of headers to import.  The path must be relative to the exported module map file.
  - returns String contents of the synthesized modulemap
  */
- private func synthesizeModuleMap(name: String, umbrellaHeader: String?) -> String {
+ private func synthesizeModuleMap(name: String, umbrellaHeader: String?, headers: [String], link: [String]) -> String {
      var s = ""
      s += "module \(name) {\n"
      if let u = umbrellaHeader {
          s += "  umbrella header \"\(u)\"\n"
+     }
+     for header in headers {
+        s += "  header \"\(header)\"\n"
+     }
+     for l in link {
+        s += "  link \"\(l)\"\n"
      }
      s += "\n"
      s += "}\n"
@@ -115,14 +122,14 @@ final class ATllbuild : Tool {
 
     /**
      * Calculates the llbuild.yaml contents for the given configuration options
-     *   - parameter sources: A resolved list of swift sources
+     *   - parameter swiftSources: A resolved list of swift sources
      *   - parameter workdir: A temporary working directory for `atllbuild` to use
      *   - parameter modulename: The name of the module to be built.
      *   - parameter executableName: The name of the executable to be built.  Typically the same as the module name.
      *   - parameter enableWMO: Whether to use `enable-whole-module-optimization`, see https://github.com/aciidb0mb3r/swift-llbuild/blob/cfd7aa4e6e14797112922ae12ae7f3af997a41c6/docs/buildsystem.rst
      *   - returns: The string contents for llbuild.yaml suitable for processing by swift-build-tool
      */
-    private func llbuildyaml(sources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], linkWithAtbin:[Atbin], swiftCPath: Path, executableName: String, enableWMO: Bool) -> String {
+    private func llbuildyaml(swiftSources: [Path], cSources: [Path], workdir: Path, modulename: String, linkSDK: Bool, compileOptions: [String], cCompileOptions: [String], linkOptions: [String], outputType: OutputType, linkWithProduct:[String], linkWithAtbin:[Atbin], swiftCPath: Path, executableName: String, enableWMO: Bool) -> String {
         let productPath = workdir.appending("products")
         //this format is largely undocumented, but I reverse-engineered it from SwiftPM.
         var yaml = "client:\n  name: swift-build\n\n"
@@ -140,12 +147,12 @@ final class ATllbuild : Tool {
         yaml += "  <atllbuild-swiftc>:\n"
         yaml += "     tool: swift-compiler\n"
         yaml += "     executable: \"\(swiftCPath)\"\n"
-        let inputs = String.join(parts: sources.map { path in path.description }, delimiter: "\", \"")
+        let inputs = String.join(parts: swiftSources.map { path in path.description }, delimiter: "\", \"")
         yaml += "     inputs: [\"\(inputs)\"]\n"
         yaml += "     sources: [\"\(inputs)\"]\n"
 
         //swiftPM wants "objects" which is just a list of %.swift.o files.  We have to put them in a temp directory though.
-        let objects = sources.map { (source) -> String in
+        var objects = swiftSources.map { (source) -> String in
             workdir.appending("objects").appending(source.basename() + ".o").description
         }
         yaml += "     objects: \(objects)\n"
@@ -186,13 +193,32 @@ final class ATllbuild : Tool {
 
         yaml += "     other-args: \(args)\n"
 
+
+        var llbuild_inputs = ["<atllbuild-swiftc>"]
+
+        //the "C" commands
+        for source in cSources {
+            let cmdName = "<atllbuild-\(source.basename().split(character: ".")[0])>"
+            yaml += "  \(cmdName):\n"
+            yaml += "    tool: shell\n"
+            yaml += "    inputs: [\"\(source)\"]\n"
+            let c_object = workdir.appending("objects").appending(source.basename() + ".o").description
+            yaml += "    outputs: [\"\(c_object)\"]\n"
+            var cargs = ["clang","-c",source.description,"-o",c_object]
+            cargs += cCompileOptions
+            yaml += "    args: \(cargs)\n"
+
+            //add c_objects to our link step
+            objects += [c_object]
+            llbuild_inputs += [cmdName]
+        }
+
         //and this is the "link" command
         yaml += "  <atllbuild>:\n"
         switch(outputType) {
         case .Executable:
             yaml += "    tool: shell\n"
             //this crazy syntax is how sbt declares a dependency
-            var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs += objects
             var builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
             builtProducts += linkWithAtbin.map {$0.linkDirective}
@@ -212,7 +238,6 @@ final class ATllbuild : Tool {
 
         case .StaticLibrary:
             yaml += "    tool: shell\n"
-            var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs.append(contentsOf: objects)
             yaml += "    inputs: \(llbuild_inputs)\n"
             let libPath = productPath.appending(modulename + ".a")
@@ -230,7 +255,6 @@ final class ATllbuild : Tool {
 
         case .DynamicLibrary:
             yaml += "    tool: shell\n"
-            var llbuild_inputs = ["<atllbuild-swiftc>"]
             llbuild_inputs += objects
             var builtProducts = linkWithProduct.map { (workdir + ("products/"+$0)).description }
             builtProducts += linkWithAtbin.map {$0.linkDirective}
@@ -257,6 +281,7 @@ final class ATllbuild : Tool {
         case BootstrapOnly = "bootstrap-only"
         case llBuildYaml = "llbuildyaml"
         case CompileOptions = "compile-options"
+        case CCompileOptions = "c-compile-options"
         case LinkOptions = "link-options"
         case LinkSDK = "link-sdk"
         case LinkWithProduct = "link-with-product"
@@ -267,6 +292,7 @@ final class ATllbuild : Tool {
         case PublishProduct = "publish-product"
         case UmbrellaHeader = "umbrella-header"
         case ModuleMap = "module-map"
+        case ModuleMapLink = "module-map-link"
         case WholeModuleOptimization = "whole-module-optimization"
         case Framework = "framework"
         case ExecutableName = "executable-name"
@@ -283,6 +309,7 @@ final class ATllbuild : Tool {
                 BootstrapOnly,
                 llBuildYaml,
                 CompileOptions,
+                CCompileOptions,
                 LinkOptions,
                 LinkSDK,
                 LinkWithProduct,
@@ -293,6 +320,7 @@ final class ATllbuild : Tool {
                 PublishProduct,
 				UmbrellaHeader,
                 ModuleMap,
+                ModuleMapLink,
                 WholeModuleOptimization,
                 Framework,
                 ExecutableName,
@@ -392,6 +420,14 @@ final class ATllbuild : Tool {
             }
         }
 
+        var cCompileOptions: [String] = []
+        if let opts = task[Options.CCompileOptions.rawValue]?.vector {
+            for o in opts {
+                guard let os = o.string else { fatalError("C compile option \(o) is not a string")}
+                cCompileOptions.append(os)
+            }
+        }
+
         //copy the atbin module / swiftdoc into our include directory
         let includeAtbinPath = workDirectory + "include/atbin"
         let _ = try? FS.createDirectory(path: includeAtbinPath, intermediate: true)
@@ -425,10 +461,21 @@ final class ATllbuild : Tool {
         else {
             bitcode = false
         }
+
+        //separate sources
+        guard let sourceDescriptions = task[Options.Source.rawValue]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
+
+        var sources = collectSources(sourceDescriptions: sourceDescriptions, taskForCalculatingPath: task)
+
+        let cSources = sources.filter({$0.description.hasSuffix(".c")})
+        
         //todo: enable by default for iOS, but we can't due to SR-1493
         if bitcode {
             compileOptions.append("-embed-bitcode")
             linkOptions.append(contentsOf: ["-embed-bitcode"])
+            if cSources.count > 0 {
+                print("Warning: bitcode is not supported for C sources")
+            }
         }
 
 
@@ -462,8 +509,6 @@ final class ATllbuild : Tool {
             }
         }
 
-        guard let sourceDescriptions = task[Options.Source.rawValue]?.vector?.flatMap({$0.string}) else { fatalError("Can't find sources for atllbuild.") }
-        var sources = collectSources(sourceDescriptions: sourceDescriptions, taskForCalculatingPath: task)
 
         //xctestify
         if task[Options.XCTestify.rawValue]?.bool == true {
@@ -541,14 +586,35 @@ final class ATllbuild : Tool {
             
         }
 
-        if let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string {
-            precondition(moduleMap == .Synthesized, ":\(Options.ModuleMap.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option")
-            let s = synthesizeModuleMap(name: name, umbrellaHeader: "Umbrella.h")
+        let hSources = sources.filter({$0.description.hasSuffix(".h")}).map({$0.description})
+        let umbrellaHeader = task[Options.UmbrellaHeader.rawValue]?.string
+
+        var moduleMapLinks: [String] = []
+        if let links = task[Options.ModuleMapLink.rawValue]?.vector {
+            precondition(moduleMap == .Synthesized, ":\(Options.ModuleMap.rawValue) \"synthesized\" must be used with the \(Options.ModuleMapLink.rawValue) option")
+            for link in links {
+                guard case .StringLiteral(let l) = link else {
+                    fatalError("Non-string \(Options.ModuleMapLink.rawValue) \(link)")
+                }
+                moduleMapLinks.append(l)
+            }
+        }
+
+        if hSources.count > 0 || umbrellaHeader != nil { //we need to import the underlying module
+            precondition(moduleMap == .Synthesized, ":\(Options.ModuleMap.rawValue) \"synthesized\" must be used with the \(Options.UmbrellaHeader.rawValue) option or when compiling C headers")
+            let umbrellaHeaderArg: String?
+            if umbrellaHeader != nil { umbrellaHeaderArg = "Umbrella.h" } else {umbrellaHeaderArg = nil}
+            //add ../../ to hsources to get out from inside workDirectory/include
+            let relativeHSources = hSources.map({"../../" + $0})
+            let s = synthesizeModuleMap(name: name, umbrellaHeader: umbrellaHeaderArg, headers: relativeHSources, link: moduleMapLinks)
             do {
                 try s.write(to: workDirectory + "include/module.modulemap")
-                try FS.copyItem(from: task.importedPath + umbrellaHeader, to: workDirectory + "include/Umbrella.h")
+                if let u = umbrellaHeader {
+                    try FS.copyItem(from: task.importedPath + u, to: workDirectory + "include/Umbrella.h")
+                }
+                
             } catch {
-                fatalError("Could not synthesize module map from umbrella header: \(error)")
+                fatalError("Could not synthesize module map during build: \(error)")
             }
             compileOptions.append("-I")
             compileOptions.append(workDirectory.appending("include").description + "/")
@@ -556,26 +622,27 @@ final class ATllbuild : Tool {
         }
 
         //inject target
+
         switch(Platform.targetPlatform) {
             case .iOS(let arch):
+            let targetTuple: [String]
             switch(arch) {
                 case .x86_64:
-                compileOptions.append(contentsOf: ["-target","x86_64-apple-ios9.3"])
-                linkOptions.append(contentsOf: ["-target","x86_64-apple-ios9.3"])
+                targetTuple = ["-target","x86_64-apple-ios9.3"] 
 
                 case .i386:
-                compileOptions.append(contentsOf: ["-target","i386-apple-ios9.3"])
-                linkOptions.append(contentsOf: ["-target","i386-apple-ios9.3"])
+                targetTuple = ["-target","i386-apple-ios9.3"]
 
                 case .arm64:
-                compileOptions.append(contentsOf: ["-target","arm64-apple-ios9.3"])
-                linkOptions.append(contentsOf: ["-target","arm64-apple-ios9.3"])
+                targetTuple = ["-target","arm64-apple-ios9.3"]
 
                 case .armv7:
-                compileOptions.append(contentsOf: ["-target","armv7-apple-ios9.3"])
-                linkOptions.append(contentsOf: ["-target","armv7-apple-ios9.3"])
+                targetTuple = ["-target","armv7-apple-ios9.3"]
 
             }
+            compileOptions.append(contentsOf: targetTuple)
+            linkOptions.append(contentsOf: targetTuple)
+            cCompileOptions.append(contentsOf: targetTuple)
             linkOptions.append(contentsOf: ["-Xlinker", "-syslibroot","-Xlinker",Platform.targetPlatform.sdkPath!])
             case .OSX, .Linux:
                 break //not required
@@ -630,10 +697,12 @@ final class ATllbuild : Tool {
         //see https://github.com/AnarchyTools/atbuild/issues/73
         if currentConfiguration.debugInstrumentation == .Included || currentConfiguration.debugInstrumentation == .Stripped {
             compileOptions.append("-g")
+            cCompileOptions.append("-g")
         }
 
         if currentConfiguration.optimize == true {
             compileOptions.append("-O")
+            cCompileOptions.append("-Os")
             switch(Platform.buildPlatform) {
                 case .Linux:
                 //don't enable WMO on Linux
@@ -660,21 +729,35 @@ final class ATllbuild : Tool {
         switch(currentConfiguration) {
             case .Debug:
             compileOptions.append("-DATBUILD_DEBUG")
+            cCompileOptions.append("-DATBUILD_DEBUG")
             case .Release:
             compileOptions.append("-DATBUILD_RELEASE")
+            cCompileOptions.append("-DATBUILD_RELEASE")
             case .Benchmark:
             compileOptions.append("-DATBUILD_BENCH")
+            cCompileOptions.append("-DATBUILD_BENCH")
+
             case .Test:
             compileOptions.append("-DATBUILD_TEST")
+            cCompileOptions.append("-DATBUILD_TEST")
             case .None:
             break //too much magic to insert an arg in this case
             case .User(let str):
             compileOptions.append("-DATBUILD_\(str)")
+            cCompileOptions.append("-DATBUILD_\(str)")
         }
 
         // MARK: emit llbuildyaml 
 
-        let yaml = llbuildyaml(sources: sources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, linkWithAtbin: linkWithAtbin, swiftCPath: swiftCPath, executableName: executableName, enableWMO: enableWMO)
+        //separate sources
+        let swiftSources = sources.filter({$0.description.hasSuffix(".swift")})
+
+        if hSources.count > 0 {
+            precondition(moduleMap == .Synthesized,"Use :\(Options.ModuleMap.rawValue) \"synthesized\" when compiling C headers")
+        }
+
+
+        let yaml = llbuildyaml(swiftSources: swiftSources,cSources: cSources, workdir: workDirectory, modulename: name, linkSDK: sdk, compileOptions: compileOptions, cCompileOptions: cCompileOptions, linkOptions: linkOptions, outputType: outputType, linkWithProduct: linkWithProduct, linkWithAtbin: linkWithAtbin, swiftCPath: swiftCPath, executableName: executableName, enableWMO: enableWMO)
         let _ = try? yaml.write(to: llbuildyamlpath)
         if bootstrapOnly { return }
 
@@ -684,7 +767,8 @@ final class ATllbuild : Tool {
         case .None:
             break
         case .Synthesized:
-            let s = synthesizeModuleMap(name: name, umbrellaHeader: nil)
+            // "public" modulemap
+            let s = synthesizeModuleMap(name: name, umbrellaHeader: nil, headers: [], link: moduleMapLinks)
             do {
                 try s.write(to: workDirectory + "products/\(name).modulemap")
             } catch {

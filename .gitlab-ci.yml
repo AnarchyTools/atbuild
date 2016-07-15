@@ -5,7 +5,7 @@ linux:
     stage: build
     script:
         - apt-get update
-        - apt-get install -y xz-utils package-deb
+        - apt-get install -y xz-utils package-deb libcurl4-openssl-dev
         - git submodule update --init --recursive
         - bootstrap/build.sh linux
         - bin/atbuild check

@@ -1,0 +1,34 @@
+(package
+  :name "c"
+  
+  :tasks {
+      :lib {
+        :tool "atllbuild"
+        :name "lib"
+        :sources ["lib/**.swift" "lib/**.c" "lib/**.h"]
+        :output-type "static-library"
+        :module-map "synthesized"
+        :c-compile-options ["-DGOT_OPTIONS"]
+        :overlays {
+          :atbuild.platform.osx {
+            :module-map-link ["curl"]
+          }
+          :atbuild.platform.linux {
+            :module-map-link ["curl"]
+          }
+        }
+      }
+      :tool {
+        :tool "atllbuild"
+        :name "tool"
+        :sources ["tool/**.swift"]
+        :output-type "executable"
+        :link-with-product ["lib.a"]
+        :dependencies ["lib"]
+      }
+      :default {
+        :tool "nop"
+        :dependencies ["tool"]
+      }
+  }
+)

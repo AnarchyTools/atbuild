@@ -20,7 +20,7 @@ class XCTestRun : Tool {
         case TestExecutable = "test-executable"
     }
 
-    func run(task: Task, toolchain: String) {
+    func run(task: Task) {
         guard let testExecutable = task[Option.TestExecutable.rawValue]?.string else {
             fatalError("No \(Option.TestExecutable.rawValue) for XCTestRun task \(task.qualifiedName)")
         }
@@ -62,12 +62,12 @@ class XCTestRun : Tool {
                 s += "</dict>\n"
                 s += "</plist>\n"
                 try s.write(to: workingDirectory + "XCTestRun.xctest/Contents/Info.plist")
-                anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest")
+                anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest", environment: [:])
             } catch {
                 fatalError("Could not run XCTest: \(error)")
             }
             case .Linux:
-            anarchySystem("\(testExecutable)")
+            anarchySystem("\(testExecutable)", environment: [:])
 
 			case .iOS, .iOSGeneric:
             fatalError("XCTestRun is not supported for iOS")

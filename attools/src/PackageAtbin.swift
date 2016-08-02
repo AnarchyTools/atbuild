@@ -22,7 +22,7 @@ class PackageAtbin:Tool {
         case Compress = "compress"
     }
 
-    func run(task: Task, toolchain: String) {
+    func run(task: Task) {
 
         guard let n_ = task[Options.Name.rawValue] else {
             fatalError("No \(Options.Name.rawValue) for \(task)")
@@ -112,7 +112,7 @@ class PackageAtbin:Tool {
         for platform in targetPlatforms {
             Platform.targetPlatform = platform
             //run the underlying atbuild task
-            TaskRunner.runTask(task: atllbuildTask, package: task.package, toolchain: toolchain, force: true)
+            TaskRunner.runTask(task: atllbuildTask, package: task.package, force: true)
 
             //copy payload to lipo location
             try! FS.copyItem(from: Path(".atllbuild/products/\(payloadFileName)"), to: workDir.join(Path("\(payloadFileName).\(Platform.targetPlatform)")))
@@ -144,9 +144,7 @@ class PackageAtbin:Tool {
             for platform in targetPlatforms {
                 lipoCmd += "-arch \(platform.architecture) .atllbuild/lipo/\(payloadFileName).\(platform) "
             }
-            if system(lipoCmd) != 0 {
-                fatalError()
-            }
+            anarchySystem(lipoCmd, environment: [:])
         }
 
         //generate compiled.atpkg
@@ -186,9 +184,7 @@ class PackageAtbin:Tool {
                 default:
                 fatalError("Unsupported host platform \(Platform.hostPlatform)")
             }
-            if system(cmd) != 0 {
-                fatalError("Failed to compress archive")
-            }
+            anarchySystem(cmd, environment: [:])
         }
     }
 }

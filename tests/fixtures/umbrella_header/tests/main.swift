@@ -8,7 +8,7 @@ class MyTest : XCTestCase {
 }
 
 extension MyTest  {
-    static var allTests : [(String, MyTest -> () throws -> Void)] {
+    static var allTests : [(String, (MyTest) -> () throws -> Void)] {
         return [
             ("testLoad", testLoad)
         ]

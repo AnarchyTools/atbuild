@@ -38,7 +38,7 @@ class PackageFramework: Tool {
         fatalError("packageframework is unsupported on this platform")
         #endif
     }
-    func run(task: Task, toolchain: String) {
+    func run(task: Task) {
         print("Warning: package-framework is deprecated and will be removed.  Use the plugin instead.")
         sleep(5)
         compiler_crash() //work around a compiler crash
@@ -99,8 +99,6 @@ class PackageFramework: Tool {
         //codesign
         let cmd = "codesign --force --deep --sign - --timestamp=none '\(AVersionPath)'"
         print(cmd)
-        if system(cmd) != 0 {
-            fatalError("Codesign failed.")
-        }
+        anarchySystem(cmd, environment: [:])
     }
 }

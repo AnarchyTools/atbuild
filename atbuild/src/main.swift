@@ -129,7 +129,7 @@ if Process.arguments.contains("--help") {
 
 func runTask(taskName: String, package: Package) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
-    TaskRunner.runTask(task: task, package: package, toolchain: toolchain)
+    TaskRunner.runTask(task: task, package: package)
 }
 
 
@@ -151,6 +151,8 @@ if Process.arguments.count > 1 {
 if focusOnTask == nil {
     focusOnTask = "default"
 }
+
+Platform.toolchain = toolchain
 
 print("Building package \(package.name)...")
 

@@ -28,30 +28,27 @@ import atpkg
  */
 final class Shell : Tool {
 
-    static private func mysetEnv(_ key: String, _ val: String) {
-        setenv(key,val,1)
-    }
-
-    ///Sets the environment for the specified task.
-    static func environvironment(task: Task, block: () -> ()) {
-        setenv("ATBUILD_PLATFORM", "\(Platform.targetPlatform)", 1)
-        setenv("ATBUILD_USER_PATH", userPath().description, 1)
+    ///Builds the environment for the specified task.
+    static func environment(task: Task) -> [String:String] {
+        var environment: [String:String] = [:]
+        environment["ATBUILD_PLATFORM"] = Platform.targetPlatform.description
+        environment["ATBUILD_USER_PATH"] = userPath().description
         if let version = task.package.version {
-            setenv("ATBUILD_PACKAGE_VERSION", version, 1)
+            environment["ATBUILD_PACKAGE_VERSION"] = version
         }
 
-        setenv("ATBUILD_CONFIGURATION", "\(currentConfiguration)",1)
+        environment["ATBUILD_CONFIGURATION"] = "\(currentConfiguration)"
         if let o = currentConfiguration.optimize {
-            mysetEnv("ATBUILD_CONFIGURATION_OPTIMIZE", o ? "1":"0")
+            environment["ATBUILD_CONFIGURATION_OPTIMIZE"] = o ? "1":"0"
         }
         if let o = currentConfiguration.fastCompile {
-            mysetEnv("ATBUILD_CONFIGURATION_FAST_COMPILE", o ? "1":"0")
+            environment["ATBUILD_CONFIGURATION_FAST_COMPILE"] = o ? "1":"0"
         }
         if let o = currentConfiguration.testingEnabled {
-            mysetEnv("ATBUILD_CONFIGURATION_TESTING_ENABLED", o ? "1":"0")
+            environment["ATBUILD_CONFIGURATION_TESTING_ENABLED"] = o ? "1":"0"
         }
         if let o = currentConfiguration.noMagic {
-            mysetEnv("ATBUILD_CONFIGURATION_NO_MAGIC", o ? "1":"0")
+            environment["ATBUILD_CONFIGURATION_NO_MAGIC"] = o ? "1":"0"
         }
 
         //expose debug configuration info
@@ -64,8 +61,7 @@ final class Shell : Tool {
             case .Stripped:
             conf = "stripped"
         }
-        mysetEnv("ATBUILD_CONFIGURATION_DEBUG_INSTRUMENTATION", conf)
-
+        environment["ATBUILD_CONFIGURATION_DEBUG_INSTRUMENTATION"] = conf
 
         //does bin path not exist?
         //let's create it!
@@ -73,31 +69,16 @@ final class Shell : Tool {
         if !FS.fileExists(path: binPath) {
             try! FS.createDirectory(path: binPath)
         }
-        setenv("ATBUILD_BIN_PATH",binPath.description,1)
+        environment["ATBUILD_BIN_PATH"] = binPath.description
 
-        //deal with directory nonsense
-        let oldPath = try! FS.getWorkingDirectory()
-        defer {
-            do {
-                try FS.changeWorkingDirectory(path: oldPath)
-            } catch {
-                print("Can not revert to previous working directory '\(oldPath)': \(error)")
-                exit(42)
-            }
-        }
-        do {
-            try FS.changeWorkingDirectory(path: task.importedPath)
-        }
-        catch {
-            print("Cannot change working directory to \(task.importedPath)")
-        }
-        block()
+        environment["PWD"]=String(validatingUTF8: realpath(task.importedPath.description,nil))!
+        print("pwd set to",environment["PWD"])
+        return environment
     }
-    func run(task: Task, toolchain: String) {
+    func run(task: Task) {
         guard var script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
         script = evaluateSubstitutions(input: script, package: task.package)
-        Shell.environvironment(task: task) {
-            anarchySystem(script)
-        }
+        let env = Shell.environment(task: task)
+        anarchySystem(script, environment: env)
     }
 }

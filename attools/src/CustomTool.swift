@@ -15,7 +15,7 @@ final class CustomTool: Tool {
     init(name: String) {
         self.name = String(name.characters[name.characters.startIndex..<name.characters.index(name.characters.startIndex, offsetBy: name.characters.count - 7)])
     }
-    func run(task: Task, toolchain: String) {
+    func run(task: Task) {
         var cmd = "\(self.name) "
         for key in task.allKeys.sorted() {
             if Task.Option.allOptions.map({$0.rawValue}).contains(key) { continue }
@@ -24,8 +24,7 @@ final class CustomTool: Tool {
             }
             cmd += "--\(key) \"\(evaluateSubstitutions(input: value, package: task.package))\" "
         }
-        Shell.environvironment(task: task) {
-            anarchySystem(cmd)
-        }
+        let env = Shell.environment(task: task)
+        anarchySystem(cmd,environment: env)
     }
 }

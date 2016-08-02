@@ -37,7 +37,7 @@ let tools: [String:Tool] = [
  * can build new ones out of the existing ones.
  */
 public protocol Tool {
-    func run(task: Task, toolchain: String)
+    func run(task: Task)
 }
 
 /**
@@ -71,15 +71,61 @@ func userPath() -> Path {
     }
 }
 
+private func _WSTATUS(_ status: CInt) -> CInt {
+    return status & 0x7f
+}
+
+private func WIFEXITED(_ status: CInt) -> Bool {
+    return _WSTATUS(status) == 0
+}
+
+private func WEXITSTATUS(_ status: CInt) -> CInt {
+    return (status >> 8) & 0xff
+}
+
+/// convenience wrapper for waitpid
+func waitpid(_ pid: pid_t) -> Int32 {
+    while true {
+        var exitStatus: Int32 = 0
+        let rv = waitpid(pid, &exitStatus, 0)
+
+        if rv != -1 {
+            if WIFEXITED(exitStatus) {
+                return WEXITSTATUS(exitStatus)
+            } else {
+                fatalError("Exit signal")
+            }
+        } else if errno == EINTR {
+            continue  // see: man waitpid
+        } else {
+            fatalError("waitpid: \(errno)")
+        }
+    }
+}
+
 ///A wrapper for POSIX "system" call.
 ///If return value is non-zero, we exit (not fatalError)
 ///See #72 for details.
 ///- note: This function call is appropriate for commands that are user-perceivable (such as compilation)
 ///Rather than calls that aren't
-func anarchySystem(_ cmd: String) {
-    let returnCode = system(cmd)
+func anarchySystem(_ cmd: String, environment: [String: String]) {
+    var pid : pid_t = 0
+    //copy PATH
+    let path = getenv("PATH")!
+    var environment = environment
+    environment["PATH"] = String(validatingUTF8: path)!
+
+    let args: [String] =  ["sh","-c",cmd]
+    let argv = args.map{ $0.withCString(strdup) }
+    let env: [UnsafeMutablePointer<CChar>?] = environment.map{ "\($0.0)=\($0.1)".withCString(strdup) }
+    let status = posix_spawn(&pid, "/bin/sh",nil,nil,argv + [nil],env + [nil])
+
+    if status != 0 {
+        fatalError("spawn error \(status)")
+    }
+
+    let returnCode = try! waitpid(pid)
     if returnCode != 0 {
-        print("\(cmd) exited with return code \(returnCode)")
-        exit(42)
+        fatalError("process \(cmd) error \(returnCode)")
     }
 }

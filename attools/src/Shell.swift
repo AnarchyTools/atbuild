@@ -72,7 +72,7 @@ final class Shell : Tool {
         environment["ATBUILD_BIN_PATH"] = binPath.description
 
         environment["PWD"]=String(validatingUTF8: realpath(task.importedPath.description,nil))!
-        print("pwd set to",environment["PWD"])
+        print("pwd set to",environment["PWD"]!)
         return environment
     }
     func run(task: Task) {

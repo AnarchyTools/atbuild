@@ -118,7 +118,14 @@ func anarchySystem(_ cmd: String, environment: [String: String]) {
     let args: [String] =  ["sh","-c",cmd]
     let argv = args.map{ $0.withCString(strdup) }
     let env: [UnsafeMutablePointer<CChar>?] = environment.map{ "\($0.0)=\($0.1)".withCString(strdup) }
+    
+    let directory = try! FS.getWorkingDirectory()
+    defer {try! FS.changeWorkingDirectory(path: directory)}
+    if let e = environment["PWD"] {
+        try! FS.changeWorkingDirectory(path: Path(environment["PWD"]!))
+    }
     let status = posix_spawn(&pid, "/bin/sh",nil,nil,argv + [nil],env + [nil])
+
 
     if status != 0 {
         fatalError("spawn error \(status)")

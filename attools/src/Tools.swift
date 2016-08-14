@@ -110,11 +110,14 @@ func waitpid(_ pid: pid_t) -> Int32 {
 ///Rather than calls that aren't
 func anarchySystem(_ cmd: String, environment: [String: String]) {
     var pid : pid_t = 0
-    //copy PATH
-    let path = getenv("PATH")!
+    //copy a few well-known values
     var environment = environment
-    environment["PATH"] = String(validatingUTF8: path)!
-
+    for arg in ["PATH","HOME"] {
+        if let path = getenv(arg) {
+            environment[arg] = String(validatingUTF8: path)!
+        }
+    }
+    
     let args: [String] =  ["sh","-c",cmd]
     let argv = args.map{ $0.withCString(strdup) }
     let env: [UnsafeMutablePointer<CChar>?] = environment.map{ "\($0.0)=\($0.1)".withCString(strdup) }

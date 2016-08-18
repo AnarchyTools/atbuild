@@ -1,3 +1,3 @@
-public class Foo {
+open class Foo {
     public init() { }
 }

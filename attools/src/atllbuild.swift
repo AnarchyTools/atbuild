@@ -350,7 +350,7 @@ final class ATllbuild : Tool {
         //We just want to create a state where .atllbuild/objects and .atllbuild/llbuildtmp and .atllbuild/products exists.
         //and in particular, without erasing the product directory, since that accumulates build products across
         //multiple invocations of atllbuild.
-        if Process.arguments.contains("--clean") {
+        if CommandLine.arguments.contains("--clean") {
             let _ = try? FS.removeItem(path: workDirectory.appending("objects"), recursive: true)
             let _ = try? FS.removeItem(path: workDirectory.appending("llbuildtmp"), recursive: true)
         }

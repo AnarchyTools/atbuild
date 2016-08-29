@@ -183,7 +183,7 @@ final class ATllbuild : Tool {
             if let sdkPath = Platform.targetPlatform.sdkPath {
                 if swiftCPath.description.contains(string: "Xcode.app") {
                     //evil evil hack
-                    args += ["-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
+                    args += ["-sdk",sdkPath]
                 }
                 else { args += ["-sdk", sdkPath] }
                 

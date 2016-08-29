@@ -20,7 +20,7 @@ commands:
      module-name: attools
      module-output-path: .atllbuild/products/attools.swiftmodule
      temps-path: .atllbuild/llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk", "-g", "-DATBUILD_DEBUG"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-sdk", "/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/", "-g", "-DATBUILD_DEBUG"]
   <atllbuild>:
     tool: shell
     inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/atllbuild.swift.o", ".atllbuild/objects/Configuration.swift.o", ".atllbuild/objects/CustomTool.swift.o", ".atllbuild/objects/Nop.swift.o", ".atllbuild/objects/PackageAtbin.swift.o", ".atllbuild/objects/PackageFramework.swift.o", ".atllbuild/objects/PlatformPaths.swift.o", ".atllbuild/objects/Shell.swift.o", ".atllbuild/objects/TaskRunner.swift.o", ".atllbuild/objects/Tools.swift.o", ".atllbuild/objects/XCTestRun.swift.o"]

@@ -54,12 +54,12 @@ var focusOnTask : String? = nil
 
 var packageFile = defaultPackageFile
 var toolchain = Platform.buildPlatform.defaultToolchainPath
-for (i, x) in Process.arguments.enumerated() {
+for (i, x) in CommandLine.arguments.enumerated() {
     if x == Options.CustomFile.rawValue {
-        packageFile = Path(Process.arguments[i+1])
+        packageFile = Path(CommandLine.arguments[i+1])
     }
     if x == Options.Toolchain.rawValue {
-        toolchain = Process.arguments[i+1]
+        toolchain = CommandLine.arguments[i+1]
         if toolchain == "xcode" {
             toolchain = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain"
         }
@@ -68,20 +68,21 @@ for (i, x) in Process.arguments.enumerated() {
         }
     }
     if x == Options.Platform.rawValue {
-        let platformString = Process.arguments[i+1]
+        let platformString = CommandLine.arguments[i+1]
         Platform.targetPlatform = Platform(string: platformString)
     }
     if x == Options.Configuration.rawValue {
-        let configurationString = Process.arguments[i+1]
+        let configurationString = CommandLine.arguments[i+1]
         currentConfiguration = Configuration(string: configurationString)
     }
 }
 
+
 //build overlays
 var overlays : [String] = []
-for (i, x) in Process.arguments.enumerated() {
+for (i, x) in CommandLine.arguments.enumerated() {
     if x == Options.Overlay.rawValue {
-        let overlay = Process.arguments[i+1]
+        let overlay = CommandLine.arguments[i+1]
         overlays.append(overlay)
     }
 }
@@ -122,22 +123,22 @@ do {
 }
 
 //usage message
-if Process.arguments.contains("--help") {
+if CommandLine.arguments.contains("--help") {
     usage()
 }
 
 
 func runTask(taskName: String, package: Package) {
     guard let task = package.tasks[taskName] else { fatalError("No \(taskName) task in build configuration.") }
-    TaskRunner.runTask(task: task, package: package, toolchain: toolchain)
+    TaskRunner.runTask(task: task, package: package)
 }
 
 
 //choose which task to run
-if Process.arguments.count > 1 {
+if CommandLine.arguments.count > 1 {
     var i = 1
-    while i < Process.arguments.count {
-        let arg = Process.arguments[i]
+    while i < CommandLine.arguments.count {
+        let arg = CommandLine.arguments[i]
         if Options.allOptions.map({$0.rawValue}).contains(arg) {
             i += 1
         }
@@ -151,6 +152,8 @@ if Process.arguments.count > 1 {
 if focusOnTask == nil {
     focusOnTask = "default"
 }
+
+Platform.toolchain = toolchain
 
 print("Building package \(package.name)...")
 

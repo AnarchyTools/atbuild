@@ -54,6 +54,10 @@ public enum Platform {
     case Linux
     case iOS(Architecture)
 
+    public static var toolchain: String? = nil
+
+    static var isXcode7: Bool { return Platform.toolchain!.contains(string: "Xcode.app") }
+
     //generic platforms
     case iOSGeneric
 
@@ -113,13 +117,22 @@ public enum Platform {
     var sdkPath: String? {
         switch(self) {
             case .OSX:
-                return "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
+                if Platform.isXcode7 {
+                    return "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
+                }
+                return "/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
             case .Linux:
                 return nil
             case .iOS(.x86_64), .iOS(.i386):
-                return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.3.sdk"
+                if Platform.isXcode7 {
+                    return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.3.sdk"
+                }
+                return "/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk"
             case .iOS(.armv7), .iOS(.arm64):
-                return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk"
+                if Platform.isXcode7 {
+                    return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk"
+                }
+                return "/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
             case .iOSGeneric:
                 fatalError("No SDK for generic iOS platform; choose a specific platform or use atbin")
         }
@@ -174,6 +187,34 @@ public enum Platform {
             return [Platform.iOS(Architecture.x86_64), Platform.iOS(Architecture.i386), Platform.iOS(Architecture.armv7), Platform.iOS(Architecture.arm64)]
         }
     }
+
+    var targetTriple: String {
+        switch(self) {
+            case .OSX, .Linux, .iOSGeneric:
+            fatalError("Not implemented")
+
+            case .iOS(let arch):
+            switch(arch) {
+                case .x86_64:
+                if Platform.isXcode7 {return "x86_64-apple-ios9.3"}
+                return "x86_64-apple-ios10.0"
+
+                case .i386:
+                if Platform.isXcode7 {return "i386-apple-ios9.3"}
+                return "i386-apple-ios10.0"
+
+                case .arm64:
+                if Platform.isXcode7 {return "arm64-apple-ios9.3"}
+                return "arm64-apple-ios10.0"
+
+                case .armv7:
+                if Platform.isXcode7 {return "armv7-apple-ios9.3"}
+                return "armv7-apple-ios10.0"
+                
+            }
+
+        }
+    }
 }
 
 extension Platform: CustomStringConvertible {
@@ -191,15 +232,15 @@ extension Platform: CustomStringConvertible {
     }
 }
 
-func findToolPath(toolName: String, toolchain: String) -> Path {
+func findToolPath(toolName: String) -> Path {
 
     if Platform.buildPlatform == Platform.hostPlatform {
         //poke around on the filesystem
         //look in /usr/bin
-        let usrBin = Path("\(toolchain)/usr/bin/\(toolName)")
+        let usrBin = Path("\(Platform.toolchain!)/usr/bin/\(toolName)")
         if FS.fileExists(path: usrBin) { return usrBin }
         //look in /usr/local/bin
-        let usrLocalBin = Path("\(toolchain)/usr/local/bin/\(toolName)")
+        let usrLocalBin = Path("\(Platform.toolchain!)/usr/local/bin/\(toolName)")
         if FS.fileExists(path: usrLocalBin) { return usrLocalBin }
 
         //swift-build-tool isn't available in 2.2.

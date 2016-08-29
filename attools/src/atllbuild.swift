@@ -181,9 +181,9 @@ final class ATllbuild : Tool {
 
         if linkSDK {
             if let sdkPath = Platform.targetPlatform.sdkPath {
-                if swiftCPath.description.contains(string: "Xcode-beta") {
+                if swiftCPath.description.contains(string: "Xcode.app") {
                     //evil evil hack
-                    args += ["-sdk","/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/"]
+                    args += ["-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"]
                 }
                 else { args += ["-sdk", sdkPath] }
                 
@@ -330,7 +330,7 @@ final class ATllbuild : Tool {
         }
     }
 
-    func run(task: Task, toolchain: String) {
+    func run(task: Task) {
 
         //warn if we don't understand an option
         var knownOptions = Options.allOptions.map({$0.rawValue})
@@ -350,7 +350,7 @@ final class ATllbuild : Tool {
         //We just want to create a state where .atllbuild/objects and .atllbuild/llbuildtmp and .atllbuild/products exists.
         //and in particular, without erasing the product directory, since that accumulates build products across
         //multiple invocations of atllbuild.
-        if Process.arguments.contains("--clean") {
+        if CommandLine.arguments.contains("--clean") {
             let _ = try? FS.removeItem(path: workDirectory.appending("objects"), recursive: true)
             let _ = try? FS.removeItem(path: workDirectory.appending("llbuildtmp"), recursive: true)
         }
@@ -625,24 +625,11 @@ final class ATllbuild : Tool {
 
         switch(Platform.targetPlatform) {
             case .iOS(let arch):
-            let targetTuple: [String]
-            switch(arch) {
-                case .x86_64:
-                targetTuple = ["-target","x86_64-apple-ios9.3"] 
-
-                case .i386:
-                targetTuple = ["-target","i386-apple-ios9.3"]
-
-                case .arm64:
-                targetTuple = ["-target","arm64-apple-ios9.3"]
-
-                case .armv7:
-                targetTuple = ["-target","armv7-apple-ios9.3"]
-
-            }
+            let targetTuple = ["-target",Platform.targetPlatform.targetTriple]
             compileOptions.append(contentsOf: targetTuple)
             linkOptions.append(contentsOf: targetTuple)
             cCompileOptions.append(contentsOf: targetTuple)
+            cCompileOptions.append(contentsOf: ["-isysroot",Platform.targetPlatform.sdkPath!])
             linkOptions.append(contentsOf: ["-Xlinker", "-syslibroot","-Xlinker",Platform.targetPlatform.sdkPath!])
             case .OSX, .Linux:
                 break //not required
@@ -678,7 +665,7 @@ final class ATllbuild : Tool {
         else {
             llbuildyamlpath = workDirectory.appending("llbuild.yaml")
         }
-        let swiftCPath = findToolPath(toolName: "swiftc", toolchain: toolchain)
+        let swiftCPath = findToolPath(toolName: "swiftc")
 
         var enableWMO: Bool
         if let wmo = task[Options.WholeModuleOptimization.rawValue]?.bool {
@@ -776,8 +763,8 @@ final class ATllbuild : Tool {
             }
         }
 
-        let cmd = "\(findToolPath(toolName: "swift-build-tool",toolchain: toolchain)) -f \(llbuildyamlpath)"
-        anarchySystem(cmd)
+        let cmd = "\(findToolPath(toolName: "swift-build-tool")) -f \(llbuildyamlpath)"
+        anarchySystem(cmd, environment: [:])
         if task[Options.PublishProduct.rawValue]?.bool == true {
             do {
                 if !FS.isDirectory(path: Path("bin")) {

@@ -26,6 +26,7 @@ osx:
         - bin/atbuild check
     tags:
         - openswift
+        - xcodeselect8
     artifacts:
         paths:
             - bin/atbuild-*.tar.xz

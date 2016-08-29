@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "baz.h"
 void bar() {
     printf("hello from C");

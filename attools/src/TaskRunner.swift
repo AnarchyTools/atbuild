@@ -28,16 +28,16 @@ final public class TaskRunner {
     ///Run the task.  Process all dependencies.  Deduplicates dependencies.
     ///- parameter force: Force running the task and all its dependencies, even if we've run it before.  This is used for e.g. forcibly reconfiguring the platform of a task and its dependency tree.
     ///
-    static public func runTask(task: Task, package: Package, toolchain: String, force: Bool = false) {
+    static public func runTask(task: Task, package: Package, force: Bool = false) {
         for t in package.prunedDependencyGraph(task: task) {
             if (!ranTasks.contains(t.qualifiedName)) || force {
-                TaskRunner.runTaskWithoutDependencies(task: t, package: package, toolchain: toolchain)
+                TaskRunner.runTaskWithoutDependencies(task: t, package: package)
                 ranTasks.append(t.qualifiedName)
             }
         }
     }
 
-    static private func runTaskWithoutDependencies(task: Task, package: Package, toolchain: String) {
+    static private func runTaskWithoutDependencies(task: Task, package: Package) {
         if task.onlyPlatforms.count > 0 {
             if !task.onlyPlatforms.contains(Platform.targetPlatform.description) {
                 print("Skipping task \(task) on platform \(Platform.targetPlatform)")
@@ -51,7 +51,7 @@ final public class TaskRunner {
             fatalError("Not all required overlays present: \(error)")
         }
         let tool = toolByName(name: task.tool)
-        tool.run(task: task, toolchain: toolchain)
+        tool.run(task: task)
         print("Completed task \(task.qualifiedName).")
     }
 }

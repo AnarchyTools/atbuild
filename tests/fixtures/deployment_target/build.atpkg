@@ -1,0 +1,21 @@
+(package
+  :name "deployment_target"
+
+  :tasks {
+    :lib {
+      :tool "atllbuild"
+      :sources ["lib/foo.swift"]
+      :output-type "dynamic-library"
+      :name "library"
+      :publish-product true
+      :deployment-target "8.0"
+    }
+
+    :default {
+      :tool "shell"
+      :script "cd DT8Application && xcodebuild -scheme DT8Application -destination \"platform=iOS Simulator,name=iPhone 6\" clean build"
+      :dependencies ["lib"]
+    }
+
+  }
+)

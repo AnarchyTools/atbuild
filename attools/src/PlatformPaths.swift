@@ -188,7 +188,18 @@ public enum Platform {
         }
     }
 
-    var targetTriple: String {
+    var standardDeploymentTarget: String {
+        switch(self) {
+            case .OSX, .Linux, .iOSGeneric:
+            fatalError("Not implemented")
+
+            case .iOS:
+            if Platform.isXcode7 { return "9.3" }
+            return "10.0"
+        }
+    }
+
+    var nonDeploymentTargetTargetTriple: String {
         switch(self) {
             case .OSX, .Linux, .iOSGeneric:
             fatalError("Not implemented")
@@ -196,21 +207,13 @@ public enum Platform {
             case .iOS(let arch):
             switch(arch) {
                 case .x86_64:
-                if Platform.isXcode7 {return "x86_64-apple-ios9.3"}
-                return "x86_64-apple-ios10.0"
-
+                return "x86_64-apple-ios"
                 case .i386:
-                if Platform.isXcode7 {return "i386-apple-ios9.3"}
-                return "i386-apple-ios10.0"
-
+                return "i386-apple-ios"
                 case .arm64:
-                if Platform.isXcode7 {return "arm64-apple-ios9.3"}
-                return "arm64-apple-ios10.0"
-
+                return "arm64-apple-ios"
                 case .armv7:
-                if Platform.isXcode7 {return "armv7-apple-ios9.3"}
-                return "armv7-apple-ios10.0"
-                
+                return "armv7-apple-ios"
             }
 
         }

@@ -298,6 +298,7 @@ final class ATllbuild : Tool {
         case ExecutableName = "executable-name"
         case Bitcode = "bitcode"
         case Magic = "magic"
+        case DeploymentTarget = "deployment-target"
 
 
         static var allOptions : [Options] {
@@ -621,11 +622,21 @@ final class ATllbuild : Tool {
             compileOptions.append("-import-underlying-module")
         }
 
+
+
         //inject target
 
         switch(Platform.targetPlatform) {
             case .iOS(let arch):
-            let targetTuple = ["-target",Platform.targetPlatform.targetTriple]
+            let deploymentTarget: String
+            if let _deploymentTarget = task[Options.DeploymentTarget.rawValue]?.string {
+                deploymentTarget = _deploymentTarget
+            }
+            else {
+                deploymentTarget = Platform.targetPlatform.standardDeploymentTarget
+            }
+            
+            let targetTuple = ["-target",Platform.targetPlatform.nonDeploymentTargetTargetTriple + deploymentTarget]
             compileOptions.append(contentsOf: targetTuple)
             linkOptions.append(contentsOf: targetTuple)
             cCompileOptions.append(contentsOf: targetTuple)

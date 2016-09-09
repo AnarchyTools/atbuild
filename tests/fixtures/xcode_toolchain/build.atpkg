@@ -2,13 +2,6 @@
   :name "xcode_toolchain"
   
   :tasks {
-    :default {
-      :tool "atllbuild"
-      :sources ["test.swift"]
-      :name "hello"
-      :output-type "executable"
-      :publish-product true
-    }   
     :swiftthree {
       :tool "atllbuild"
       :sources ["test-3.swift"]

@@ -415,16 +415,9 @@ echo "****************XCODE TOOLCHAIN TEST**************"
 
 if [ -e "/Applications/Xcode.app" ]; then
     cd $DIR/tests/fixtures/xcode_toolchain
-    $ATBUILD --toolchain xcode
+    $ATBUILD swiftthree --toolchain xcode
 else
-    echo "Xcode is not installed; skipping test"
-fi
-
-if [ -e "/Applications/Xcode-beta.app" ]; then
-    cd $DIR/tests/fixtures/xcode_toolchain
-    $ATBUILD swiftthree --toolchain xcode-beta
-else
-    echo "Xcode beta toolchain is not installed; skipping test"
+    echo "Xcode toolchain is not installed; skipping test"
 fi
 
 echo "****************PACKAGE FRAMEWORK TESTS**************"

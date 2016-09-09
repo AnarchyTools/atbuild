@@ -72,7 +72,7 @@
 
     :bootstrap {
       :tool "shell"
-      :script "atbuild atbuild --use-overlay bootstrap-linux --platform linux && atbuild atbuild --use-overlay bootstrap-osx --platform osx" 
+      :script "bin/atbuild atbuild --use-overlay bootstrap-linux --platform linux && bin/atbuild atbuild --use-overlay bootstrap-osx --platform osx" 
     }
 
     :atbin {

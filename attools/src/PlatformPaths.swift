@@ -14,6 +14,39 @@
 
 import atfoundation
 
+/**Drew's incredibly dumb string library */
+
+extension String {
+    func match(_ b: String) -> ClosedRange<String.CharacterView.Index>? {
+        var idx = characters.startIndex
+        while idx != endIndex {
+            var l_idx_pre = idx
+            var l_idx = idx
+            var found = true
+            for charB in b.characters {
+                let charAL = characters[l_idx]
+                if charAL != charB { found = false; break }
+                l_idx_pre = l_idx
+                l_idx = characters.index(after: l_idx)
+            }
+            if found {
+                return ClosedRange(uncheckedBounds: (lower: idx, upper: l_idx_pre))
+            }
+            idx = characters.index(after: idx)
+        }
+        return nil
+    }
+    func prefix(to: String.CharacterView.Index) -> String {
+        let notEndIndex = characters.index(before: characters.endIndex)
+        let notStartIndex = characters.index(after: to)
+        let closedRange = ClosedRange(uncheckedBounds: (lower: notStartIndex, upper: notEndIndex))
+        var s = self
+        s.removeSubrange(closedRange)
+        return s
+    }
+}
+
+
 public enum Architecture {
     case x86_64
     case i386
@@ -56,7 +89,34 @@ public enum Platform {
 
     public static var toolchain: String? = nil
 
-    static var isXcode7: Bool { return Platform.toolchain!.contains(string: "Xcode.app") }
+    private static var isXcode7: Bool {
+        #if os(OSX)
+        return FS.fileExists(path: Path("\(Platform.developerPath)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"))
+        #else
+        return false //no linux platform uses xcode 7
+                     //unless you count Project Marklar 2
+        #endif
+    }
+
+    private static var developerPath: String { 
+        //first, look at the toolchain for clues
+        if let match = Platform.toolchain!.match(".app/Contents/Developer") {
+            return Platform.toolchain!.prefix(to: match.upperBound)
+        }
+        //assuming that failed, try xcode-select
+        #if os(OSX)
+        var xcode_select_path = ""
+        anarchySystem("xcode-select -p", environment:[:], redirectOutput: &xcode_select_path)
+        //lop off the newline
+        var notEndIndex = xcode_select_path.characters.index(before: xcode_select_path.characters.endIndex)
+        notEndIndex = xcode_select_path.characters.index(before: notEndIndex)
+        xcode_select_path = xcode_select_path.prefix(to: notEndIndex)
+        return xcode_select_path
+        #else
+        //on linux, let's just use /Applications/Xcode.app
+        return "/Applications/Xcode.app/Contents/Developer"
+        #endif
+    }
 
     //generic platforms
     case iOSGeneric
@@ -117,22 +177,27 @@ public enum Platform {
     var sdkPath: String? {
         switch(self) {
             case .OSX:
+                //look for a current-generation path
                 if Platform.isXcode7 {
-                    return "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
+                    return "\(Platform.developerPath)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
                 }
-                return "/Applications/Xcode-beta.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+                return "\(Platform.developerPath)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
             case .Linux:
                 return nil
             case .iOS(.x86_64), .iOS(.i386):
                 if Platform.isXcode7 {
-                    return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.3.sdk"
+                    return "\(Platform.developerPath)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.3.sdk"
                 }
-                return "/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk"
+                else {
+                    return "\(Platform.developerPath)/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk"
+                }
             case .iOS(.armv7), .iOS(.arm64):
                 if Platform.isXcode7 {
-                    return "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk"
+                    return "\(Platform.developerPath)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk"
                 }
-                return "/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+                else {
+                    return "\(Platform.developerPath)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+                }
             case .iOSGeneric:
                 fatalError("No SDK for generic iOS platform; choose a specific platform or use atbin")
         }
@@ -251,7 +316,6 @@ func findToolPath(toolName: String) -> Path {
         if toolName == "swift-build-tool" {
             let sbtPath = Path("\(Platform.hostPlatform.defaultToolchainPath)/usr/bin/\(toolName)")
             if FS.fileExists(path: sbtPath) { return sbtPath }
-
         }
     }
     else {

@@ -109,6 +109,10 @@ func waitpid(_ pid: pid_t) -> Int32 {
 ///- note: This function call is appropriate for commands that are user-perceivable (such as compilation)
 ///Rather than calls that aren't
 func anarchySystem(_ cmd: String, environment: [String: String]) {
+    var output = ""
+    anarchySystem(cmd, environment: environment, redirectOutput: &output, shouldRedirectOutput: false)
+}
+func anarchySystem(_ cmd: String, environment: [String: String],redirectOutput: inout String, shouldRedirectOutput: Bool = true) {
     var pid : pid_t = 0
     //copy a few well-known values
     var environment = environment
@@ -117,7 +121,10 @@ func anarchySystem(_ cmd: String, environment: [String: String]) {
             environment[arg] = String(validatingUTF8: path)!
         }
     }
-    
+    var cmd = cmd
+    if shouldRedirectOutput {
+        cmd += ">/tmp/anarchySystem.out"
+    }
     let args: [String] =  ["sh","-c",cmd]
     let argv = args.map{ $0.withCString(strdup) }
     let env: [UnsafeMutablePointer<CChar>?] = environment.map{ "\($0.0)=\($0.1)".withCString(strdup) }
@@ -125,7 +132,7 @@ func anarchySystem(_ cmd: String, environment: [String: String]) {
     let directory = try! FS.getWorkingDirectory()
     defer {try! FS.changeWorkingDirectory(path: directory)}
     if let e = environment["PWD"] {
-        try! FS.changeWorkingDirectory(path: Path(environment["PWD"]!))
+        try! FS.changeWorkingDirectory(path: Path(e))
     }
     let status = posix_spawn(&pid, "/bin/sh",nil,nil,argv + [nil],env + [nil])
 
@@ -134,8 +141,9 @@ func anarchySystem(_ cmd: String, environment: [String: String]) {
         fatalError("spawn error \(status)")
     }
 
-    let returnCode = try! waitpid(pid)
-    if returnCode != 0 {
-        fatalError("process \(cmd) error \(returnCode)")
+    let returnCode = waitpid(pid)
+    if shouldRedirectOutput {
+        redirectOutput = try! File(path: Path("/tmp/anarchySystem.out"), mode:.ReadOnly).readAll()!
     }
+    if returnCode != 0 { exit(1) }
 }

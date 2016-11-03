@@ -17,7 +17,7 @@
 (package
   :name "atbuild"
   :import-packages ["atpkg/build.atpkg"]
-  :version "1.8.0"
+  :version "1.9.0"
   :tasks {
     :atbuild {
       :tool "atllbuild"

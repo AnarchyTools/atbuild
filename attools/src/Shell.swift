@@ -72,13 +72,12 @@ final class Shell : Tool {
         environment["ATBUILD_BIN_PATH"] = binPath.description
 
         environment["PWD"]=String(validatingUTF8: realpath(task.importedPath.description,nil))!
-        print("pwd set to",environment["PWD"]!)
         return environment
     }
     func run(task: Task) {
         guard var script = task["script"]?.string else { fatalError("Invalid 'script' argument to shell tool.") }
         script = evaluateSubstitutions(input: script, package: task.package)
         let env = Shell.environment(task: task)
-        anarchySystem(script, environment: env)
+        anarchySystem(script, additionalEnvironment: env)
     }
 }

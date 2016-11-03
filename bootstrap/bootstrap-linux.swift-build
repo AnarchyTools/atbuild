@@ -19,10 +19,10 @@ commands:
      module-name: atbuild
      module-output-path: .atllbuild/products/atbuild.swiftmodule
      temps-path: .atllbuild/llbuildtmp
-     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-g", "-DATBUILD_DEBUG"]
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-I", ".atllbuild/include/attools", "-I", ".atllbuild/include/atenvironment", "-g", "-DATBUILD_DEBUG"]
   <atllbuild>:
     tool: shell
-    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
+    inputs: ["<atllbuild-swiftc>", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a", ".atllbuild/products/atenvironment.a"]
     outputs: ["<atllbuild>", ".atllbuild/products/atbuild"]
-    args: ["//usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a"]
+    args: ["//usr/local/bin/swiftc", "-o", ".atllbuild/products/atbuild", ".atllbuild/objects/main.swift.o", ".atllbuild/products/attools.a", ".atllbuild/products/atpkg.a", ".atllbuild/products/atfoundation.a", ".atllbuild/products/atenvironment.a"]
     description: Linking executable .atllbuild/products/atbuild

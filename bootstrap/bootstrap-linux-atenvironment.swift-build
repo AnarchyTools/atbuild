@@ -1,0 +1,34 @@
+client:
+  name: swift-build
+
+tools: {}
+
+targets:
+  "": [<atllbuild>]
+  atllbuild: [<atllbuild>]
+commands:
+  <atllbuild-swiftc>:
+     tool: swift-compiler
+     executable: "//usr/local/bin/swiftc"
+     inputs: ["atenvironment/environment.swift"]
+     sources: ["atenvironment/environment.swift"]
+     objects: [".atllbuild/objects/environment.swift.o"]
+     outputs: ["<atllbuild-swiftc>", ".atllbuild/objects/environment.swift.o"]
+     enable-whole-module-optimization: false
+     num-threads: 8
+     is-library: true
+     module-name: atenvironment
+     module-output-path: .atllbuild/products/atenvironment.swiftmodule
+     temps-path: .atllbuild/llbuildtmp
+     other-args: ["-j8", "-D", "ATBUILD", "-I", ".atllbuild/products/", "-I", ".atllbuild/include/", "-import-underlying-module", "-g", "-DATBUILD_DEBUG"]
+  <atllbuild-environment>:
+    tool: shell
+    inputs: ["atenvironment/environment.c"]
+    outputs: [".atllbuild/objects/environment.c.o"]
+    args: ["clang", "-c", "atenvironment/environment.c", "-o", ".atllbuild/objects/environment.c.o", "-g", "-DATBUILD_DEBUG"]
+  <atllbuild>:
+    tool: shell
+    inputs: ["<atllbuild-swiftc>", "<atllbuild-environment>", ".atllbuild/objects/environment.swift.o", ".atllbuild/objects/environment.c.o"]
+    outputs: ["<atllbuild>", ".atllbuild/products/atenvironment.a"]
+    args: ["/bin/sh","-c",rm -rf .atllbuild/products/atenvironment.a; ar cr '.atllbuild/products/atenvironment.a' '.atllbuild/objects/environment.swift.o' '.atllbuild/objects/environment.c.o']
+    description: "Linking Library:  .atllbuild/products/atenvironment.a"

@@ -18,6 +18,11 @@ mkdir -p .atllbuild/objects
 
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-atfoundation.swift-build --no-db
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-atpkg.swift-build --no-db
+mkdir -p .atllbuild/include
+cp bootstrap/atenvironment.modulemap .atllbuild/include/module.modulemap
+$SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-atenvironment.swift-build --no-db
+mkdir -p .atllbuild/include/atenvironment
+cp bootstrap/atenvironment.public.modulemap .atllbuild/include/atenvironment/module.modulemap
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM-attools.swift-build --no-db
 $SWIFT_BUILD_TOOL -f bootstrap/bootstrap-$PLATFORM.swift-build --no-db
 

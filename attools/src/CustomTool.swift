@@ -25,6 +25,6 @@ final class CustomTool: Tool {
             cmd += "--\(key) \"\(evaluateSubstitutions(input: value, package: task.package))\" "
         }
         let env = Shell.environment(task: task)
-        anarchySystem(cmd,environment: env)
+        anarchySystem(cmd,additionalEnvironment: env)
     }
 }

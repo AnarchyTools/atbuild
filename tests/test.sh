@@ -13,6 +13,12 @@ echo "****************SELF-HOSTING TEST**************"
 
 $ATBUILD atbuild
 
+echo "****************ENVIRONMENT VARIABLE TEST**************"
+cd $DIR/tests/fixtures/environment
+
+export ENVIRONMENT_VARIABLE=VALUE_WITH_EQUALS_SIGN=WORKS
+$ATBUILD 
+
 echo "****************DT TEST**************"
 cd $DIR/tests/fixtures/deployment_target
 

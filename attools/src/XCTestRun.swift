@@ -62,12 +62,12 @@ class XCTestRun : Tool {
                 s += "</dict>\n"
                 s += "</plist>\n"
                 try s.write(to: workingDirectory + "XCTestRun.xctest/Contents/Info.plist")
-                anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest", environment: [:])
+                anarchySystem("xcrun xctest \(workingDirectory)/XCTestRun.xctest")
             } catch {
                 fatalError("Could not run XCTest: \(error)")
             }
             case .Linux:
-            anarchySystem("\(testExecutable)", environment: [:])
+            anarchySystem("\(testExecutable)")
 
 			case .iOS, .iOSGeneric:
             fatalError("XCTestRun is not supported for iOS")

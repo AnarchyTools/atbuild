@@ -635,14 +635,19 @@ final class ATllbuild : Tool {
             else {
                 deploymentTarget = Platform.targetPlatform.standardDeploymentTarget
             }
-            
+
             let targetTuple = ["-target",Platform.targetPlatform.nonDeploymentTargetTargetTriple + deploymentTarget]
             compileOptions.append(contentsOf: targetTuple)
             linkOptions.append(contentsOf: targetTuple)
+
             cCompileOptions.append(contentsOf: targetTuple)
             cCompileOptions.append(contentsOf: ["-isysroot",Platform.targetPlatform.sdkPath!])
             linkOptions.append(contentsOf: ["-Xlinker", "-syslibroot","-Xlinker",Platform.targetPlatform.sdkPath!])
-            case .OSX, .Linux:
+            case .OSX:
+                //we require sysroot
+                cCompileOptions.append(contentsOf: ["-isysroot",Platform.targetPlatform.sdkPath!])
+
+            case .Linux:
                 break //not required
             case .iOSGeneric:
                 fatalError("Generic platform iOS cannot be used with atllbuild; choose a specific platform or use atbin")
@@ -775,7 +780,7 @@ final class ATllbuild : Tool {
         }
 
         let cmd = "\(findToolPath(toolName: "swift-build-tool")) -f \(llbuildyamlpath)"
-        anarchySystem(cmd, environment: [:])
+        anarchySystem(cmd)
         if task[Options.PublishProduct.rawValue]?.bool == true {
             do {
                 if !FS.isDirectory(path: Path("bin")) {

@@ -24,7 +24,7 @@
       :sources ["atbuild/src/**.swift"]
       :name "atbuild"
       :output-type "executable"
-      :link-with-product ["attools.a" "atpkg.a" "atfoundation.a"]
+      :link-with-product ["attools.a" "atpkg.a" "atfoundation.a" "atenvironment.a"]
       :dependencies ["attools" "atpkg.atpkg" "atfoundation.atfoundation"]
       :publish-product true
       
@@ -49,8 +49,9 @@
       :sources ["attools/src/**.swift"]
       :name "attools"
       :output-type "static-library"
-      :dependencies ["atpkg.atpkg"]
-      :link-with-product ["atpkg.a"]
+      :dependencies ["atpkg.atpkg" "atenvironment"]
+      :link-with-product ["atpkg.a" "atenvironment.a"]
+      :module-map "synthesized"
       :overlays {
         :bootstrap-osx {
           :bootstrap-only true
@@ -60,6 +61,27 @@
           :bootstrap-only true
           :link-sdk false
           :llbuildyaml "bootstrap/bootstrap-linux-attools.swift-build"
+        }
+      }
+    }
+
+    :atenvironment {
+      :tool "atllbuild"
+      :sources ["atenvironment/environment.h" "atenvironment/environment.c" "atenvironment/environment.swift"]
+      :name "atenvironment"
+      :output-type "static-library"
+      :dependencies ["atfoundation.atfoundation"]
+      :module-map "synthesized"
+      :link-with-product ["atfoundation.a"]
+      :overlays {
+        :bootstrap-osx {
+          :bootstrap-only true
+          :llbuildyaml "bootstrap/bootstrap-macosx-atenvironment.swift-build"
+        }
+        :bootstrap-linux {
+          :bootstrap-only true
+          :link-sdk false
+          :llbuildyaml "bootstrap/bootstrap-linux-atenvironment.swift-build"
         }
       }
     }

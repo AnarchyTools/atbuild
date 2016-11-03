@@ -144,7 +144,7 @@ class PackageAtbin:Tool {
             for platform in targetPlatforms {
                 lipoCmd += "-arch \(platform.architecture) .atllbuild/lipo/\(payloadFileName).\(platform) "
             }
-            anarchySystem(lipoCmd, environment: [:])
+            anarchySystem(lipoCmd)
         }
 
         //generate compiled.atpkg
@@ -184,7 +184,7 @@ class PackageAtbin:Tool {
                 default:
                 fatalError("Unsupported host platform \(Platform.hostPlatform)")
             }
-            anarchySystem(cmd, environment: [:])
+            anarchySystem(cmd)
         }
     }
 }

@@ -106,7 +106,7 @@ public enum Platform {
         //assuming that failed, try xcode-select
         #if os(OSX)
         var xcode_select_path = ""
-        anarchySystem("xcode-select -p", environment:[:], redirectOutput: &xcode_select_path)
+        anarchySystem("xcode-select -p", redirectOutput: &xcode_select_path)
         //lop off the newline
         var notEndIndex = xcode_select_path.characters.index(before: xcode_select_path.characters.endIndex)
         notEndIndex = xcode_select_path.characters.index(before: notEndIndex)

@@ -99,6 +99,6 @@ class PackageFramework: Tool {
         //codesign
         let cmd = "codesign --force --deep --sign - --timestamp=none '\(AVersionPath)'"
         print(cmd)
-        anarchySystem(cmd, environment: [:])
+        anarchySystem(cmd, additionalEnvironment: [:])
     }
 }

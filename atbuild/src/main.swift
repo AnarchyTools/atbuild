@@ -104,7 +104,22 @@ func usage() {
 
     if let p = package {
         print("tasks:")
-        for (key, _) in p.tasks {
+        for (key, _) in p.tasks.sorted(by: {
+            let lp = $0.0.value.package, rp = $0.1.value.package
+            //sort the outer package on top
+            if lp.name == p.name && rp.name != p.name {return true }
+            if lp.name != p.name && rp.name == p.name {return false}
+            //sort other packages alphabetically
+            if lp.name != rp.name {
+                return lp.name < rp.name
+            }
+            //within a package, sort the "default" task first
+            if $0.0.value.unqualifiedName == "default" && $0.1.value.unqualifiedName != "default" { return true }
+            if $0.0.value.unqualifiedName != "default" && $0.1.value.unqualifiedName == "default" { return false }
+            
+            //sort remaining tasks by name
+            return $0.0.key < $0.1.key}
+            ) {
             print("    \(key)")
         }
     }

@@ -326,7 +326,8 @@ final class ATllbuild : Tool {
                 Framework,
                 ExecutableName,
                 Bitcode,
-                Magic
+                Magic,
+                DeploymentTarget
             ]
         }
     }
@@ -643,9 +644,24 @@ final class ATllbuild : Tool {
             cCompileOptions.append(contentsOf: targetTuple)
             cCompileOptions.append(contentsOf: ["-isysroot",Platform.targetPlatform.sdkPath!])
             linkOptions.append(contentsOf: ["-Xlinker", "-syslibroot","-Xlinker",Platform.targetPlatform.sdkPath!])
+            
             case .OSX:
-                //we require sysroot
-                cCompileOptions.append(contentsOf: ["-isysroot",Platform.targetPlatform.sdkPath!])
+            //we require sysroot
+            cCompileOptions.append(contentsOf: ["-isysroot",Platform.targetPlatform.sdkPath!])
+            //deployment target
+            let deploymentTarget: String
+            if let _deploymentTarget = task[Options.DeploymentTarget.rawValue]?.string {
+                deploymentTarget = _deploymentTarget
+            }
+            else {
+                deploymentTarget = Platform.targetPlatform.standardDeploymentTarget
+            }
+            let targetTuple = ["-target",Platform.targetPlatform.nonDeploymentTargetTargetTriple + deploymentTarget]
+            compileOptions.append(contentsOf: targetTuple)
+            linkOptions.append(contentsOf: targetTuple)
+
+            cCompileOptions.append(contentsOf: targetTuple)
+
 
             case .Linux:
                 break //not required

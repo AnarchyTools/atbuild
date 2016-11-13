@@ -255,7 +255,9 @@ public enum Platform {
 
     var standardDeploymentTarget: String {
         switch(self) {
-            case .OSX, .Linux, .iOSGeneric:
+            case .OSX:
+            return "10.12"
+            case .Linux, .iOSGeneric:
             fatalError("Not implemented")
 
             case .iOS:
@@ -266,7 +268,9 @@ public enum Platform {
 
     var nonDeploymentTargetTargetTriple: String {
         switch(self) {
-            case .OSX, .Linux, .iOSGeneric:
+            case .OSX:
+            return "x86_64-apple-macosx"
+            case .Linux, .iOSGeneric:
             fatalError("Not implemented")
 
             case .iOS(let arch):

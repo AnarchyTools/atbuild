@@ -131,7 +131,7 @@ func usage() {
 }
 
 do {
-    package = try Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask)
+    package = try Package(filepath: packageFile, overlay: overlays, focusOnTask: focusOnTask, softFail: true)
 } catch {
     print("Could not load package file: \(error)")
     usage()
